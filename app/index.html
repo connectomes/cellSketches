@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en" class="no-js"> <!--<![endif]-->
+<html lang="en" class="no-js">
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>My AngularJS App</title>
+    <title>Cell Sketches</title>
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="bower_components/html5-boilerplate/dist/css/normalize.css">
@@ -15,8 +15,8 @@
 <body ng-app="formExample">
 <div ng-controller="ExampleController">
     <form novalidate class="simple-form">
-        Cell ID: <input type="number" ng-model="cell.name" /><br />
-        <input type="submit" ng-click="update(cell)" value="Save" />
+        Cell ID: <input type="number" ng-model="cell.name" />
+        <input type="submit" ng-click="update(cell)" value="Do it!" />
     </form>
     <pre>master = {{master | json}}</pre>
     <pre>children count = {{ childStructureCount | json}}</pre>
