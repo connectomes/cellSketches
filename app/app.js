@@ -52,12 +52,12 @@ myApp.directive('helloD3', function () {
 
         console.log("Hello d3");
 
-        var margin = {top: 20, right: 20, bottom: 30, left: 40},
+        var margin = {top: 20, right: 20, bottom: 30, left: 150},
             width = 960 - margin.left - margin.right,
-            height = 500 - margin.top - margin.bottom;
+            height = 300 - margin.top - margin.bottom;
 
-        var xScale = d3.scale.ordinal();
-        var yScale = d3.scale.linear();
+        var yScale = d3.scale.ordinal();
+        var xScale = d3.scale.linear();
 
         var xAxis = d3.svg.axis();
         var yAxis = d3.svg.axis();
@@ -85,15 +85,15 @@ myApp.directive('helloD3', function () {
             var dataset = d3.zip(keys, values);
 
             // Update domain and range.
-            xScale.domain(dataset.map(function (d) {
+            yScale.domain(dataset.map(function (d) {
                 return d[0];
             }))
-                .rangeRoundBands([margin.left, width], 0.05);
+                .rangeRoundBands([margin.bottom, height], 0.05);
 
-            yScale.domain([0, d3.max(dataset, function (d) {
+            xScale.domain([0, d3.max(dataset, function (d) {
                 return d[1];
             })])
-                .range([height, 0]);
+                .range([0, width]);
 
 
             xAxis.scale(xScale)
@@ -110,29 +110,22 @@ myApp.directive('helloD3', function () {
 
             svg.append("g")
                 .attr("class", "y axis")
-                .call(yAxis)
-                .append("text")
-                .attr("transform", "rotate(-90)")
-                .attr("y", 6)
-                .attr("dy", ".71em")
-                .style("text-anchor", "end")
-                .text("Frequency");
+                .call(yAxis);
 
             svg.selectAll("rect")
                 .data(dataset)
-                .enter().append("rect")
+                .enter()
+                .append("rect")
+                .attr("class", "bar")
                 .attr("x", function (d, i) {
-                    return xScale(d[0]);
+                    return 0;
                 })
                 .attr("y", function (d) {
-                    return yScale(d[1]);
+                    return yScale(d[0]);
                 })
-                .attr("width", xScale.rangeBand())
-                .attr("height", function (d) {
-                    return height - yScale(d[1]);
-                })
-                .attr("fill", function (d) {
-                    return "rgb(0, 0, " + (d[1] * 10) + ")";
+                .attr("height", yScale.rangeBand())
+                .attr("width", function (d) {
+                    return xScale(d[1]);
                 });
         });
 

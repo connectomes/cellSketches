@@ -43,10 +43,6 @@
 .axis path,
 .axis line {
   fill: none;
-  stroke: #000;
+  stroke: DarkGray;
   shape-rendering: crispEdges;
-}
-
-.x.axis path {
-  display: none;
 }
