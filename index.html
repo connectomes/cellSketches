@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Cell Sketches</title>
+    <script src="bower_components/angular/angular.js"></script>
+    <script src="bower_components/datajs/datajs-1.1.2.js"></script>
+    <script src="bower_components/d3/d3.js"></script>
+    <script src="bower_components/nvd3/nv.d3.js"></script>
+    <script src="bower_components/angular-nvd3/dist/angular-nvd3.js"></script>
+</head>
+
+<body ng-app="formExample" ng-controller="ExampleController">
+
+<div>
+    <form novalidate class="simple-form">
+        Cell ID: <input type="number" ng-model="cell.name"/>
+        <input type="submit" ng-click="update(cell)" value="Do it!"/>
+    </form>
+</div>
+<div>
+    <nvd3 options="options" data="data"></nvd3>
+</div>
+<div>
+    <pre>master = {{master | json}}</pre>
+    <pre>children count = {{ childStructureCount | json}}</pre>
+    <pre>details = {{results | json}}</pre>
+</div>
+
+<script>
+    // Setup odata service.
+    var serviceURL = "http://websvc1.connectomes.utah.edu/RC1/OData/ConnectomeData.svc/";
+    OData.defaultHttpClient.enableJsonpCallback = true;
+
+    // Create url to request structure ids.
+    var requestURL = serviceURL + "StructureTypes";
+    var structureTypes = Object();
+
+    // Build map of structure ids
+    OData.read(requestURL, function (data) {
+        console.log("success");
+        for (var i = 0; i < data.results.length; i++) {
+            structureTypes[data.results[i].ID] = data.results[i].Name;
+        }
+    }, function (err) {
+        console.log("shit");
+        console.log(err);
+    });
+
+    angular.module('formExample', ['nvd3'])
+            .controller('ExampleController', ['$scope', function ($scope) {
+
+                $scope.master = {};
+                $scope.results = {};
+                $scope.childStructureCount = {};
+
+                console.log($scope.data);
+
+                $scope.options = {
+                    chart: {
+                        type: 'discreteBarChart',
+                        height: 450,
+                        tooltips: true,
+                        x: function (d) {
+                            return d.label;
+                        },
+                        y: function (d) {
+                            return d.value;
+                        },
+                        showValues: true,
+                        valueFormat: function (d) {
+                            return d3.format(',.4f')(d);
+                        },
+                        transitionDuration: 500,
+                        xAxis: {
+                            axisLabel: 'X Axis'
+                        },
+                        yAxis: {
+                            axisLabel: 'Y Axis',
+                            axisLabelDistance: 30
+                        }
+                    }
+                };
+                $scope.data = [
+                    {
+                        key: "Cumulative Return",
+                        values: [
+                            {
+                                "label": "A",
+                                "value": -29.765957771107
+                            },
+                            {
+                                "label": "B",
+                                "value": 0
+                            },
+                            {
+                                "label": "C",
+                                "value": 32.807804682612
+                            },
+                            {
+                                "label": "D",
+                                "value": 196.45946739256
+                            },
+                            {
+                                "label": "E",
+                                "value": 0.19434030906893
+                            },
+                            {
+                                "label": "F",
+                                "value": -98.079782601442
+                            },
+                            {
+                                "label": "G",
+                                "value": -13.925743130903
+                            },
+                            {
+                                "label": "H",
+                                "value": -5.1387322875705
+                            }
+                        ]
+                    }
+                ];
+                console.log($scope.data);
+                $scope.update = function (cell) {
+                    // Build request for cell
+                    $scope.master = angular.copy(cell);
+                    requestURL = serviceURL + "Structures(" + cell.name + "L)\\Children";
+
+                    // Try to read. Alert angular of updates to scope.
+                    OData.read(requestURL, function (data) {
+                        $scope.$apply(function () {
+                            $scope.results = angular.copy(data);
+                        });
+
+                        var childStructureCount = {};
+                        for (var i = 0; i < data.results.length; i++) {
+                            var typeId = structureTypes[data.results[i].TypeID];
+                            if (childStructureCount[typeId]) {
+                                childStructureCount[typeId]++;
+                            }
+                            else {
+                                childStructureCount[typeId] = 1;
+                            }
+                        }
+
+                        var data = [];
+                        for (var key in childStructureCount) {
+                            var temp = {
+                                "label": key,
+                                "series": 0,
+                                "value": childStructureCount[key]
+                            };
+                            data.push(temp);
+                        }
+
+                        console.log(data);
+                        var myData = [{
+                            key: "Cumulative return",
+                            values: data
+                        }];
+                        console.log(myData);
+
+                        $scope.data = angular.copy(myData);
+
+                        $scope.$apply(function () {
+                            $scope.childStructureCount = angular.copy(childStructureCount);
+                        });
+
+                    }, function (err) {
+                        $scope.$apply(function () {
+                            $scope.results = err;
+                        });
+                    });
+                };
+
+                $scope.reset = function () {
+                    $scope.cell = angular.copy($scope.master);
+                };
+
+                $scope.reset();
+            }]);
+</script>
+</body>
+</html>
