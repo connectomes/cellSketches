@@ -8,10 +8,11 @@
     <script src="bower_components/datajs/datajs-1.1.2.js"></script>
     <script src="bower_components/d3/d3.js"></script>
     <script src="app/app.js"></script>
+    <script src="app/queries.js"></script>
     <link rel="stylesheet" type="text/css" href="app/app.css">
 </head>
 
-<body ng-app="formExample" ng-controller="ExampleController">
+<body ng-app="formExample" ng-controller="ExampleController as ctrl">
 
 <div>
     <form novalidate class="simple-form">
@@ -19,33 +20,12 @@
         <input type="submit" ng-click="update(cell)" value="Do it!"/>
     </form>
 </div>
-<hello-d3 child-structure-count="childStructureCount"></hello-d3>
+ <hello-d3 child-structure-count="childStructureCount"></hello-d3>
 <div>
     <pre>master = {{master | json}}</pre>
     <pre>children count = {{ childStructureCount | json}}</pre>
     <pre>details = {{results | json}}</pre>
 </div>
 
-<script>
-    // Setup odata service.
-    var serviceURL = "http://websvc1.connectomes.utah.edu/RC1/OData/ConnectomeData.svc/";
-    OData.defaultHttpClient.enableJsonpCallback = true;
-
-    // Create url to request structure ids.
-    var requestURL = serviceURL + "StructureTypes";
-    var structureTypes = Object();
-
-    // Build map of structure ids
-    OData.read(requestURL, function (data) {
-        console.log("success");
-        for (var i = 0; i < data.results.length; i++) {
-            structureTypes[data.results[i].ID] = data.results[i].Name;
-        }
-    }, function (err) {
-        console.log("shit");
-        console.log(err);
-    });
-
-</script>
 </body>
 </html>

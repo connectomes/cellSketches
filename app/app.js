@@ -5,7 +5,9 @@ myApp.controller('ExampleController', ['$scope', function ($scope) {
     $scope.master = {};
     $scope.master.name = 6117;
     $scope.results = {};
-    $scope.childStructureCount = {};
+    $scope.childStructureCount = null;
+
+    $scope.structureMap = getStructureMap();
 
     $scope.update = function (cell) {
         // Build request for cell
@@ -14,17 +16,20 @@ myApp.controller('ExampleController', ['$scope', function ($scope) {
 
         // Try to read. Alert angular of updates to scope.
         OData.read(requestURL, function (data) {
+
             $scope.$apply(function () {
                 $scope.results = angular.copy(data);
             });
 
-            var childStructureCount = new Map();
+
+            var childStructureCount = d3.map();
             for (var i = 0; i < data.results.length; i++) {
-                var typeId = structureTypes[data.results[i].TypeID];
-                if (typeId in childStructureCount) {
-                    childStructureCount[typeId]++;
+                var currName = $scope.structureMap.get(data.results[i].TypeID);
+                if (childStructureCount.has(currName)) {
+                    var currValue = childStructureCount.get(currName);
+                    childStructureCount.set(currName, currValue + 1);
                 } else {
-                    childStructureCount[typeId] = 1;
+                    childStructureCount.set(currName, 1);
                 }
             }
 
@@ -37,6 +42,8 @@ myApp.controller('ExampleController', ['$scope', function ($scope) {
                 $scope.results = err;
             });
         });
+
+
     };
 
     $scope.reset = function () {
@@ -70,31 +77,22 @@ myApp.directive('helloD3', function () {
 
         scope.$watch('childStructureCount', function (childStructureCount) {
 
+            if (!childStructureCount)
+                return;
+
+            var dataset = childStructureCount;
+
+            // Clear svg.
             svg.selectAll("*").remove();
 
-            console.log(childStructureCount);
-
-            // Get data ready for d3.
-            keys = [];
-            values = [];
-            for (var i in childStructureCount) {
-                keys.push(i);
-                values.push(childStructureCount[i]);
-            }
-
-            var dataset = d3.zip(keys, values);
-
             // Update domain and range.
-            yScale.domain(dataset.map(function (d) {
-                return d[0];
+            yScale.domain(dataset.keys().map(function (d) {
+                return d;
             }))
                 .rangeRoundBands([margin.bottom, height], 0.05);
 
-            xScale.domain([0, d3.max(dataset, function (d) {
-                return d[1];
-            })])
+            xScale.domain([0, d3.max(dataset.values())])
                 .range([0, width]);
-
 
             xAxis.scale(xScale)
                 .orient("bottom");
@@ -113,7 +111,7 @@ myApp.directive('helloD3', function () {
                 .call(yAxis);
 
             svg.selectAll("rect")
-                .data(dataset)
+                .data(d3.zip(dataset.keys(), dataset.values()))
                 .enter()
                 .append("rect")
                 .attr("class", "bar")
@@ -128,14 +126,10 @@ myApp.directive('helloD3', function () {
                     return xScale(d[1]);
                 });
         });
-
     }
 
     return {
         link: link,
-        restrict: 'E',
-        scope: {
-            childStructureCount: '='
-        }
+        restrict: 'E'
     };
 });
