@@ -7,7 +7,7 @@ OData.defaultHttpClient.enableJsonpCallback = true;
 
 var getData = function(requestURL, callback) {
     OData.read(requestURL, callback, function(err) {
-        console.log("shit");
+        console.log("Warning - query failed " + err);
     })
 };
 

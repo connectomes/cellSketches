@@ -3,11 +3,18 @@
 
 <head>
     <meta charset="utf-8">
+
     <title>Cell Sketches</title>
+
     <script src="bower_components/angular/angular.js"></script>
     <script src="bower_components/datajs/datajs-1.1.2.js"></script>
     <script src="bower_components/d3/d3.js"></script>
+
     <script src="app/app.js"></script>
+
+    <script src="app/childBarChart.directive.js"></script>
+    <script src="app/depthPlot.directive.js"></script>
+
     <script src="app/queries.js"></script>
     <link rel="stylesheet" type="text/css" href="app/app.css">
 </head>
@@ -20,7 +27,8 @@
         <input type="submit" ng-click="update(cell)" value="Do it!"/>
     </form>
 </div>
- <hello-d3 child-structure-count="childStructureCount"></hello-d3>
+
+<child-bar-chart child-structure-count="childStructureCount"></child-bar-chart>
 
 <location-plot depth-count="depthCount"></location-plot>
 <div>
