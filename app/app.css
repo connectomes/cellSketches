@@ -46,3 +46,8 @@
   stroke: DarkGray;
   shape-rendering: crispEdges;
 }
+
+#chart .c3-line {
+  stroke: white;
+  fill: none;
+}

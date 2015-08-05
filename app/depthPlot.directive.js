@@ -2,7 +2,7 @@
  * Copyright (c) Ethan Kerzner 2015
  */
 
-myApp.directive('locationPlot', function () {
+myApp.directive('depthPlot', function () {
 
     function link(scope, el, attr) {
 
@@ -10,7 +10,7 @@ myApp.directive('locationPlot', function () {
 
         var margin = {top: 20, right: 20, bottom: 30, left: 150},
             width = 960 - margin.left - margin.right,
-            height = 960 - margin.top - margin.bottom;
+            height = 680 - margin.top - margin.bottom;
 
         var yScale = d3.scale.linear();
         var xScale = d3.scale.linear();
