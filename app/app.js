@@ -27,9 +27,7 @@ myApp.controller('ExampleController', ['$scope', function ($scope) {
 
     $scope.results = {};
 
-    $scope.structureMap = null;
-
-
+    $scope.structureMap = d3.map();
 
     /* Self functions */
 
@@ -163,8 +161,13 @@ myApp.controller('ExampleController', ['$scope', function ($scope) {
                 childDepthCounts.set(currTypeID, currMap);
             }
 
+            var newMap = d3.map();
+            childDepthCounts.forEach(function(key, value) {
+                newMap.set($scope.structureMap.get(key), value);
+            });
+
             $scope.$apply(function () {
-                $scope.childDepthCount = childDepthCounts;
+                $scope.childDepthCount = newMap;
             });
 
         }, function (err) {

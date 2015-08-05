@@ -24,13 +24,23 @@ myApp.directive('childDepthPlot', function () {
     self.width = 960 - self.margin.left - self.margin.right;
 
     self.smallMultipleWidth = 0;
-    
-    self.height = 680 - self.margin.top - self.margin.bottom;
+
+    self.height = 400 - self.margin.top - self.margin.bottom;
+
+    self.padding = 20;
+
+    self.smallMultiples = [];
     /* Member stuff */
 
     self.addData = function (name, dataset) {
+
+
         var currIndex = self.numDatasets++;
         var currColor = self.colors[currIndex];
+        var currGroup = self.svg.append("g");
+        currGroup.attr({
+            "transform": "translate(" + ((padding * currIndex) + (self.smallMultipleWidth * currIndex)) + ", 0)"
+        });
 
         var line = d3.svg.line()
             .x(function (d) {
@@ -44,8 +54,18 @@ myApp.directive('childDepthPlot', function () {
             return d.length
         }));
 
+        currGroup.append("text")
+            .text(name)
+            .attr({
+                x: self.smallMultipleWidth / 2,
+                fill: currColor
+            })
+            .style({
+                "font-size": "8px",
+                "text-anchor": "middle"
+            });
 
-        self.svg.selectAll("circle")
+        currGroup.selectAll("circle")
             .data(test)
             .enter()
             .append("circle")
@@ -59,21 +79,42 @@ myApp.directive('childDepthPlot', function () {
                 r: 1.0
             })
             .style({
-                stroke: "black"
+                stroke: currColor
             });
 
 
-        self.svg.append("svg:path").attr(
+        currGroup.append("svg:path").attr(
             {
                 d: function (d) {
                     return line(test);
                 }
             })
             .style({
-                "stroke-width": 2,
+                "stroke-width": 0.4,
                 "stroke": currColor,
                 "fill": "none"
             });
+
+        if (currIndex == 0) {
+            currGroup.append("g")
+                .attr("class", "x axis")
+                .attr("transform", "translate(0," + self.height + ")")
+                .call(self.xAxis);
+
+            currGroup.append("g")
+                .attr("class", "y axis")
+                .call(self.yAxis);
+        }else {
+            currGroup.append("g")
+                .attr("class", "x axis")
+                .attr("transform", "translate(0," + self.height + ")")
+                .call(self.xAxisNoTicks);
+
+            currGroup.append("g")
+                .attr("class", "y axis")
+                .call(self.yAxisNoTicks);
+        }
+
 
     };
 
@@ -86,36 +127,42 @@ myApp.directive('childDepthPlot', function () {
 
         var yMax = 0;
         var xMax = 0;
-
-        childDepthCount.forEach(function(key, value) {
+        var numDatasets = 0;
+        childDepthCount.forEach(function (key, value) {
             var depths = value.keys();
             var currY = depths[depths.length - 1];
 
-            var currX = d3.max(value.values().map(function(d) {
+            var currX = d3.max(value.values().map(function (d) {
                 return d.length;
             }));
 
             yMax = currY > yMax ? currY : yMax;
             xMax = currX > xMax ? currX : xMax;
-        } );
+
+            numDatasets++;
+        });
 
         self.yScale = d3.scale.linear();
         self.xScale = d3.scale.linear();
 
-        self.yScale.domain([0, yMax])
+        self.yScale.domain([0, 300])
             .range([0, self.height]);
 
+        self.smallMultipleWidth = (self.width - (padding * (numDatasets - 1))) / numDatasets;
 
         self.xScale.domain([0, xMax])
-            .range([0, self.width]);
+            .range([0, self.smallMultipleWidth]);
     };
 
     /* Angular shit */
 
     function link(scope, el, attr) {
 
-        var xAxis = d3.svg.axis();
-        var yAxis = d3.svg.axis();
+        self.xAxis = d3.svg.axis().ticks(4);
+        self.yAxis = d3.svg.axis();
+
+        self.xAxisNoTicks = d3.svg.axis().tickFormat(function(d) { return ''; }).ticks(4);
+        self.yAxisNoTicks = d3.svg.axis().tickFormat(function(d) { return ''; });
 
         self.svg = d3.select(el[0]).append('svg')
             .attr("width", self.width + self.margin.left + self.margin.right)
@@ -141,6 +188,13 @@ myApp.directive('childDepthPlot', function () {
             yAxis.scale(self.yScale)
                 .orient("left");
 
+            xAxisNoTicks.scale(self.xScale)
+                .orient("bottom");
+
+            yAxisNoTicks.scale(self.yScale)
+                .orient("left");
+
+
             self.svg.append("g")
                 .attr("class", "x axis")
                 .attr("transform", "translate(0," + self.height + ")")
@@ -150,7 +204,7 @@ myApp.directive('childDepthPlot', function () {
                 .attr("class", "y axis")
                 .call(yAxis);
 
-            childDepthCount.forEach(function(key, value) {
+            childDepthCount.forEach(function (key, value) {
                 self.addData(key, value);
             });
         });
