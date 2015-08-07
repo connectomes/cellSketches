@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Bounding Box</title>
+    <script src="bower_components/datajs/datajs-1.1.2.js"></script>
+    <script src="bower_components/d3/d3.js"></script>
+
+    <link rel="stylesheet" type="text/css" href="app/app.css">
+</head>
+<body>
+<script type="text/javascript">
+
+    // Query for label
+    var requestURL = [];
+    requestURL[0] = "http://connectomes.utah.edu/Services/RC1/ConnectomeData.svc/Locations?$select=Z,X,Y&$orderby=X%20desc";
+    requestURL[1] = "http://connectomes.utah.edu/Services/RC1/ConnectomeData.svc/Locations?$select=Z,X,Y&$orderby=Y%20desc";
+    requestURL[2] = "http://connectomes.utah.edu/Services/RC1/ConnectomeData.svc/Locations?$select=Z,X,Y&$orderby=Z%20desc";
+
+    requestURL[3] = "http://connectomes.utah.edu/Services/RC1/ConnectomeData.svc/Locations?$select=Z,X,Y&$orderby=X%20asc";
+    requestURL[4] = "http://connectomes.utah.edu/Services/RC1/ConnectomeData.svc/Locations?$select=Z,X,Y&$orderby=Y%20asc";
+    requestURL[5] = "http://connectomes.utah.edu/Services/RC1/ConnectomeData.svc/Locations?$select=Z,X,Y&$orderby=Z%20asc";
+
+    OData.defaultHttpClient.enableJsonpCallback = true;
+
+    var minX = 0;
+    var minY = 0;
+    var minZ = 0;
+
+    var maxX = 0;
+    var maxY = 0;
+    var maxZ = 0;
+
+    var numQueries = 0;
+
+    var query = function (url, index) {
+        OData.read(url, function (data) {
+            console.log(data);
+            if (index == 0) {
+                console.log("x");
+                console.log(data.results[0].X);
+            } else if (index == 1) {
+                console.log("y");
+                console.log(data.results[0].Y);
+            } else if (index == 2) {
+                console.log("z");
+                console.log(data.results[0].Z);
+            }
+        }, function (err) {
+            console.log(err);
+        });
+    };
+
+    for (var i = 0; i < 6; ++i) {
+        query(requestURL[i], i % 3);
+    }
+    // xMax = 143869.9528472931
+    // yMax = 122501.52960232079
+    // zMax = 770
+    // xMin = 0
+    // yMin = 0
+    // zMin = 0
+</script>
+
+</body>
+</html>
+
