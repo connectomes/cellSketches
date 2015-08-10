@@ -36,7 +36,7 @@ myApp.directive('childDepthPlot', function () {
 
 
         var currIndex = self.numDatasets++;
-        var currColor = self.colors[currIndex];
+        var currColor = "steelblue";
         var currGroup = self.svg.append("g");
         currGroup.attr({
             "transform": "translate(" + ((padding * currIndex) + (self.smallMultipleWidth * currIndex)) + ", 0)"
@@ -76,10 +76,29 @@ myApp.directive('childDepthPlot', function () {
                 cy: function (d, i) {
                     return self.yScale(d[0]);
                 },
-                r: 1.0
+                r: 1.5
             })
             .style({
-                stroke: currColor
+                stroke: currColor,
+                fill: currColor
+            }).on("mouseover", function (d) {
+                d3.select(this).style({
+                    fill: "brown",
+                    stroke: "brown"
+                });
+
+                self.tooltip.attr({
+                    x: d3.mouse(self.svg.node())[0],
+                    y: d3.mouse(self.svg.node())[1]
+                })
+                    .style({"display": "block"});
+
+            }).on("mouseout", function (d) {
+                d3.select(this).style({
+                    fill: currColor,
+                    stroke: currColor
+                });
+                self.tooltip.transition().style({"display": "none"});
             });
 
 
@@ -104,7 +123,7 @@ myApp.directive('childDepthPlot', function () {
             currGroup.append("g")
                 .attr("class", "y axis")
                 .call(self.yAxis);
-        }else {
+        } else {
             currGroup.append("g")
                 .attr("class", "x axis")
                 .attr("transform", "translate(0," + self.height + ")")
@@ -145,7 +164,7 @@ myApp.directive('childDepthPlot', function () {
         self.yScale = d3.scale.linear();
         self.xScale = d3.scale.linear();
 
-        self.yScale.domain([0, 300])
+        self.yScale.domain([0, 370])
             .range([0, self.height]);
 
         self.smallMultipleWidth = (self.width - (padding * (numDatasets - 1))) / numDatasets;
@@ -161,14 +180,19 @@ myApp.directive('childDepthPlot', function () {
         self.xAxis = d3.svg.axis().ticks(4);
         self.yAxis = d3.svg.axis();
 
-        self.xAxisNoTicks = d3.svg.axis().tickFormat(function(d) { return ''; }).ticks(4);
-        self.yAxisNoTicks = d3.svg.axis().tickFormat(function(d) { return ''; });
+        self.xAxisNoTicks = d3.svg.axis().tickFormat(function (d) {
+            return '';
+        }).ticks(4);
+        self.yAxisNoTicks = d3.svg.axis().tickFormat(function (d) {
+            return '';
+        });
 
         self.svg = d3.select(el[0]).append('svg')
             .attr("width", self.width + self.margin.left + self.margin.right)
             .attr("height", self.height + self.margin.top + self.margin.bottom)
             .append("g")
             .attr("transform", "translate(" + self.margin.left + "," + self.margin.top + ")");
+
 
         scope.$watch('childDepthCount', function (childDepthCount) {
 
@@ -177,6 +201,7 @@ myApp.directive('childDepthPlot', function () {
 
             // Clear svg.
             self.svg.selectAll("*").remove();
+
 
             self.numDatasets = 0;
 
@@ -207,6 +232,21 @@ myApp.directive('childDepthPlot', function () {
             childDepthCount.forEach(function (key, value) {
                 self.addData(key, value);
             });
+
+            self.tooltip = svg.append("g")
+                .attr({"id": "tooltip"})
+                .append("rect")
+                .attr({
+                    stroke: "black",
+                    fill: "lightgrey",
+                    x: 0,
+                    y: 0,
+                    width: 50,
+                    height: 50
+                })
+                .style({
+                    display: "none"
+                });
         });
     }
 

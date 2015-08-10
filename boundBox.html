@@ -13,13 +13,13 @@
 
     // Query for label
     var requestURL = [];
-    requestURL[0] = "http://connectomes.utah.edu/Services/RC1/ConnectomeData.svc/Locations?$select=Z,X,Y&$orderby=X%20desc";
-    requestURL[1] = "http://connectomes.utah.edu/Services/RC1/ConnectomeData.svc/Locations?$select=Z,X,Y&$orderby=Y%20desc";
-    requestURL[2] = "http://connectomes.utah.edu/Services/RC1/ConnectomeData.svc/Locations?$select=Z,X,Y&$orderby=Z%20desc";
+    requestURL[0] = "http://connectomes.utah.edu/Services/RC1/ConnectomeData.svc/Locations?$select=Z,VolumeX,VolumeY&$orderby=VolumeX%20desc";
+    requestURL[1] = "http://connectomes.utah.edu/Services/RC1/ConnectomeData.svc/Locations?$select=Z,VolumeX,VolumeY&$orderby=VolumeY%20desc";
+    requestURL[2] = "http://connectomes.utah.edu/Services/RC1/ConnectomeData.svc/Locations?$select=Z,VolumeX,VolumeY&$orderby=Z%20desc";
 
-    requestURL[3] = "http://connectomes.utah.edu/Services/RC1/ConnectomeData.svc/Locations?$select=Z,X,Y&$orderby=X%20asc";
-    requestURL[4] = "http://connectomes.utah.edu/Services/RC1/ConnectomeData.svc/Locations?$select=Z,X,Y&$orderby=Y%20asc";
-    requestURL[5] = "http://connectomes.utah.edu/Services/RC1/ConnectomeData.svc/Locations?$select=Z,X,Y&$orderby=Z%20asc";
+    requestURL[3] = "http://connectomes.utah.edu/Services/RC1/ConnectomeData.svc/Locations?$select=Z,VolumeX,VolumeY&$orderby=VolumeX%20asc";
+    requestURL[4] = "http://connectomes.utah.edu/Services/RC1/ConnectomeData.svc/Locations?$select=Z,VolumeX,VolumeY&$orderby=VolumeY%20asc";
+    requestURL[5] = "http://connectomes.utah.edu/Services/RC1/ConnectomeData.svc/Locations?$select=Z,VolumeX,VolumeY&$orderby=Z%20asc";
 
     OData.defaultHttpClient.enableJsonpCallback = true;
 
@@ -38,10 +38,10 @@
             console.log(data);
             if (index == 0) {
                 console.log("x");
-                console.log(data.results[0].X);
+                console.log(data.results[0].VolumeX);
             } else if (index == 1) {
                 console.log("y");
-                console.log(data.results[0].Y);
+                console.log(data.results[0].VolumeY);
             } else if (index == 2) {
                 console.log("z");
                 console.log(data.results[0].Z);

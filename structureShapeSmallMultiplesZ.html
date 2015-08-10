@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="utf-8">
-    <title>Structure Small Multiples</title>
+    <title>Structure Shape XZ</title>
     <script src="bower_components/datajs/datajs-1.1.2.js"></script>
     <script src="bower_components/d3/d3.js"></script>
     <script src="bower_components/q/q.js"></script>
@@ -22,8 +22,8 @@
     //var label = '\'Rod BC\'';
     var requestURL = serviceURL + "Structures?$filter=(Label eq " + label  + ")&$expand=Locations&$select=Locations/Radius,Locations/VolumeX,Locations/VolumeY,Locations/Z,Locations/ParentID,ID,Locations/ID";
 
-    var useZ = false;
-    //var useZ = true;
+    //var useZ = false;
+    var useZ = true;
 
     var svgWidth = 1366;
     var svgHeight = 5000;
