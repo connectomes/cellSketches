@@ -1,13 +1,12 @@
 var myApp = angular.module('formExample', []);
 
-myApp.controller('ExampleController', ['$scope', function ($scope) {
+myApp.controller('ExampleController', function ($scope, volumeInfo) {
 
     var self = this;
 
     /* Self variables */
 
     self.serviceURL = "http://websvc1.connectomes.utah.edu/RC1/OData/ConnectomeData.svc/";
-    OData.defaultHttpClient.enableJsonpCallback = true;
 
     /* Scope variables */
 
@@ -30,19 +29,6 @@ myApp.controller('ExampleController', ['$scope', function ($scope) {
     $scope.structureMap = d3.map();
 
     /* Self functions */
-
-    self.queryStructureMap = function () {
-        var requestURL = self.serviceURL + "StructureTypes";
-        var structureMap = d3.map();
-        self.queryData(requestURL, function (data) {
-            for (var i = 0; i < data.results.length; i++) {
-                var currName = data.results[i].Name;
-                var currValue = data.results[i].ID;
-                structureMap.set(currValue, currName);
-            }
-            $scope.structureMap = structureMap;
-        });
-    };
 
     self.queryData = function (requestURL, callback) {
         OData.read(requestURL, callback, function (err) {
@@ -183,6 +169,8 @@ myApp.controller('ExampleController', ['$scope', function ($scope) {
 
     $scope.reset();
 
-    self.queryStructureMap();
-}]);
+    volumeInfo.init().then(function() {
+        $scope.structureMap = volumeInfo.structureMap;
+    });
 
+});
