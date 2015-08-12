@@ -7,7 +7,6 @@ myApp.service('volumeQueries', function () {
     var self = this;
 
     self.serviceUri = "http://websvc1.connectomes.utah.edu/RC1/OData/ConnectomeData.svc/";
-
     OData.defaultHttpClient.enableJsonpCallback = true;
 
     self.readUri = function (request) {
@@ -19,6 +18,7 @@ myApp.service('volumeQueries', function () {
         };
 
         var error = function (err) {
+            console.log(err);
             throw err;
         };
 

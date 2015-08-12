@@ -1,6 +1,6 @@
 var myApp = angular.module('formExample', []);
 
-myApp.controller('ExampleController', function ($scope, volumeInfo, cellCache) {
+myApp.controller('ExampleController', function ($scope, volumeInfo, cellCache, volumeQueries) {
 
     var self = this;
 
@@ -13,12 +13,15 @@ myApp.controller('ExampleController', function ($scope, volumeInfo, cellCache) {
         function (data) {
             console.log(cellCache.cells);
             console.log(cellCache.cellLocations);
+            console.log(cellCache.cellChildren);
+            cellCache.loadCellChildren().then(function () {
+                cellCache.loadCellChildrenTargets();
+            });
         }
         , function (err) {
             console.log(err);
             console.log("FUCK!");
         });
-
 
     /* Scope variables */
 
@@ -185,4 +188,5 @@ myApp.controller('ExampleController', function ($scope, volumeInfo, cellCache) {
         $scope.structureMap = volumeInfo.structureMap;
     });
 
-});
+})
+;
