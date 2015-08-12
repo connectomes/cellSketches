@@ -11,6 +11,7 @@ myApp.service('cellCache', function (volumeQueries) {
     self.cells = [];
     self.cellLocations = [];
     self.cellChildren = [];
+    self.structures = [];
 
     self.oneChildPerQuery = false;
     self.multiChildPerQuery = true;
@@ -18,6 +19,16 @@ myApp.service('cellCache', function (volumeQueries) {
     // TODO: Figure out something else to do with this.
     self.handleException = function (exception) {
         console.log(exception);
+    };
+
+    self.isChildOfCell = function (child, cell) {
+        var children = self.cellChildren[cell];
+        for (var i = 0; i < children.length; ++i) {
+            if (children[i].id == child) {
+                return true;
+            }
+        }
+        return false;
     };
 
     // Load cells of label. Returns a promise of the query status.
@@ -81,34 +92,8 @@ myApp.service('cellCache', function (volumeQueries) {
     };
 
     self.loadCellChildrenTargets = function () {
-        try {
-            var promises = [];
-            for(var j = 0; j<self.cells.length; ++j ) {
-
-                var children = self.cellChildren[j];
-
-                var request = "StructureLinks?$filter=(";
-                var filter = "";
-                for (var i = 0; i < children.length; ++i) {
-                    var child = children[i];
-                    filter = filter.concat("SourceID eq " + child.id + " or TargetID eq " + child.id + " or ");
-                    if ((request + filter + ")").length > 1400) {
-                        filter = filter.substr(0, filter.length - 3);
-                        promises.push(volumeQueries.readUri(request + filter + ")"));
-                        console.log(request + filter + ")");
-                        filter = "";
-                        console.log("num queries = " + promises.length);
-                    }
-                }
-            }
-
-            var parseResults = function (data) {
-                console.log(data);
-            };
-
-            Q.all(promises).then(parseResults);
-        } catch (exception) {
-            console.log(exception);
+        for (var i = 0; i < self.cells.length; ++i) {
+            loadCellChildrenTargets(i);
         }
     };
 
@@ -180,7 +165,6 @@ myApp.service('cellCache', function (volumeQueries) {
                                 id: results.ID,
                                 typeId: results.TypeID,
                                 locations: locations
-
                             };
 
                             self.cellChildren[index].push(child);
@@ -206,5 +190,66 @@ myApp.service('cellCache', function (volumeQueries) {
                     .then(parseResults);
             }
         );
+    };
+
+    var loadCellChildrenTargets = function (index) {
+        try {
+
+            var promises = [];
+            var children = self.cellChildren[index];
+            var request = "StructureLinks?$filter=(";
+            var filter = "";
+
+            for (var i = 0; i < children.length; ++i) {
+
+                var child = children[i];
+
+                filter = filter.concat("SourceID eq " + child.id + " or TargetID eq " + child.id + " or ");
+
+                // Larger than 1400 => server problems. Wtf?
+                if ((request + filter + ")").length > 1400) {
+                    filter = filter.substr(0, filter.length - 3);
+                    promises.push(volumeQueries.readUri(request + filter + ")"));
+                    if (self.verbose) {
+                        console.log(request + filter + ")");
+                    }
+                    filter = "";
+                }
+            }
+
+            if (filter.length) {
+                filter = filter.substr(0, filter.length - 3);
+                promises.push(volumeQueries.readUri(request + filter + ")"));
+            }
+
+            var parseResults = function (data) {
+                console.log(data);
+
+                var totalLinks = 0;
+                var otherChildren = [];
+                for (var i = 0; i < data.length; ++i) {
+                    var results = data[0].results;
+                    for (var j = 0; j < results.length; ++j) {
+                        var link = results[j];
+                        totalLinks++;
+                        if(self.isChildOfCell(link.TargetID, index)) {
+                            otherChildren.push(link.SourceID);
+                        } else if(self.isChildOfCell(link.SourceID, index)) {
+                            otherChildren.push(link.TargetID)
+                        } else {
+                            console.log("WTF?!?");
+                        }
+                    }
+                }
+                console.log(otherChildren.length);
+                console.log(totalLinks);
+
+            };
+
+            Q.all(promises).then(parseResults);
+
+        } catch (exception) {
+            console.log(exception);
+        }
     };
 });

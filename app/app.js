@@ -8,8 +8,11 @@ myApp.controller('ExampleController', function ($scope, volumeInfo, cellCache, v
 
     self.serviceURL = "http://websvc1.connectomes.utah.edu/RC1/OData/ConnectomeData.svc/";
     var label = '\'CBb4w\'';
-
+    //var label = '\'Rod BC\'';
+    /*
     cellCache.loadCells(label).then(
+     */
+    /*
         function (data) {
             console.log(cellCache.cells);
             console.log(cellCache.cellLocations);
@@ -22,6 +25,16 @@ myApp.controller('ExampleController', function ($scope, volumeInfo, cellCache, v
             console.log(err);
             console.log("FUCK!");
         });
+*/
+    OData.request({
+        requestUri: self.serviceURL + "StructuresLinkedViaChildren?ID=6117L"
+    }, function (data) {
+        console.log("yay!");
+        console.log(data)
+    }, function (err) {
+        console.log("shit!");
+        console.log(err);
+    });
 
     /* Scope variables */
 
