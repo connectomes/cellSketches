@@ -20,10 +20,26 @@ myApp.service('volumeQueries', function () {
 
         var error = function (err) {
             throw err;
-            deferred.reject(err);
         };
 
         OData.read(self.serviceUri + request, success, error);
+
+        return deferred.promise;
+    };
+
+    self.readUriComplete = function (request) {
+
+        var deferred = Q.defer();
+
+        var success = function (data) {
+            deferred.resolve(data);
+        };
+
+        var error = function (err) {
+            throw err;
+        };
+
+        OData.read(request, success, error);
 
         return deferred.promise;
     };
@@ -37,6 +53,6 @@ myApp.service('volumeQueries', function () {
         }
 
         return Q.all(deferred);
-    }
+    };
 
 });

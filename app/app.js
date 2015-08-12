@@ -1,12 +1,24 @@
 var myApp = angular.module('formExample', []);
 
-myApp.controller('ExampleController', function ($scope, volumeInfo) {
+myApp.controller('ExampleController', function ($scope, volumeInfo, cellCache) {
 
     var self = this;
 
     /* Self variables */
 
     self.serviceURL = "http://websvc1.connectomes.utah.edu/RC1/OData/ConnectomeData.svc/";
+    var label = '\'CBb4w\'';
+
+    cellCache.loadCells(label).then(
+        function (data) {
+            console.log(cellCache.cells);
+            console.log(cellCache.cellLocations);
+        }
+        , function (err) {
+            console.log(err);
+            console.log("FUCK!");
+        });
+
 
     /* Scope variables */
 
@@ -148,7 +160,7 @@ myApp.controller('ExampleController', function ($scope, volumeInfo) {
             }
 
             var newMap = d3.map();
-            childDepthCounts.forEach(function(key, value) {
+            childDepthCounts.forEach(function (key, value) {
                 newMap.set($scope.structureMap.get(key), value);
             });
 
@@ -169,7 +181,7 @@ myApp.controller('ExampleController', function ($scope, volumeInfo) {
 
     $scope.reset();
 
-    volumeInfo.init().then(function() {
+    volumeInfo.init().then(function () {
         $scope.structureMap = volumeInfo.structureMap;
     });
 
