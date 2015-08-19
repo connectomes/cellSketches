@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="utf-8">
-    <title>Structure Small Multiples</title>
+    <title>Structure Shape XY</title>
     <script src="bower_components/datajs/datajs-1.1.2.js"></script>
     <script src="bower_components/d3/d3.js"></script>
     <script src="bower_components/q/q.js"></script>
@@ -25,14 +25,14 @@
     var useZ = false;
     //var useZ = true;
 
-    var svgWidth = 1366;
+    var svgWidth = 1073;
     var svgHeight = 5000;
 
     var numGraphs = 0;
-    var graphsPerRow = 5;
-    var paddingPerGraph = 50;
+    var graphsPerRow = 6;
+    var paddingPerGraph = 30;
     var graphWidth = (svgWidth - graphsPerRow * paddingPerGraph) / graphsPerRow;
-    var graphHeight = 300;
+    var graphHeight = 240;
 
     d3.select("body").append("div").html(label);
 

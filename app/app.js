@@ -1,6 +1,6 @@
 var myApp = angular.module('formExample', []);
 
-myApp.controller('ExampleController', function ($scope, volumeInfo, cellCache, volumeQueries) {
+myApp.controller('ExampleController', function ($scope, volumeInfo, cellCache, volumeQueries, odata, volumeBounds, volumeCells) {
 
     var self = this;
 
@@ -9,23 +9,23 @@ myApp.controller('ExampleController', function ($scope, volumeInfo, cellCache, v
     self.serviceURL = "http://websvc1.connectomes.utah.edu/RC1/OData/ConnectomeData.svc/";
     var label = '\'CBb4w\'';
     //var label = '\'Rod BC\'';
-    /*
-    cellCache.loadCells(label).then(
-     */
-    /*
-        function (data) {
-            console.log(cellCache.cells);
-            console.log(cellCache.cellLocations);
-            console.log(cellCache.cellChildren);
-            cellCache.loadCellChildren().then(function () {
-                cellCache.loadCellChildrenTargets();
-            });
-        }
-        , function (err) {
-            console.log(err);
-            console.log("FUCK!");
-        });
-*/
+    odata.request("Structures(6117L)").then(function(response) {console.log(response);});
+    volumeBounds.init().then(function() {console.log(volumeBounds.toString())});
+    volumeCells.loadCellId("6117");
+//    cellCache.loadCells(label).then(
+//        function (data) {
+//            console.log(cellCache.cells);
+//            console.log(cellCache.cellLocations);
+//            console.log(cellCache.cellChildren);
+//            cellCache.loadCellChildren().then(function () {
+//                cellCache.loadCellChildrenTargets();
+//            });
+//        }
+//        , function (err) {
+//            console.log(err);
+//            console.log("FUCK!");
+//        });
+
     OData.request({
         requestUri: self.serviceURL + "StructuresLinkedViaChildren?ID=6117L"
     }, function (data) {
