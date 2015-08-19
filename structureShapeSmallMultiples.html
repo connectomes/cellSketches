@@ -193,10 +193,9 @@
                     return yScale(useZ ? d.Z : d.VolumeY);
                 })
                 .attr("r", function (d) {
-                    return xScale(d.Radius); //xScale(d.Radius);-+
+                    return xScale(d.Radius);
                 })
                 .style("stroke", function (d) {
-                    //console.log(color(d.Z));
                     return color(d.Z);
                 })
                 .attr("fill", "none")

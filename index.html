@@ -8,16 +8,15 @@
     <script src="bower_components/datajs/datajs-1.1.2.js"></script>
     <script src="bower_components/q/q.js"></script>
     <script src="bower_components/d3/d3.js"></script>
+
     <script src="app/app.js"></script>
-    <script src="app/volumeInfo.service.js"></script>
-    <script src="app/cellCache.service.js"></script>
-    <script src="app/volumeQueries.service.js"></script>
-    <script src="app/odata.service.js"></script>
+
+    <script src="app/volumeOdata.service.js"></script>
     <script src="app/volumeBounds.service.js"></script>
     <script src="app/volumeCells.service.js"></script>
-    <script src="app/childBarChart.directive.js"></script>
-    <script src="app/depthPlot.directive.js"></script>
-    <script src="app/childDepthPlot.directive.js"></script>
+    <script src="app/volumeLayers.service.js"></script>
+
+    <script src="app/vis/conversions.directive.js"></script>
 
     <link rel="stylesheet" type="text/css" href="app/app.css">
 </head>
@@ -31,20 +30,14 @@
     </form>
 </div>
 
-
-
-<child-depth-plot child-depth-count="childDepthCount"></child-depth-plot>
-
-<child-bar-chart child-structure-count="childStructureCount"></child-bar-chart>
-
-<!--- <depth-plot depth-count="depthCount"></depth-plot> -->
-
-
+<conversions></conversions>
 
 <div>
+    <!--
     <pre>master = {{master | json}}</pre>
     <pre>children count = {{ childStructureCount | json}}</pre>
     <pre>details = {{locations | json}}</pre>
+    -->
 </div>
 
 </body>

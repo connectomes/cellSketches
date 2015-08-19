@@ -1,7 +1,7 @@
 /**
  * Copyright (c) Ethan Kerzner 2015
  */
-
+/*
 myApp.service('volumeInfo', function (volumeQueries) {
 
     var self = this;
@@ -94,3 +94,5 @@ myApp.service('volumeInfo', function (volumeQueries) {
         return deferred.promise;
     };
 });
+
+    */

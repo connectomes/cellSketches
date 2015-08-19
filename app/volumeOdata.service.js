@@ -7,11 +7,11 @@
 
     angular
         .module('formExample')
-        .factory('odata', odata);
+        .factory('volumeOData', volumeOData);
 
-    odata.$inject = ['$q'];
+    volumeOData.$inject = ['$q'];
 
-    function odata($q) {
+    function volumeOData($q) {
 
         var self = this;
         self.serviceUri = "http://websvc1.connectomes.utah.edu/RC1/OData/ConnectomeData.svc/";

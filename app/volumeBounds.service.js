@@ -9,9 +9,10 @@
         .module('formExample')
         .factory('volumeBounds', volumeBounds);
 
-    volumeBounds.$inject = ['$q', 'odata'];
+    volumeBounds.$inject = ['$q', 'volumeOData'];
+    OData.defaultHttpClient.enableJsonpCallback = true;
 
-    function volumeBounds($q, odata) {
+    function volumeBounds($q, volumeOData) {
 
         var self = this;
         self.bboxMin = [];
@@ -22,21 +23,35 @@
             getRangeVolumeX: getRangeVolumeX,
             getRangeVolumeY: getRangeVolumeY,
             getRangeZ: getRangeZ,
+            getXyAspectRatio: getXyAspectRatio,
+            getXzAspectRation: getXzAspectRatio,
             toString: toString
         };
 
         return service;
 
         function getRangeVolumeX() {
-            return [bboxMin[0], bboxMax[0]];
+            return [self.bboxMin[0], self.bboxMax[0]];
         }
 
         function getRangeVolumeY() {
-            return [bboxMin[1], bboxMax[1]];
+            return [self.bboxMin[1], self.bboxMax[1]];
         }
 
         function getRangeZ() {
-            return [bboxMin[2], bboxMax[2]];
+            return [self.bboxMin[2], self.bboxMax[2]];
+        }
+
+        function getXyAspectRatio() {
+            var width = Math.abs(self.bboxMin[0] - self.bboxMax[0]);
+            var height = Math.abs(self.bboxMin[1] - self.bboxMax[1]);
+            return width / height;
+        }
+
+        function getXzAspectRatio() {
+            var width = Math.abs(self.bboxMin[0] - self.bboxMax[0]);
+            var height = Math.abs(self.bboxMin[2] - self.bboxMax[2]);
+            return width / height;
         }
 
         function init() {
@@ -64,9 +79,9 @@
                     } else if (i == 3) {
                         self.bboxMax[0] = promises[i].results[0].VolumeX;
                     } else if (i == 4) {
-                        self.bboxMax[2] = promises[i].results[0].VolumeY;
+                        self.bboxMax[1] = promises[i].results[0].VolumeY;
                     } else {
-                        self.bboxMax[3] = promises[i].results[0].Z;
+                        self.bboxMax[2] = promises[i].results[0].Z;
                     }
                 }
 
@@ -78,7 +93,7 @@
                 deferred.resolve();
             };
 
-            odata.requestMulti(requests)
+            volumeOData.requestMulti(requests)
                 .then(parseResults);
 
             return deferred.promise;

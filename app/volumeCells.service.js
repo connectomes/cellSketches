@@ -9,9 +9,9 @@
         .module('formExample')
         .factory('volumeCells', volumeCells);
 
-    volumeCells.$inject = ['$q', 'odata'];
+    volumeCells.$inject = ['$q', 'volumeOData'];
 
-    function volumeCells($q, odata) {
+    function volumeCells($q, volumeOData) {
         var self = this;
         self.cells = [];
 
@@ -55,7 +55,7 @@
 
                 }
 
-                odata.request(request).then(success);
+                volumeOData.request(request).then(success);
 
             });
         }
