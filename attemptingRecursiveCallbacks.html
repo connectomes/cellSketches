@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>StructureShapeSmallMultiples</title>
+    <script src="bower_components/datajs/datajs-1.1.2.js"></script>
+    <script src="bower_components/d3/d3.js"></script>
+    <script src="http://code.jquery.com/jquery-2.0.3.min.js"></script>
+    <script src="http://code.angularjs.org/1.2.0-rc.3/angular.js"></script>
+    <script src="http://include.jaydata.org/datajs-1.0.3.js"></script>
+    <script src="http://include.jaydata.org/jaydata.js"></script>
+    <script src="http://include.jaydata.org/jaydatamodules/angular.js"></script>
+    <link rel="stylesheet" type="text/css" href="app/app.css">
+</head>
+<body>
+
+<script type="text/javascript">
+
+    // Query for label
+    var serviceURL = "http://websvc1.connectomes.utah.edu/RC1/OData/ConnectomeData.svc/";
+    OData.defaultHttpClient.enableJsonpCallback = true;
+    var requestURL = serviceURL + "Structures?$filter=(Label eq " + '\'CBb3m\'' + ")&$expand=Locations&$select=Locations/Z,Locations/ParentID,ID,Locations/ID";
+
+    var query = function(requestUri, allData) {
+
+        var combineResult = function(localData, allData, index) {
+            console.log(localData);
+            console.log(index);
+            console.log(allData);
+            allData.results[index].Locations.append(localData.results);
+        };
+
+        var handleResult = function(allData) {
+            console.log(allData);
+            for(var i=0; i<allData.results.length; ++i) {
+                var nextUri = allData.results[i].Locations.__next;
+                if(nextUri) {
+                    console.log(nextUri);
+
+                    OData.read(nextUri, function(data) {
+                        const currIndex = i;
+                        combineResult(allData, data, currIndex); });
+                }
+            }
+        };
+        OData.read(requestUri, function(data) { handleResult(data); }, function(err) { console.log(err); });
+    };
+
+    var allData = null;
+    query(requestURL, allData);
+
+    console.log("FUCK!");
+</script>
+</body>

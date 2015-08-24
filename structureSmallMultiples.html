@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Structure Small Multiples</title>
+    <script src="bower_components/datajs/datajs-1.1.2.js"></script>
+    <script src="bower_components/d3/d3.js"></script>
+
+    <link rel="stylesheet" type="text/css" href="app/app.css">
+</head>
+<body>
+
+<script type="text/javascript">
+
+    // Query for label
+    var serviceURL = "http://websvc1.connectomes.utah.edu/RC1/OData/ConnectomeData.svc/";
+    OData.defaultHttpClient.enableJsonpCallback = true;
+    //var label = '\'CBb3-4i\'';
+    var label = '\'CBb4w\'';
+    //var label = '\'AC\'';
+    //var label = '\'Rod BC\'';
+    var requestURL = serviceURL + "Structures?$filter=(Label eq " + label + ")&$expand=Locations&$select=Locations/Z,Locations/ParentID,ID,Locations/ID";
+
+    var svgWidth = 1366;
+    var svgHeight = 5000;
+
+    var numGraphs = 0;
+    var graphsPerRow = 5;
+    var paddingPerGraph = 40;
+    var graphWidth = (svgWidth - graphsPerRow * paddingPerGraph) / graphsPerRow;
+    var graphHeight = 300;
+
+    d3.select("body").append("div").html(label);
+
+    var svg = d3.select("body")
+            .append("svg")
+            .attr({
+                width: svgWidth,
+                height: svgHeight
+            }).append("g").attr({
+                transform: "translate(30, 30)"
+            });
+
+    var yScale = d3.scale.ordinal();
+    var xScale = d3.scale.linear();
+
+    var xAxis = d3.svg.axis();
+    var yAxis = d3.svg.axis();
+
+    var xAxisNoTicks = d3.svg.axis();
+    var yAxisNoTicks = d3.svg.axis();
+
+    // On return from query, parse the data into maps for each parent
+    OData.read(requestURL, function (data) {
+
+        console.log(data);
+
+        var depthCounts = d3.map();
+
+        for (var j = 0; j < data.results.length; ++j) {
+            var depthCount = d3.map();
+            var currCellID = data.results[j].ID;
+
+            for (var i = 0; i < data.results[j].Locations.results.length; i++) {
+                var currDepth = data.results[j].Locations.results[i].Z;
+                var currID = data.results[j].Locations.results[i].ID;
+
+                if (depthCount.has(currDepth)) {
+                    var currValue = depthCount.get(currDepth);
+                    currValue.push(currID);
+                    depthCount.set(currDepth, currValue);
+                } else {
+                    var array = [];
+                    array[0] = currID;
+                    depthCount.set(currDepth, array);
+                }
+            }
+            depthCounts.set(currCellID, depthCount);
+        }
+
+        createGraphs(depthCounts);
+
+    }, function (err) {
+
+        console.log(err);
+
+    });
+
+    // createGraphs(depthCounts)
+    var createGraphs = function (depthCounts) {
+        // Foreach map in depth counts, find the max number of children per depth value
+        // Compute number of multiples that will be displayed in the svg
+        var maxNumAnnotations = 0;
+        var maxDepth = 300;
+
+        // key == cell id.
+        // value == array of depth annotations at each depth.
+        depthCounts.forEach(function (key, value) {
+            var depths = value.values();
+
+            var currMax = d3.max(depths.map(function (d) {
+                return d.length;
+            }));
+
+            value.keys().forEach(function (d) {
+                d = parseInt(d);
+                maxDepth = (d > maxDepth) ? d : maxDepth;
+            });
+
+            maxNumAnnotations = currMax > maxNumAnnotations ? currMax : maxNumAnnotations;
+
+        });
+
+        // Create scales for x and y
+        var domain = [];
+        for (var i = 0; i < maxDepth; ++i) {
+            domain.push(i);
+        }
+
+        yScale.domain(domain)
+                .rangeBands([0, graphHeight]);
+
+        yAxis.scale(yScale)
+                .orient("left")
+                .tickValues(yScale.domain().filter(function (d, i) {
+                    return !(i % 50);
+                }));
+
+        yAxisNoTicks.scale(yScale)
+                .orient("left")
+                .tickValues(yScale.domain().filter(function (d, i) {
+                    return !(i % 50);
+                })).tickFormat(function (d) {
+                    return "";
+                });
+
+        xScale.domain([0, maxNumAnnotations])
+                .range([0, graphWidth]);
+
+        xAxis.scale(xScale)
+                .orient("bottom");
+
+        xAxisNoTicks.scale(xScale)
+                .orient("bottom")
+                .tickFormat(function (d) {
+                    return "";
+                });
+
+        // Create axes for x and y
+        depthCounts.forEach(function (key, value) {
+            addData(key, value);
+        });
+    };
+
+    var addData = function (key, value) {
+        var currIndex = numGraphs++;
+        var currGroup = svg.append("g");
+
+        var xTranslate = 0;
+        var yTranslate = 0;
+        if (currIndex < graphsPerRow) {
+            xTranslate = currIndex * (graphWidth + paddingPerGraph);
+        } else {
+            var row = Math.floor(currIndex / graphsPerRow);
+            yTranslate = (graphHeight + paddingPerGraph) * (row);
+            xTranslate = (currIndex % graphsPerRow) * (graphWidth + paddingPerGraph);
+        }
+
+        currGroup.attr({
+            transform: "translate(" + xTranslate + ", " + yTranslate + ")"
+        });
+
+        currGroup.append("g")
+                .attr("class", "x axis")
+                .attr("transform", "translate(0," + graphHeight + ")")
+                .call(currIndex == 0 ? xAxis : xAxisNoTicks);
+
+        currGroup.append("g")
+                .attr("class", "y axis")
+                .call(currIndex == 0 ? yAxis : yAxisNoTicks);
+
+        currGroup.append("text")
+                .text(key)
+                .attr({
+                    x: graphWidth / 2,
+                    y: 8
+                })
+                .style({
+                    "font-size": "8px",
+                    "text-anchor": "middle"
+                });
+
+        currGroup.selectAll("rect")
+                .data(d3.zip(value.keys(), value.values().map(function (d) {
+                    return d.length;
+                })))
+                .enter()
+                .append("rect")
+                .attr("class", "bar")
+                .attr("x", function (d, i) {
+                    return 0;
+                })
+                .attr("y", function (d) {
+                    return yScale(d[0]);
+                })
+                .attr("height", yScale.rangeBand())
+                .attr("width", function (d) {
+                    return xScale(d[1]);
+                }).on("click", function (d) {
+                    console.log(d);
+                });
+    };
+
+</script>
+</body>
+</html>

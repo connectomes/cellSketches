@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Structure Shape XZ</title>
+    <script src="bower_components/datajs/datajs-1.1.2.js"></script>
+    <script src="bower_components/d3/d3.js"></script>
+    <script src="bower_components/q/q.js"></script>
+    <link rel="stylesheet" type="text/css" href="app/app.css">
+</head>
+<body>
+
+<script type="text/javascript">
+
+    // Query for label
+    var serviceURL = "http://websvc1.connectomes.utah.edu/RC1/OData/ConnectomeData.svc/";
+    OData.defaultHttpClient.enableJsonpCallback = true;
+    //var label = '\'CBb3-4i\'';
+    var label = '\'CBb4w\'';
+    //var label = '\'AC\'';
+    //var label = '\'Rod BC\'';
+    var requestURL = serviceURL + "Structures?$filter=(Label eq " + label  + ")&$expand=Locations&$select=Locations/Radius,Locations/VolumeX,Locations/VolumeY,Locations/Z,Locations/ParentID,ID,Locations/ID";
+
+    //var useZ = false;
+    var useZ = true;
+
+    var svgWidth = 1073;
+    var svgHeight = 5000;
+
+    var numGraphs = 0;
+    var graphsPerRow = 6;
+    var paddingPerGraph = 30;
+    var graphWidth = (svgWidth - graphsPerRow * paddingPerGraph) / graphsPerRow;
+    var graphHeight = 240;
+
+    d3.select("body").append("div").html(label);
+
+    var svg = d3.select("body")
+            .append("svg")
+            .attr({
+                width: svgWidth,
+                height: svgHeight
+            }).append("g").attr({
+                transform: "translate(30, 30)"
+            });
+
+    var yScale = d3.scale.linear();
+    var xScale = d3.scale.linear();
+    var zScale = d3.scale.linear();
+
+    var xAxis = d3.svg.axis();
+    var yAxis = d3.svg.axis();
+
+    var xAxisNoTicks = d3.svg.axis();
+    var yAxisNoTicks = d3.svg.axis();
+
+    // On return from query, parse the data into maps for each parent
+    var deferred = Q.defer();
+    var depthCounts = d3.map();
+    var readData = function() {
+        OData.read(requestURL, function (data) {
+
+            console.log(data);
+
+            for (var j = 0; j < data.results.length; ++j) {
+                var currCellID = data.results[j].ID;
+                var currLocations = [];
+                for (var i = 0; i < data.results[j].Locations.results.length; i++) {
+                    currLocations.push(data.results[j].Locations.results[i]);
+                }
+                depthCounts.set(currCellID, currLocations);
+            }
+            console.log(depthCounts);
+
+            deferred.resolve(depthCounts);
+
+        }, function (err) {
+
+            console.log(err);
+
+        });
+
+        return deferred.promise;
+    };
+
+
+    // createGraphs(depthCounts)
+    var createGraphs = function (depthCounts) {
+
+        console.log("Create graphs");
+        // Foreach map in depth counts, find the max number of children per depth value
+        // Compute number of multiples that will be displayed in the svg
+
+        var xMax = 119747;
+        var yMax = 114544;
+        var zMax = 370;
+        var xMin = 311.01;
+        var yMin = -41.13;
+        var zMin = 0;
+
+        if (!useZ) {
+            yScale.domain([0, yMax])
+                    .range([0, graphHeight]);
+        } else {
+
+            yScale.domain([0, zMax])
+                    .range([0, graphHeight]);
+        }
+
+        yAxis.scale(yScale)
+                .orient("left");
+
+        yAxisNoTicks.scale(yScale)
+                .orient("left")
+                .tickValues(yScale.domain().filter(function (d, i) {
+                    return !(i % 50);
+                })).tickFormat(function (d) {
+                    return "";
+                });
+
+        xScale.domain([0, xMax])
+                .range([0, graphWidth]);
+
+
+        xAxis.scale(xScale)
+                .orient("bottom")
+                .tickFormat(function(d) { var prefix = d3.formatPrefix(d); return prefix.scale(d).toFixed(); } );;
+
+        xAxisNoTicks.scale(xScale)
+                .orient("bottom")
+                .tickFormat(function (d) {
+                    return "";
+                });
+
+        // Create axes for x and y
+        depthCounts.forEach(function (key, value) {
+            addData(key, value);
+        });
+    };
+
+    var addData = function (key, value) {
+        var currIndex = numGraphs++;
+        var currGroup = svg.append("g");
+
+        var xTranslate = 0;
+        var yTranslate = 0;
+        if (currIndex < graphsPerRow) {
+            xTranslate = currIndex * (graphWidth + paddingPerGraph);
+        } else {
+            var row = Math.floor(currIndex / graphsPerRow);
+            yTranslate = (graphHeight + paddingPerGraph) * (row);
+            xTranslate = (currIndex % graphsPerRow) * (graphWidth + paddingPerGraph);
+        }
+
+        currGroup.attr({
+            transform: "translate(" + xTranslate + ", " + yTranslate + ")",
+            id: "graph"
+        });
+
+        currGroup.append("g")
+                .attr("class", "x axis")
+                .attr("transform", "translate(0," + graphHeight + ")")
+                .call(currIndex == 0 ? xAxis : xAxisNoTicks);
+
+        currGroup.append("g")
+                .attr("class", "y axis")
+                .call(currIndex == 0 ? yAxis : yAxisNoTicks);
+
+        currGroup.append("text")
+                .text(key)
+                .attr({
+                    x: graphWidth / 2,
+                    y: 8
+                })
+                .style({
+                    "font-size": "8px",
+                    "text-anchor": "middle"
+                });
+
+        var color = d3.scale.linear()
+                .domain([0, 370])
+                .range(["black", "ghostwhite"]);
+
+        currGroup.selectAll("circle")
+                .data(value.reverse())
+                .enter()
+                .append("circle")
+                .attr("cx", function (d, i) {
+                    return xScale(d.VolumeX);
+                })
+                .attr("cy", function (d) {
+                    return yScale(useZ ? d.Z : d.VolumeY);
+                })
+                .attr("r", function (d) {
+                    return xScale(d.Radius); //xScale(d.Radius);-+
+                })
+                .style("stroke", function (d) {
+                    //console.log(color(d.Z));
+                    return color(d.Z);
+                })
+                .attr("fill", "none")
+                .attr("stroke-width", 1)
+                .on("click", function (d) {
+                    d3.selectAll("#graph").transition().duration(500).attr({
+                        transform: "translate(50, 50) scale(2, 2)"
+                    });
+                });
+    };
+
+    readData().then(createGraphs);
+
+</script>
+</body>
+</html>
