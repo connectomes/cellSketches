@@ -15,6 +15,7 @@
 
         var self = this;
         self.serviceUri = "http://websvc1.connectomes.utah.edu/RC1/OData/ConnectomeData.svc/";
+        OData.defaultHttpClient.enableJsonpCallback = true;
 
         var service = {
             request: request,

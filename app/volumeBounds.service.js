@@ -10,7 +10,6 @@
         .factory('volumeBounds', volumeBounds);
 
     volumeBounds.$inject = ['$q', 'volumeOData'];
-    OData.defaultHttpClient.enableJsonpCallback = true;
 
     function volumeBounds($q, volumeOData) {
 
@@ -19,7 +18,7 @@
         self.bboxMax = [];
 
         var service = {
-            init: init,
+            activate: activate,
             getRangeVolumeX: getRangeVolumeX,
             getRangeVolumeY: getRangeVolumeY,
             getRangeZ: getRangeZ,
@@ -30,31 +29,7 @@
 
         return service;
 
-        function getRangeVolumeX() {
-            return [self.bboxMin[0], self.bboxMax[0]];
-        }
-
-        function getRangeVolumeY() {
-            return [self.bboxMin[1], self.bboxMax[1]];
-        }
-
-        function getRangeZ() {
-            return [self.bboxMin[2], self.bboxMax[2]];
-        }
-
-        function getXyAspectRatio() {
-            var width = Math.abs(self.bboxMin[0] - self.bboxMax[0]);
-            var height = Math.abs(self.bboxMin[1] - self.bboxMax[1]);
-            return width / height;
-        }
-
-        function getXzAspectRatio() {
-            var width = Math.abs(self.bboxMin[0] - self.bboxMax[0]);
-            var height = Math.abs(self.bboxMin[2] - self.bboxMax[2]);
-            return width / height;
-        }
-
-        function init() {
+        function activate() {
 
             var deferred = $q.defer();
 
@@ -97,6 +72,30 @@
                 .then(parseResults);
 
             return deferred.promise;
+        }
+
+        function getRangeVolumeX() {
+            return [self.bboxMin[0], self.bboxMax[0]];
+        }
+
+        function getRangeVolumeY() {
+            return [self.bboxMin[1], self.bboxMax[1]];
+        }
+
+        function getRangeZ() {
+            return [self.bboxMin[2], self.bboxMax[2]];
+        }
+
+        function getXyAspectRatio() {
+            var width = Math.abs(self.bboxMin[0] - self.bboxMax[0]);
+            var height = Math.abs(self.bboxMin[1] - self.bboxMax[1]);
+            return width / height;
+        }
+
+        function getXzAspectRatio() {
+            var width = Math.abs(self.bboxMin[0] - self.bboxMax[0]);
+            var height = Math.abs(self.bboxMin[2] - self.bboxMax[2]);
+            return width / height;
         }
 
         function toString() {

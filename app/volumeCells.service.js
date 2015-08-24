@@ -9,46 +9,72 @@
         .module('formExample')
         .factory('volumeCells', volumeCells);
 
-    volumeCells.$inject = ['$q', 'volumeOData'];
+    volumeCells.$inject = ['$q', 'volumeOData', 'volumeLayers'];
 
-    function volumeCells($q, volumeOData) {
+    function volumeCells($q, volumeOData, volumeLayers) {
+
         var self = this;
         self.cells = [];
+        self.cellLocations = [];
 
         var service = {
+            getCellLocations: getCellLocations,
             loadCellId: loadCellId
         };
 
         return service;
 
+        function getCellLocations(id) {
+            for (var i = 0; i < self.cells.length; ++i) {
+                if (self.cells[i].id == id) {
+                    return self.cellLocations[i];
+                }
+            }
+            throw 'Error - tried to get locations of this cell ID, but they weren\'t loaded yet:' + id;
+        }
+
         function loadCellId(id) {
-            return $q(function(resolve, reject) {
+            return $q(function (resolve, reject) {
 
                 var request = "Structures?$filter=(ID eq " + id + ")&$expand=Locations&$select=Locations/Radius,Locations/VolumeX,Locations/VolumeY,Locations/Z,ID,Locations/ID";
-                console.log(request);
 
                 function success(data) {
                     var promises = [];
 
                     for (var i = 0; i < data.results.length; ++i) {
-                        console.log(data);
+
                         var cell = {
                             id: data.results[i].ID,
                             locations: self.cellLocations.length
                         };
 
-                        // Self is the cellCache--not the promise.
                         self.cells.push(cell);
-                        self.cellLocations.push(data.results[i].Locations.results);
+
+                        var locations = [];
+                        for (var j = 0; j < data.results[i].Locations.results.length; ++j) {
+
+                            var currLocation = data.results[i].Locations.results[j];
+
+                            var location = {
+                                volumeX: currLocation.VolumeX,
+                                volumeY: currLocation.VolumeY,
+                                z: currLocation.Z,
+                                radius: currLocation.Radius,
+                                id: currLocation.ID,
+                                conversion: volumeLayers.convertToIPLPercent([currLocation.VolumeX, currLocation.VolumeY, currLocation.Z])
+                            };
+
+                            locations.push(location);
+                        }
+
+                        self.cellLocations.push(locations);
 
                         var nextUri = data.results[i].Locations.__next;
                         if (nextUri) {
-                            console.log("Warning need to implement recursive cell queries!");
-                            reject();
+                            throw "Error - need to implement recursive cell queries!";
                         }
                     }
 
-                    // Only resolve after all queries have finished.
                     $q.all(promises).then(function () {
                         resolve();
                     });
@@ -56,7 +82,6 @@
                 }
 
                 volumeOData.request(request).then(success);
-
             });
         }
     }

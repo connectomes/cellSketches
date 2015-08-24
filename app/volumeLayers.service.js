@@ -18,14 +18,15 @@
         self.lower = [];
 
         var service = {
-            init: init,
-            getTopBounds: getTopBounds,
-            getBottomBounds: getBottomBounds
+            activate: activate,
+            convertToIPLPercent: convertToIPLPercent,
+            getUpperBounds: getUpperBounds,
+            getLowerBounds: getLowerBounds
         };
 
         return service;
 
-        function init() {
+        function activate() {
 
             var deferred = $q.defer();
 
@@ -50,9 +51,9 @@
                         };
 
                         if (i == 0) {
-                            self.lower.push(location);
-                        } else if (i == 1) {
                             self.upper.push(location);
+                        } else if (i == 1) {
+                            self.lower.push(location);
                         }
                     }
                 }
@@ -65,11 +66,55 @@
             return deferred.promise;
         }
 
-        function getTopBounds() {
+        function convertToIPLPercent(point) {
+
+            // TODO: Move this when its needed somewhere else.
+            function distance2D(p, q) {
+                return Math.sqrt(Math.pow((p[0] - q[0]), 2) + Math.pow(p[1] - q[1], 2))
+            }
+
+            // Find closest point in upper and lower boundaries.
+            var nearestUpperIdx = 0;
+            var current = [self.upper[0].volumeX, self.upper[0].volumeY];
+            var nearestUpperDistance = distance2D(point, current);
+
+            var nearestLowerIdx = 0;
+            current = [self.lower[0].volumeX, self.lower[0].volumeY];
+            var nearestLowerDistance = distance2D(point, current);
+
+            for (var i = 0; i < self.upper.length; ++i) {
+                current = [self.upper[i].volumeX, self.upper[i].volumeY];
+                var distance = distance2D(point, current);
+                if (distance < nearestUpperDistance) {
+                    nearestUpperIdx = i;
+                    nearestUpperDistance = distance;
+                }
+            }
+
+            for (i = 0; i < self.lower.length; ++i) {
+                current = [self.lower[i].volumeX, self.lower[i].volumeY];
+                var distance = distance2D(point, current);
+                if (distance < nearestLowerDistance) {
+                    nearestLowerDistance = distance;
+                    nearestLowerIdx = i;
+                }
+            }
+
+            // IPL percent is diff between the two.
+            var percent = (point[2] - self.upper[nearestUpperIdx].z) / (self.lower[nearestLowerIdx].z - self.upper[nearestUpperIdx].z);
+
+            return {
+                bottomIdx: nearestLowerIdx,
+                topIdx: nearestUpperIdx,
+                percent: percent
+            };
+        }
+
+        function getUpperBounds() {
             return self.upper;
         }
 
-        function getBottomBounds() {
+        function getLowerBounds() {
             return self.lower;
         }
     }
