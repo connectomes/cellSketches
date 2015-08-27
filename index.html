@@ -16,6 +16,7 @@
     <script src="app/volumeLayers.service.js"></script>
 
     <link rel="stylesheet" type="text/css" href="app/vis/conversions.css">
+    <link rel="stylesheet" type="text/css" href="style.css">
     <script src="app/vis/conversions.directive.js"></script>
 
     <link rel="stylesheet" type="text/css" href="app/app.css">
@@ -23,14 +24,25 @@
 
 <body ng-app="formExample" ng-controller="ExampleController as ctrl">
 
-<div>
+<div class="top">
+    <h3>Tech Demo: Converting Depth to IPL Percent</h3>
+    <form>
+        <blockquote>
+            Radius:
+            <input type="range" ng-model="cell.radius" min="5000" max="15000" value="5000" step="1000"/>
+            {{cell.radius}}
+        </blockquote>
+    </form>
+</div>
+<!---
+<div class="left">
     <form novalidate class="simple-form">
         Cell ID: <input type="number" ng-model="cell.name"/>
         <input type="submit" ng-click="update(cell)" value="Do it!"/>
     </form>
 </div>
-
-<conversions></conversions>
+--->
+<conversions class="main"></conversions>
 
 
 </body>

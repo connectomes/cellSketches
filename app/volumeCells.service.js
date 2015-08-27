@@ -9,9 +9,9 @@
         .module('formExample')
         .factory('volumeCells', volumeCells);
 
-    volumeCells.$inject = ['$q', 'volumeOData', 'volumeLayers'];
+    volumeCells.$inject = ['$q', 'volumeOData'];
 
-    function volumeCells($q, volumeOData, volumeLayers) {
+    function volumeCells($q, volumeOData) {
 
         var self = this;
         self.cells = [];
@@ -19,6 +19,7 @@
 
         var service = {
             getCellLocations: getCellLocations,
+            getLoadedCellIds: getLoadedCellIds,
             loadCellId: loadCellId
         };
 
@@ -31,6 +32,14 @@
                 }
             }
             throw 'Error - tried to get locations of this cell ID, but they weren\'t loaded yet:' + id;
+        }
+
+        function getLoadedCellIds() {
+            var ids = [];
+            for (var i = 0; i < self.cells.length; ++i) {
+                ids.push(self.cells[i].id);
+            }
+            return ids;
         }
 
         function loadCellId(id) {
@@ -60,8 +69,7 @@
                                 volumeY: currLocation.VolumeY,
                                 z: currLocation.Z,
                                 radius: currLocation.Radius,
-                                id: currLocation.ID,
-                                conversion: volumeLayers.convertToIPLPercent([currLocation.VolumeX, currLocation.VolumeY, currLocation.Z])
+                                id: currLocation.ID
                             };
 
                             locations.push(location);
@@ -84,6 +92,8 @@
                 volumeOData.request(request).then(success);
             });
         }
+
+
     }
 
 }());

@@ -21,7 +21,8 @@
             activate: activate,
             convertToIPLPercent: convertToIPLPercent,
             getUpperBounds: getUpperBounds,
-            getLowerBounds: getLowerBounds
+            getLowerBounds: getLowerBounds,
+            setSearchRadius: setSearchRadius
         };
 
         return service;
@@ -63,6 +64,8 @@
             volumeOData.requestMulti(requests)
                 .then(parseResults);
 
+            self.searchRadius = 5000;
+
             return deferred.promise;
         }
 
@@ -73,39 +76,74 @@
                 return Math.sqrt(Math.pow((p[0] - q[0]), 2) + Math.pow(p[1] - q[1], 2))
             }
 
-            // Find closest point in upper and lower boundaries.
-            var nearestUpperIdx = 0;
-            var current = [self.upper[0].volumeX, self.upper[0].volumeY];
-            var nearestUpperDistance = distance2D(point, current);
+            // Same indexes used throughout this method.
+            // nearestIdxs[0] = index of nearest neighbor on bottom of layer.
+            // nearestIdxs[1] = index of nearest neighbor on top of layer.
+            var nearestIdxs = [];
+            var nearestDistances = [];
+            var pointsInRadiusIdxs = [[], []];
+            var distancesInRadius = [[], []];
 
-            var nearestLowerIdx = 0;
-            current = [self.lower[0].volumeX, self.lower[0].volumeY];
-            var nearestLowerDistance = distance2D(point, current);
+            // Initialize upper and lower nearest neighbor points.
+            var boundaries = [self.lower, self.upper];
+            for (var i = 0; i < boundaries.length; ++i) {
+                var currBoundary = boundaries[i];
+                var current = [currBoundary[0].volumeX, currBoundary[0].volumeY];
+                nearestIdxs[i] = 0;
+                nearestDistances[i] = distance2D(point, current);
+            }
 
-            for (var i = 0; i < self.upper.length; ++i) {
-                current = [self.upper[i].volumeX, self.upper[i].volumeY];
-                var distance = distance2D(point, current);
-                if (distance < nearestUpperDistance) {
-                    nearestUpperIdx = i;
-                    nearestUpperDistance = distance;
+            // Search for nearest neighbor and points in radius.
+            for (i = 0; i < boundaries.length; ++i) {
+                currBoundary = boundaries[i];
+                for (var j = 0; j < currBoundary.length; ++j) {
+                    current = [currBoundary[j].volumeX, currBoundary[j].volumeY];
+                    var distance = distance2D(current, point);
+
+                    // Nearest neighbor for current boundary?
+                    if (distance < nearestDistances[i]) {
+                        nearestDistances[i] = distance;
+                        nearestIdxs[i] = j;
+                    }
+
+                    // Point in search radius?
+                    if (distance < self.searchRadius) {
+                        pointsInRadiusIdxs[i].push(j);
+                        distancesInRadius[i].push(distance);
+                    }
                 }
             }
 
-            for (i = 0; i < self.lower.length; ++i) {
-                current = [self.lower[i].volumeX, self.lower[i].volumeY];
-                var distance = distance2D(point, current);
-                if (distance < nearestLowerDistance) {
-                    nearestLowerDistance = distance;
-                    nearestLowerIdx = i;
+            // Compute average of depth values weighted by distance from point.
+            var averageDepths = [];
+
+            for (i = 0; i < boundaries.length; ++i) {
+                currBoundary = boundaries[i];
+                var currPointsInRadius = pointsInRadiusIdxs[i];
+                var currDistancesInRadius = distancesInRadius[i];
+
+                // No points in search radius -> use nearest point as our best guess.
+                if (pointsInRadiusIdxs[i].length == 0) {
+                    averageDepths[i] = currBoundary[nearestIdxs[i]].z;
+                    pointsInRadiusIdxs[i].push(nearestIdxs[i]);
+                } else {
+                    var totalDepth = 0.0;
+                    var totalDistance = 0.0;
+
+                    for (j = 0; j < currPointsInRadius.length; ++j) {
+                        var currPoint = currBoundary[currPointsInRadius[j]];
+                        totalDepth += (currPoint.z * currDistancesInRadius[j]);
+                        totalDistance += currDistancesInRadius[j];
+                    }
+                    averageDepths[i] = (totalDepth / totalDistance);
                 }
             }
 
-            // IPL percent is diff between the two.
-            var percent = (point[2] - self.upper[nearestUpperIdx].z) / (self.lower[nearestLowerIdx].z - self.upper[nearestUpperIdx].z);
+            var percent = (point[2] - averageDepths[1]) / (averageDepths[0] - averageDepths[1]);
 
             return {
-                bottomIdx: nearestLowerIdx,
-                topIdx: nearestUpperIdx,
+                bottomIdxs: pointsInRadiusIdxs[0],
+                topIdxs: pointsInRadiusIdxs[1],
                 percent: percent
             };
         }
@@ -116,6 +154,10 @@
 
         function getLowerBounds() {
             return self.lower;
+        }
+
+        function setSearchRadius(radius) {
+            self.searchRadius = radius;
         }
     }
 }());
