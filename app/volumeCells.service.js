@@ -25,6 +25,10 @@
 
         return service;
 
+        function failure(err) {
+            throw err;
+        }
+
         function getCellLocations(id) {
             for (var i = 0; i < self.cells.length; ++i) {
                 if (self.cells[i].id == id) {
@@ -43,6 +47,9 @@
         }
 
         function loadCellId(id) {
+            console.log("loading cell id:");
+            console.log(id);
+
             return $q(function (resolve, reject) {
 
                 var request = "Structures?$filter=(ID eq " + id + ")&$expand=Locations&$select=Locations/Radius,Locations/VolumeX,Locations/VolumeY,Locations/Z,ID,Locations/ID";
@@ -84,12 +91,13 @@
                     }
 
                     $q.all(promises).then(function () {
+                        console.log("finished loading cell id");
                         resolve();
                     });
 
                 }
 
-                volumeOData.request(request).then(success);
+                volumeOData.request(request).then(success, failure);
             });
         }
 

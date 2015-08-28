@@ -10,14 +10,15 @@ myApp.controller('ExampleController', function ($scope, $q, volumeOData, volumeB
 
     volumeBounds.activate().then(function () {
         volumeLayers.activate().then(function() {
-            $scope.update({name:[6117, 519]});
+            //$scope.update({name:[6117, 519]});
         });
     });
 
     $scope.master = {};
 
-    $scope.master.name = [6117, 519];
+    //$scope.master.name = [6117, 519];
 
+    /*
     $scope.update = function(cell) {
         console.log('scope update');
         $scope.cell = angular.copy(cell);
@@ -27,6 +28,18 @@ myApp.controller('ExampleController', function ($scope, $q, volumeOData, volumeB
         }
         $q.all(promises).then(function() {
                 $scope.$broadcast('loadedCellsChanged', cell);
+        });
+    };
+    */
+
+    $scope.cellAdded = function(cell) {
+        console.log('cellAdded:', cell.input);
+        var newCell = cell.input;
+        cell.input = "";
+        volumeCells.loadCellId(newCell).then(function() {
+            console.log('cells finished loading');
+            console.log(volumeCells.getLoadedCellIds());
+            $scope.$broadcast('loadedCellsChanged', cell);
         });
     };
 

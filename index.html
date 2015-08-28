@@ -18,11 +18,14 @@
     <link rel="stylesheet" type="text/css" href="app/vis/conversions.css">
     <link rel="stylesheet" type="text/css" href="style.css">
     <script src="app/vis/conversions.directive.js"></script>
+    <script src="app/vis/cellSelection.directive.js"></script>
 
     <link rel="stylesheet" type="text/css" href="app/app.css">
 </head>
 
 <body ng-app="formExample" ng-controller="ExampleController as ctrl">
+
+
 
 <div class="top">
     <h3>Tech Demo: Converting Depth to IPL Percent</h3>
@@ -34,6 +37,13 @@
         </blockquote>
     </form>
 </div>
+<cell-selection class="left">
+    <h4>Cell Selection</h4>
+    <form novalidate class="simple-form">
+        <input type="text" placeholder="Enter cell ids&hellip;" width="8" style="width:100px;" ng-model="cell.input"/>
+        <input type="submit" ng-click="cellAdded(cell)" value="Add"/>
+    </form>
+</cell-selection>
 <!---
 <div class="left">
     <form novalidate class="simple-form">

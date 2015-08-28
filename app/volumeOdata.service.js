@@ -30,11 +30,14 @@
             var deferred = $q.defer();
 
             var success = function (data) {
+                if(data.results.length == 0) {
+                    throw "Bad query!"
+                }
                 deferred.resolve(data);
             };
 
             var error = function (err) {
-                deferred.reject(err);
+                throw err;
             };
 
             OData.read(self.serviceUri + uri, success, error);
@@ -51,7 +54,7 @@
             };
 
             var error = function (err) {
-                deferred.reject(err);
+                throw err;
             };
 
             OData.read(uri, success, error);

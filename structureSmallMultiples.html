@@ -16,8 +16,8 @@
     // Query for label
     var serviceURL = "http://websvc1.connectomes.utah.edu/RC1/OData/ConnectomeData.svc/";
     OData.defaultHttpClient.enableJsonpCallback = true;
-    //var label = '\'CBb3-4i\'';
-    var label = '\'CBb4w\'';
+    var label = '\'CBb3-4i\'';
+    //var label = '\'CBb4w\'';
     //var label = '\'AC\'';
     //var label = '\'Rod BC\'';
     var requestURL = serviceURL + "Structures?$filter=(Label eq " + label + ")&$expand=Locations&$select=Locations/Z,Locations/ParentID,ID,Locations/ID";
