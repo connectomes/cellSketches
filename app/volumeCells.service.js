@@ -52,13 +52,17 @@
 
             return $q(function (resolve, reject) {
 
-                var request = "Structures?$filter=(ID eq "+ id + ")&$expand=Locations($select=Radius,VolumeX,VolumeY,Z,ParentID,ID)";
+                var request = "Structures?$filter=(ID eq " + id + ")&$expand=Locations($select=Radius,VolumeX,VolumeY,Z,ParentID,ID)";
 
                 function success(data) {
-                    var promises = [];
 
-                    for (var i = 0; i < data.data.value.length; ++i) {
-                        var currCell = data.data.value[i];
+                    var newCells = data.data.value;
+                    if (newCells.length == 0) {
+                        reject("Cell " + id + " does not exist!");
+                    }
+
+                    for (var i = 0; i < newCells.length; ++i) {
+                        var currCell = newCells[i];
 
                         var cell = {
                             id: currCell.ID,
@@ -85,12 +89,7 @@
 
                         self.cellLocations.push(locations);
                     }
-
-                    $q.all(promises).then(function () {
-                        console.log("finished loading cell id");
-                        resolve();
-                    });
-
+                    resolve();
                 }
 
                 volumeOData.request(request).then(success, failure);

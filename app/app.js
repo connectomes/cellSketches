@@ -8,39 +8,40 @@ myApp.controller('ExampleController', function ($scope, $q, volumeOData, volumeB
 
     var self = this;
 
-    volumeBounds.activate().then(function () {
-        volumeLayers.activate().then(function() {
-            //$scope.update({name:[6117, 519]});
-        });
-    });
+    activate();
+
+    function activate() {
+
+        function success(result) {
+            volumeLayers.activate().then(null, error);
+        }
+
+        function error(error) {
+            alert(error);
+        }
+
+        volumeBounds.activate().then(success, error);
+    }
 
     $scope.master = {};
-
-    //$scope.master.name = [6117, 519];
-
-    /*
-    $scope.update = function(cell) {
-        console.log('scope update');
-        $scope.cell = angular.copy(cell);
-        var promises = [];
-        for(var i=0; i<cell.name.length; ++i) {
-            promises[i] = volumeCells.loadCellId(cell.name[i]);
-        }
-        $q.all(promises).then(function() {
-                $scope.$broadcast('loadedCellsChanged', cell);
-        });
-    };
-    */
 
     $scope.cellAdded = function(cell) {
         console.log('cellAdded:', cell.input);
         var newCell = cell.input;
         cell.input = "";
-        volumeCells.loadCellId(newCell).then(function() {
+
+        function success() {
+            console.log("Success!");
             console.log('cells finished loading');
             console.log(volumeCells.getLoadedCellIds());
             $scope.$broadcast('loadedCellsChanged', cell);
-        });
+        }
+
+        function error(error) {
+            alert(error);
+        }
+
+        volumeCells.loadCellId(newCell).then(success, error);
     };
 
     $scope.reset = function () {
