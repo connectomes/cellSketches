@@ -9,13 +9,12 @@
         .module('formExample')
         .factory('volumeOData', volumeOData);
 
-    volumeOData.$inject = ['$q'];
+    volumeOData.$inject = ['$q', '$http'];
 
-    function volumeOData($q) {
+    function volumeOData($q, $http) {
 
         var self = this;
-        self.serviceUri = "http://websvc1.connectomes.utah.edu/RC1/OData/ConnectomeData.svc/";
-        OData.defaultHttpClient.enableJsonpCallback = true;
+        self.serviceUri = "http://websvc1.connectomes.utah.edu/RC1/OData/";
 
         var service = {
             request: request,
@@ -30,9 +29,6 @@
             var deferred = $q.defer();
 
             var success = function (data) {
-                if(data.results.length == 0) {
-                    throw "Bad query!"
-                }
                 deferred.resolve(data);
             };
 
@@ -40,7 +36,7 @@
                 throw err;
             };
 
-            OData.read(self.serviceUri + uri, success, error);
+            $http.get(self.serviceUri + uri).then(success, error);
 
             return deferred.promise;
         }
@@ -57,7 +53,7 @@
                 throw err;
             };
 
-            OData.read(uri, success, error);
+            $http.get(uri).then(success, error);
 
             return deferred.promise;
         }

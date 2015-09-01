@@ -52,24 +52,25 @@
 
             return $q(function (resolve, reject) {
 
-                var request = "Structures?$filter=(ID eq " + id + ")&$expand=Locations&$select=Locations/Radius,Locations/VolumeX,Locations/VolumeY,Locations/Z,ID,Locations/ID";
+                var request = "Structures?$filter=(ID eq "+ id + ")&$expand=Locations($select=Radius,VolumeX,VolumeY,Z,ParentID,ID)";
 
                 function success(data) {
                     var promises = [];
 
-                    for (var i = 0; i < data.results.length; ++i) {
+                    for (var i = 0; i < data.data.value.length; ++i) {
+                        var currCell = data.data.value[i];
 
                         var cell = {
-                            id: data.results[i].ID,
+                            id: currCell.ID,
                             locations: self.cellLocations.length
                         };
 
                         self.cells.push(cell);
 
                         var locations = [];
-                        for (var j = 0; j < data.results[i].Locations.results.length; ++j) {
+                        for (var j = 0; j < currCell.Locations.length; ++j) {
 
-                            var currLocation = data.results[i].Locations.results[j];
+                            var currLocation = currCell.Locations[j];
 
                             var location = {
                                 volumeX: currLocation.VolumeX,
@@ -83,11 +84,6 @@
                         }
 
                         self.cellLocations.push(locations);
-
-                        var nextUri = data.results[i].Locations.__next;
-                        if (nextUri) {
-                            throw "Error - need to implement recursive cell queries!";
-                        }
                     }
 
                     $q.all(promises).then(function () {

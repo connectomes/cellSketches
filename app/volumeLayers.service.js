@@ -40,7 +40,7 @@
 
                 for (var i = 0; i < promises.length; ++i) {
 
-                    var locations = promises[i].results[0].Locations.results;
+                    var locations = promises[i].data.value[0].Locations;
 
                     for (var j = 0; j < locations.length; ++j) {
 
