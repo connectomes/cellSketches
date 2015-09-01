@@ -10,7 +10,7 @@
 
 .left {
     position: absolute;
-    left: 0;
+    left: 10px;
     top: 96px;
     bottom: 0;
     width: 200px;
@@ -18,7 +18,7 @@
 
 .main {
     position: absolute;
-    left: 200px;
+    left: 210px;
     top: 96px;
     right: 0;
     bottom: 0;

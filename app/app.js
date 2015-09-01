@@ -8,19 +8,16 @@ myApp.controller('ExampleController', function ($scope, $q, volumeOData, volumeB
 
     var self = this;
 
-    activate();
+    self.isActivated = false;
 
     function activate() {
 
-        function success(result) {
-            volumeLayers.activate().then(null, error);
-        }
+        var promises = [];
 
-        function error(error) {
-            alert(error);
-        }
+        promises[0] = volumeLayers.activate();
+        promises[1] = volumeBounds.activate();
 
-        volumeBounds.activate().then(success, error);
+        return $q.all(promises);
     }
 
     $scope.master = {};
@@ -40,8 +37,20 @@ myApp.controller('ExampleController', function ($scope, $q, volumeOData, volumeB
         function error(error) {
             alert(error);
         }
+        if (!self.isActivated) {
+            activate().then(function() {
+                volumeCells.loadCellId(newCell).then(success, error)
+            });
+        } else {
+            volumeCells.loadCellId(newCell).then(success, error)
+        }
 
-        volumeCells.loadCellId(newCell).then(success, error);
+    };
+
+    $scope.cellRemoved = function(cell) {
+        console.log('Cell removed!');
+        volumeCells.removeCellId(cell);
+        $scope.$broadcast('loadedCellsChanged');
     };
 
     $scope.reset = function () {

@@ -45,10 +45,6 @@ function conversions(volumeBounds, volumeLayers, volumeCells) {
 
     function cellChanged(event, cell) {
 
-        if (!cell) {
-            return;
-        }
-
         // Delete everything!
         self.svg.selectAll('*').remove();
 

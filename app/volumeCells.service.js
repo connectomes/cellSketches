@@ -20,7 +20,8 @@
         var service = {
             getCellLocations: getCellLocations,
             getLoadedCellIds: getLoadedCellIds,
-            loadCellId: loadCellId
+            loadCellId: loadCellId,
+            removeCellId: removeCellId
         };
 
         return service;
@@ -96,7 +97,15 @@
             });
         }
 
-
+        function removeCellId(id) {
+            for (var i = 0; i < self.cells.length; ++i) {
+                if (self.cells[i].id == id) {
+                    self.cells.splice(i, 1);
+                    self.cellLocations.splice(i, 1);
+                    return;
+                }
+            }
+            throw 'Error - tried to remove cell id that was not loaded yet:' + id;
+        }
     }
-
 }());
