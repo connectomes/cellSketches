@@ -27,7 +27,7 @@ function demoView(volumeCells) {
         var numSmallMultiplesPerRow = 6;
         var smallMultiplePadding = 20;
         var smallMultipleWidth = (mainWidth - (numSmallMultiplesPerRow * smallMultiplePadding)) / numSmallMultiplesPerRow;
-        var smallMultipleHeight = smallMultipleWid  th;
+        var smallMultipleHeight = smallMultipleWidth;
         var smallMultipleOffsets = new Point2D(smallMultiplePadding + smallMultipleWidth, smallMultiplePadding + smallMultipleHeight);
 
         var settings = {
