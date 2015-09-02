@@ -54,11 +54,20 @@ myApp.controller('ExampleController', function ($scope, $q, volumeOData, volumeB
     };
 
     $scope.cellLabelAdded = function (cell) {
-        console.log("start cell label add: " + cell.inputLabel);
-        volumeCells.loadCellLabel(cell.inputLabel).then(function () {
-            console.log("Finished loading cell labels");
-            $scope.$broadcast('loadedCellsChanged', cell);
-        });
+
+        function loadCellLabel() {
+            console.log("start cell label add: " + cell.inputLabel);
+            volumeCells.loadCellLabel(cell.inputLabel).then(function () {
+                console.log("Finished loading cell labels");
+                $scope.$broadcast('loadedCellsChanged', cell);
+            });
+        }
+
+        if (!self.isActivated) {
+            activate().then(loadCellLabel());
+        } else {
+            loadCellLabel();
+        }
     };
 
     $scope.cellRemoved = function (cell) {

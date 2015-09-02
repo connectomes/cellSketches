@@ -4,7 +4,7 @@
 
 myApp.directive('demoView', demoView);
 
-function demoView(volumeCells) {
+function demoView(volumeCells, volumeBounds, volumeLayers) {
 
     return {
         link: link,
@@ -16,7 +16,7 @@ function demoView(volumeCells) {
         // Local variables.
         var svg;
         var svgWidth = 1650;
-        var svgHeight = 915;
+        var svgHeight = 1000;
         var controlWidth = 200;
         var mainWidth = svgWidth - controlWidth - 30;
         var mainHeight = svgHeight - 10;
@@ -31,8 +31,10 @@ function demoView(volumeCells) {
         var smallMultipleOffsets = new Point2D(smallMultiplePadding + smallMultipleWidth, smallMultiplePadding + smallMultipleHeight);
 
         var settings = {
-            displayBarCharts: true,
-            displayStructures: false
+            displayBarCharts: false,
+            displayStructures: true,
+            convexHulls: false,
+            largeSingle: true
         };
 
         activate();
@@ -83,15 +85,26 @@ function demoView(volumeCells) {
             var yPadding = 10;
             var buttonHeight = 20;
 
-
             function barChartsClicked() {
                 settings.displayBarCharts = true;
                 settings.displayStructures = false;
+                drawGraphs();
             }
 
             function structuresClicked() {
                 settings.displayBarCharts = false;
                 settings.displayStructures = true;
+                drawGraphs();
+            }
+
+            function convexHullsClicked() {
+                settings.convexHulls = !settings.convexHulls;
+                drawGraphs();
+            }
+
+            function largeSingleClicked() {
+                settings.largeSingle = !settings.largeSingle;
+                drawGraphs();
             }
 
             controlGroup.append('foreignObject')
@@ -112,6 +125,36 @@ function demoView(volumeCells) {
                     y: yPosition
                 }).on('click', structuresClicked)
                 .html("<input type=\"button\" value=\"Draw Structures\">");
+
+            yPosition += buttonHeight + yPadding;
+            controlGroup.append('foreignObject')
+                .attr({
+                    width: controlWidth,
+                    height: 100,
+                    x: 10,
+                    y: yPosition
+                }).on('click', convexHullsClicked)
+                .html("<input type=\"button\" value=\"Toggle pts/convex hull\">");
+
+            yPosition += buttonHeight + yPadding;
+            controlGroup.append('foreignObject')
+                .attr({
+                    width: controlWidth,
+                    height: 100,
+                    x: 10,
+                    y: yPosition
+                }).on('click', largeSingleClicked)
+                .html("<input type=\"button\" value=\"Toggle lg/sm\">");
+        }
+
+        function computeGridPosition(i) {
+            if (i < numSmallMultiplesPerRow) {
+                return new Point2D(i, 0);
+            } else {
+                var row = Math.floor(i / numSmallMultiplesPerRow);
+                var col = i % numSmallMultiplesPerRow;
+                return new Point2D(col, row);
+            }
         }
 
         function drawGraphs() {
@@ -201,16 +244,6 @@ function demoView(volumeCells) {
                     return '';
                 });
 
-            function computeGridPosition(i) {
-                if (i < numSmallMultiplesPerRow) {
-                    return new Point2D(i, 0);
-                } else {
-                    var row = Math.floor(i / numSmallMultiplesPerRow);
-                    var col = i % numSmallMultiplesPerRow;
-                    return new Point2D(col, row);
-                }
-            }
-
             var groups = mainGroup.selectAll('g')
                 .data(depthCounts.values())
                 .enter()
@@ -275,11 +308,259 @@ function demoView(volumeCells) {
         }
 
         function drawStructures() {
-            console.log('drawStructures');
+
+            console.log('drawStructures!');
+
+            if (settings.largeSingle) {
+                createLargeSingles();
+            } else {
+                createSmallMultiples();
+            }
+
+            // Function definitions
+
+            function createLargeSingles() {
+
+                var data = prepareData();
+                var dataPointsXZ = data.dataPointsXZ;
+                var dataPointsXY = data.dataPointsXY;
+                var zMin = data.zMin;
+                var zMax = data.zMax;
+
+                // Define group positions in the main group
+                var largeSinglesPadding = mainWidth * 0.025;
+
+                var largeSinglesXZPosition = new Point2D(largeSinglesPadding, largeSinglesPadding);
+
+                var largeSinglesXZWidth = mainWidth - (largeSinglesPadding * 2);
+                var largeSinglesXZHeight = largeSinglesXZWidth / 3;
+
+                var largeSinglesOtherWidth = largeSinglesXZHeight;
+                var largeSinglesOtherHeight = largeSinglesXZHeight;
+
+                var largeSinglesXYPosition = new Point2D(largeSinglesPadding, largeSinglesXZHeight + (largeSinglesPadding * 2));
+                var largeSinglesChildrenPosition = new Point2D(largeSinglesPadding * 2 + largeSinglesOtherWidth, largeSinglesXYPosition.y);
+
+                // Create groups that will hold the scatterplots
+                var largeSinglesXZGroup = mainGroup.append('g')
+                    .attr({transform: 'translate' + largeSinglesXZPosition.toString()});
+
+                var largeSinglesXYGroup = mainGroup.append('g')
+                    .attr({transform: 'translate' + largeSinglesXYPosition.toString()});
+
+                var largeSinglesChildrenGroup = mainGroup.append('g')
+                    .attr({transform: 'translate' + largeSinglesChildrenPosition.toString()});
+
+                // Create scales for the xz data
+                var yScale = d3.scale.linear();
+                var xScale = d3.scale.linear();
+                var rScale = d3.scale.linear();
+                var cScale = d3.scale.linear();
+
+                yScale.domain([zMin, zMax])
+                    .range([0, largeSinglesXZHeight]);
+
+                xScale.domain(volumeBounds.getRangeVolumeX())
+                    .range([0, largeSinglesXZWidth]);
+
+                cScale.domain([zMin, zMax])
+                    .range(["darkgrey", "darkgrey"]);
+
+                rScale.domain([0, volumeBounds.getRangeVolumeX()[1]])
+                    .range([0, largeSinglesXZHeight]);
+
+                // TODO: replace this with a real callback
+                function callback() {
+                    console.log('I\'m a callback');
+                }
+
+                createScatterPlotLargeSingle(largeSinglesXZGroup, largeSinglesXZWidth, largeSinglesXZHeight, dataPointsXZ, xScale, yScale, rScale, cScale, callback, callback, callback);
+
+                xScale.domain(volumeBounds.getRangeVolumeX())
+                    .range([0, largeSinglesOtherWidth]);
+
+                yScale.domain(volumeBounds.getRangeVolumeY())
+                    .range([largeSinglesOtherHeight, 0]);
+
+                createScatterPlotLargeSingle(largeSinglesXYGroup, largeSinglesOtherWidth, largeSinglesOtherHeight, dataPointsXY, xScale, yScale, rScale, cScale, callback, callback, callback);
+
+                // TODO: create child scatterplot
+            }
+
+            function createScatterPlotLargeSingle(group, width, height, data, xScale, yScale, rScale, cScale, mouseOverCb, mouseOutCb, clickCb) {
+
+                var xAxis = d3.svg.axis();
+                var yAxis = d3.svg.axis();
+                yAxis.scale(yScale)
+                    .orient('left');
+
+                var yAxisGroup = group.append('g')
+                    .attr('class', 'y axis')
+                    .call(yAxis);
+
+                xAxis.scale(xScale)
+                    .orient('bottom');
+
+                var xAxisGroup = group.append('g')
+                    .attr('class', 'x axis')
+                    .call(xAxis);
+
+                /*
+                 // TODO: make this a parameter
+                 yAxisGroup.append('text')
+                 .attr('text-anchor', 'middle')
+                 .attr('transform', 'translate(' + (-25) + ',' + (height/2) + ')rotate(-90)')
+
+                 xAxisGroup.append('text')
+                 .attr({
+                 'text-anchor': 'middle',
+                 'transform': 'translate(' + height +  ',' + 25 + ')'
+                 })
+                 .text('VolumeX Position');
+                 */
+
+                xAxisGroup.attr({
+                    'transform': 'translate(0,' + height + ')'
+                });
+
+                data.forEach(function (key, value) {
+
+                    var cellGroup = group.append('g').attr({
+                        id: key
+                    });
+
+                    cellGroup.selectAll('circle')
+                        .data(value)
+                        .enter()
+                        .append('circle')
+                        .attr({
+                            cx: function (d, i) {
+                                return xScale(d.position.x);
+                            },
+                            cy: function (d) {
+                                return yScale(d.position.y);
+                            },
+                            r: function (d) {
+                                return rScale(d.radius);
+                            },
+                            fill: 'none',
+                            stroke: function (d) {
+                                return cScale(d.c);
+                            }
+                        })
+                        .on('mouseover', mouseOverCb)
+                        .on('mouseout', mouseOutCb);
+
+                });
+
+
+            }
+
+            function createSmallMultiples() {
+
+                var data = prepareData();
+                var cells = volumeCells.getLoadedCellIds();
+                var dataPointsXZ = data.dataPointsXZ;
+                var dataPointsXY = data.dataPointsXY;
+                var zMin = data.zMin;
+                var zMax = 1.0;
+
+                for(var i=0; i<cells.length; ++i) {
+                    var position = computeGridPosition(i);
+                    var group = mainGroup.append('g')
+                        .attr({
+                            transform: function () {
+                                position = position.multiply(smallMultipleOffsets);
+                                return 'translate' + position.toString();
+                            }
+                        });
+
+                    var yScale = d3.scale.linear();
+                    var xScale = d3.scale.linear();
+                    var rScale = d3.scale.linear();
+                    var cScale = d3.scale.linear();
+
+                    yScale.domain([zMin, zMax])
+                        .range([0, smallMultipleHeight]);
+
+                    xScale.domain(volumeBounds.getRangeVolumeX())
+                        .range([0, smallMultipleWidth]);
+
+                    cScale.domain([zMin, zMax])
+                        .range(["darkgrey", "darkgrey"]);
+
+                    rScale.domain([0, volumeBounds.getRangeVolumeX()[1]])
+                        .range([0, smallMultipleHeight]);
+
+                    var tempMap = d3.map();
+                    tempMap.set(cells[i], dataPointsXZ.get(cells[i]));
+                    group.append('text')
+                        .attr({
+                            x: smallMultipleWidth / 2,
+                            y: 8
+                        })
+                        .style({
+                            'font-size': '12px',
+                            'text-anchor': 'middle'
+                        }).text(cells[i]);
+
+                    createScatterPlotLargeSingle(group, smallMultipleWidth, smallMultipleHeight, tempMap, xScale, yScale, rScale, cScale);
+                }
+            }
         }
 
         function mainGroupClear() {
             mainGroup.selectAll('*').remove();
+        }
+
+        function prepareData() {
+            var cells = volumeCells.getLoadedCellIds();
+
+            var dataPointsXZ = d3.map();
+            var dataPointsXY = d3.map();
+
+            var zMin = 0;
+            var zMax = 0;
+
+            for (var i = 0; i < cells.length; ++i) {
+
+                var locations = volumeCells.getCellLocations(cells[i]);
+                var currDataPointsXZ = [];
+                var currDataPointsXY = [];
+
+                for (var j = 0; j < locations.length; ++j) {
+
+                    var location = locations[j];
+                    var z = volumeLayers.convertToIPLPercent([location.x, location.y, location.z]).percent;
+                    var dataPointXZ = {
+                        position: new Point2D(location.volumeX, z),
+                        radius: location.radius,
+                        c: z
+                    };
+
+                    var dataPointXY = {
+                        position: new Point2D(location.volumeX, location.volumeY),
+                        radius: location.radius,
+                        c: z
+                    };
+
+                    zMin = Math.min(zMin, z);
+                    zMax = Math.max(zMax, z);
+
+                    currDataPointsXZ.push(dataPointXZ);
+                    currDataPointsXY.push(dataPointXY);
+                }
+
+                dataPointsXZ.set(cells[i], currDataPointsXZ);
+                dataPointsXY.set(cells[i], currDataPointsXY);
+            }
+
+            return {
+                dataPointsXZ: dataPointsXZ,
+                dataPointsXY: dataPointsXY,
+                zMin: zMin,
+                zMax: zMax
+            }
         }
     }
 }

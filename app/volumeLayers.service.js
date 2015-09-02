@@ -64,7 +64,7 @@
             volumeOData.requestMulti(requests)
                 .then(parseResults);
 
-            self.searchRadius = 5000;
+            self.searchRadius = 15000;
 
             return deferred.promise;
         }
