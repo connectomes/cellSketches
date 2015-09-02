@@ -25,9 +25,11 @@ function demoView(volumeCells) {
         var mainGroup;
 
         var numSmallMultiplesPerRow = 6;
-        var smallMultiplePadding = 10;
+        var smallMultiplePadding = 20;
         var smallMultipleWidth = (mainWidth - (numSmallMultiplesPerRow * smallMultiplePadding)) / numSmallMultiplesPerRow;
-        var smallMultipleOffsets = new Point2D(smallMultiplePadding + smallMultipleWidth, smallMultiplePadding + smallMultipleWidth);
+        var smallMultipleHeight = smallMultipleWidth;
+        var smallMultipleOffsets = new Point2D(smallMultiplePadding + smallMultipleWidth, smallMultiplePadding + smallMultipleHeight);
+
         var settings = {
             displayBarCharts: true,
             displayStructures: false
@@ -127,6 +129,7 @@ function demoView(volumeCells) {
             var cells = volumeCells.getLoadedCellIds();
             var depthCounts = d3.map();
             var maxNumStructures = 0;
+            var maxDepth = 0;
 
             for (var i = 0; i < cells.length; ++i) {
 
@@ -138,8 +141,9 @@ function demoView(volumeCells) {
 
                     var z = locations[j].z;
                     var locationId = locations[j].id;
+                    maxDepth = (z > maxDepth) ? z : maxDepth;
 
-                    if(count.has(z)) {
+                    if (count.has(z)) {
                         var value = count.get(z);
                         value.push(locationId);
                         maxNumStructures = value.length > maxNumStructures ? value.length : maxNumStructures;
@@ -165,12 +169,46 @@ function demoView(volumeCells) {
 
             var xAxisNoTicks = d3.svg.axis();
             var yAxisNoTicks = d3.svg.axis();
+            var domain = [];
+
+            for (i = 0; i < maxDepth; ++i) {
+                domain.push(i);
+            }
+
+            yScale.domain(domain)
+                .rangeBands([0, smallMultipleHeight]);
+
+            yAxis.scale(yScale)
+                .orient("left")
+                .tickValues(yScale.domain().filter(function (d, i) {
+                    return !(i % 50);
+                }));
+
+            yAxisNoTicks.scale(yScale)
+                .orient("left")
+                .tickValues(yScale.domain().filter(function (d, i) {
+                    return !(i % 50);
+                })).tickFormat(function (d) {
+                    return "";
+                });
+
+            xScale.domain([0, maxNumStructures])
+                .range([0, smallMultipleWidth]);
+
+            xAxis.scale(xScale)
+                .orient("bottom");
+
+            xAxisNoTicks.scale(xScale)
+                .orient("bottom")
+                .tickFormat(function (d) {
+                    return "";
+                });
 
             function computeGridPosition(i) {
-                if(i<numSmallMultiplesPerRow) {
+                if (i < numSmallMultiplesPerRow) {
                     return new Point2D(i, 0);
                 } else {
-                    var row = Math.floor(i/numSmallMultiplesPerRow);
+                    var row = Math.floor(i / numSmallMultiplesPerRow);
                     var col = i % numSmallMultiplesPerRow;
                     return new Point2D(col, row);
                 }
@@ -181,14 +219,47 @@ function demoView(volumeCells) {
                 .enter()
                 .append('g')
                 .attr({
-                    transform: function(d,i) {
+                    transform: function (d, i) {
                         var position = computeGridPosition(i);
                         position = position.multiply(smallMultipleOffsets);
                         return 'translate' + position.toString();
                     }
                 });
 
-            groups.append('rect').attr({width:10, height:10, fill:'black'});
+            groups.append('g')
+                .attr('class', 'x axis')
+                .attr('transform', 'translate(0,' + smallMultipleHeight + ')')
+                .call(xAxisNoTicks);
+
+            groups.append('g')
+                .attr('class', 'y axis')
+                .call(yAxisNoTicks);
+
+            console.log(cells);
+            groups.append('text')
+                .attr({
+                    x: smallMultipleWidth / 2,
+                    y: 8
+                })
+                .style({
+                    "font-size": '8px',
+                    "text-anchor": 'middle'
+                }).text();
+
+            groups.each(function(d, i) {
+                // this is the curr group.
+                //console.log(d);
+                d3.select(this).selectAll('rect').data(d3.zip(d.keys(), d.values().map(function(d) {return d.length;})))
+                    .enter()
+                    .append('rect')
+                    .attr({
+                        class: 'bar',
+                        x: 0,
+                        y: function(d) { return yScale(d[0]); }         ,
+                        height: yScale.rangeBand(),
+                        width: function(d) { return xScale(d[1]); }
+                    });
+            });
         }
 
         function drawStructures() {
