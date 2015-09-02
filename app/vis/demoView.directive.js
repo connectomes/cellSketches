@@ -27,7 +27,7 @@ function demoView(volumeCells) {
         var numSmallMultiplesPerRow = 6;
         var smallMultiplePadding = 20;
         var smallMultipleWidth = (mainWidth - (numSmallMultiplesPerRow * smallMultiplePadding)) / numSmallMultiplesPerRow;
-        var smallMultipleHeight = smallMultipleWidth;
+        var smallMultipleHeight = smallMultipleWid  th;
         var smallMultipleOffsets = new Point2D(smallMultiplePadding + smallMultipleWidth, smallMultiplePadding + smallMultipleHeight);
 
         var settings = {
@@ -158,9 +158,6 @@ function demoView(volumeCells) {
                 depthCounts.set(cellId, count);
             }
 
-            console.log(depthCounts);
-            console.log(maxNumStructures);
-
             var yScale = d3.scale.ordinal();
             var xScale = d3.scale.linear();
 
@@ -179,29 +176,29 @@ function demoView(volumeCells) {
                 .rangeBands([0, smallMultipleHeight]);
 
             yAxis.scale(yScale)
-                .orient("left")
+                .orient('left')
                 .tickValues(yScale.domain().filter(function (d, i) {
                     return !(i % 50);
                 }));
 
             yAxisNoTicks.scale(yScale)
-                .orient("left")
+                .orient('left')
                 .tickValues(yScale.domain().filter(function (d, i) {
                     return !(i % 50);
                 })).tickFormat(function (d) {
-                    return "";
+                    return '';
                 });
 
             xScale.domain([0, maxNumStructures])
                 .range([0, smallMultipleWidth]);
 
             xAxis.scale(xScale)
-                .orient("bottom");
+                .orient('bottom');
 
             xAxisNoTicks.scale(xScale)
-                .orient("bottom")
+                .orient('bottom')
                 .tickFormat(function (d) {
-                    return "";
+                    return '';
                 });
 
             function computeGridPosition(i) {
@@ -236,28 +233,43 @@ function demoView(volumeCells) {
                 .call(yAxisNoTicks);
 
             console.log(cells);
-            groups.append('text')
-                .attr({
-                    x: smallMultipleWidth / 2,
-                    y: 8
-                })
-                .style({
-                    "font-size": '8px',
-                    "text-anchor": 'middle'
-                }).text();
 
-            groups.each(function(d, i) {
-                // this is the curr group.
-                //console.log(d);
-                d3.select(this).selectAll('rect').data(d3.zip(d.keys(), d.values().map(function(d) {return d.length;})))
+
+            groups.each(function (d, i) {
+
+                var lengths = d.values().map(function (d) {
+                    return d.length;
+                });
+
+                var data = d3.zip(d.keys(), lengths);
+
+                d3.select(this)
+                    .append('text')
+                    .attr({
+                        x: smallMultipleWidth / 2,
+                        y: 8
+                    })
+                    .style({
+                        'font-size': '12px',
+                        'text-anchor': 'middle'
+                    }).text(cells[i]);
+
+                // 'this' is the group being iterated on.
+                d3.select(this)
+                    .selectAll('rect')
+                    .data(data)
                     .enter()
                     .append('rect')
                     .attr({
                         class: 'bar',
                         x: 0,
-                        y: function(d) { return yScale(d[0]); }         ,
+                        y: function (d) {
+                            return yScale(d[0]);
+                        },
                         height: yScale.rangeBand(),
-                        width: function(d) { return xScale(d[1]); }
+                        width: function (d) {
+                            return xScale(d[1]);
+                        }
                     });
             });
         }
