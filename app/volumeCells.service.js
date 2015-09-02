@@ -21,6 +21,7 @@
             getCellLocations: getCellLocations,
             getLoadedCellIds: getLoadedCellIds,
             loadCellId: loadCellId,
+            loadCellLabel: loadCellLabel,
             removeCellId: removeCellId
         };
 
@@ -97,6 +98,33 @@
             });
         }
 
+        function loadCellLabel(label) {
+
+            return $q(function (resolve, reject) {
+
+                var request = "Structures?$filter=(Label eq + %27" + label + "%27)&$select=ID";
+
+                function success(data) {
+
+                    var promises = [];
+
+                    var cellIds = data.data.value;
+
+                    for(var i=0; i<cellIds.length; ++i)
+                    {
+                        promises[i] = loadCellId(cellIds[i].ID);
+                    }
+
+                    $q.all(promises).then(function() {
+                        resolve();
+                    });
+                }
+
+                volumeOData.request(request).then(success, failure);
+            });
+
+        }
+
         function removeCellId(id) {
             for (var i = 0; i < self.cells.length; ++i) {
                 if (self.cells[i].id == id) {
@@ -107,5 +135,6 @@
             }
             throw 'Error - tried to remove cell id that was not loaded yet:' + id;
         }
+
     }
 }());

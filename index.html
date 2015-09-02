@@ -16,8 +16,10 @@
 
     <link rel="stylesheet" type="text/css" href="app/vis/conversions.css">
     <link rel="stylesheet" type="text/css" href="style.css">
-    <script src="app/vis/conversions.directive.js"></script>
+    <script src="app/vis/demoView.directive.js"></script>
     <script src="app/vis/cellSelection.directive.js"></script>
+
+    <script src="app/utils/point2d.js"></script>
 
     <link rel="stylesheet" type="text/css" href="app/app.css">
 </head>
@@ -27,32 +29,19 @@
 
 
 <div class="top">
-    <h3>Tech Demo: Converting Depth to IPL Percent</h3>
-    <form>
-        <blockquote>
-            Radius:
-            <input type="range" ng-model="cell.radius" min="5000" max="15000" value="5000" step="1000"/>
-            {{cell.radius}}
-        </blockquote>
-    </form>
+    <h3>Tech Demo: Small Multiples</h3>
 </div>
+
 <cell-selection class="left">
     <h4>Cell Selection</h4>
     <form novalidate class="simple-form">
-        <input type="text" placeholder="Enter cell ids&hellip;" width="8" style="width:100px;" ng-model="cell.input"/>
-        <input type="submit" ng-click="cellAdded(cell)" value="Add"/>
+        <input type="text" placeholder="Cell IDs&hellip;" width="8" style="width:100px;" ng-model="cell.input"/>
+        <input type="submit" ng-click="cellAdded(cell)" value="Add"/><br><br>
+        <input type="text" placeholder="Labels&hellip;" width="8" style="width:100px;" ng-model="cell.inputLabel"/>
+        <input type="submit" ng-click="cellLabelAdded(cell)" value="Add"/><br>
     </form>
 </cell-selection>
-<!---
-<div class="left">
-    <form novalidate class="simple-form">
-        Cell ID: <input type="number" ng-model="cell.name"/>
-        <input type="submit" ng-click="update(cell)" value="Do it!"/>
-    </form>
-</div>
---->
-<conversions class="main"></conversions>
 
-
+<demo-view class="main"></demo-view>
 </body>
 </html>

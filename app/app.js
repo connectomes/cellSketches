@@ -22,7 +22,12 @@ myApp.controller('ExampleController', function ($scope, $q, volumeOData, volumeB
 
     $scope.master = {};
 
-    $scope.cellAdded = function(cell) {
+    $scope.cell = {
+        input: 6117,
+        inputLabel: 'CBb4w'
+    };
+
+    $scope.cellAdded = function (cell) {
         console.log('cellAdded:', cell.input);
         var newCell = cell.input;
         cell.input = "";
@@ -37,8 +42,9 @@ myApp.controller('ExampleController', function ($scope, $q, volumeOData, volumeB
         function error(error) {
             alert(error);
         }
+
         if (!self.isActivated) {
-            activate().then(function() {
+            activate().then(function () {
                 volumeCells.loadCellId(newCell).then(success, error)
             });
         } else {
@@ -47,7 +53,15 @@ myApp.controller('ExampleController', function ($scope, $q, volumeOData, volumeB
 
     };
 
-    $scope.cellRemoved = function(cell) {
+    $scope.cellLabelAdded = function (cell) {
+        console.log("start cell label add: " + cell.inputLabel);
+        volumeCells.loadCellLabel(cell.inputLabel).then(function () {
+            console.log("Finished loading cell labels");
+            $scope.$broadcast('loadedCellsChanged', cell);
+        });
+    };
+
+    $scope.cellRemoved = function (cell) {
         console.log('Cell removed!');
         volumeCells.removeCellId(cell);
         $scope.$broadcast('loadedCellsChanged');
@@ -57,7 +71,7 @@ myApp.controller('ExampleController', function ($scope, $q, volumeOData, volumeB
         $scope.cell = angular.copy($scope.master);
     };
 
-    $scope.$watch('cell.radius', function(oldValue, newValue) {
+    $scope.$watch('cell.radius', function (oldValue, newValue) {
         volumeLayers.setSearchRadius(newValue);
         $scope.$broadcast('radiusChanged');
     });
