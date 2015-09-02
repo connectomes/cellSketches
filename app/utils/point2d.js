@@ -8,11 +8,11 @@ function Point2D(x, y) {
     self.x = x;
     self.y = y;
 
-    self.multiply = function(rhs) {
+    self.multiply = function (rhs) {
         return new Point2D(rhs.x * self.x, rhs.y * self.y);
-    }
+    };
 
-    self.toString = function() {
+    self.toString = function () {
         return '(' + self.x + ', ' + self.y + ')';
-    }
+    };
 }
