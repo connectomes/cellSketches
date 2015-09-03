@@ -20,15 +20,32 @@ function demoView(volumeCells, volumeBounds, volumeLayers) {
         var controlWidth = 200;
         var mainWidth = svgWidth - controlWidth - 30;
         var mainHeight = svgHeight - 10;
-        var mainX = 10;
+        var mainX = 0;
         var mainY = 2;
         var mainGroup;
 
-        var numSmallMultiplesPerRow = 6;
-        var smallMultiplePadding = 20;
+        var numSmallMultiplesPerRow = 5;
+        var smallMultiplePadding = 45;
         var smallMultipleWidth = (mainWidth - (numSmallMultiplesPerRow * smallMultiplePadding)) / numSmallMultiplesPerRow;
         var smallMultipleHeight = smallMultipleWidth;
         var smallMultipleOffsets = new Point2D(smallMultiplePadding + smallMultipleWidth, smallMultiplePadding + smallMultipleHeight);
+
+        d3.selection.prototype.moveToFront = function () {
+            return this.each(function () {
+                this.parentNode.appendChild(this);
+            });
+        };
+
+        d3.selection.prototype.moveToBack = function() {
+            return this.each(function() {
+                var firstChild = this.parentNode.firstChild;
+                if (firstChild) {
+                    this.parentNode.insertBefore(this, firstChild);
+                }
+            });
+        };
+
+        var tooltip;
 
         var settings = {
             displayBarCharts: false,
@@ -61,6 +78,7 @@ function demoView(volumeCells, volumeBounds, volumeLayers) {
                 });
 
             createControls();
+            tooltipCreate();
 
             scope.$on('loadedCellsChanged', drawGraphs);
         }
@@ -339,7 +357,7 @@ function demoView(volumeCells, volumeBounds, volumeLayers) {
                 var largeSinglesOtherHeight = largeSinglesXZHeight;
 
                 var largeSinglesXYPosition = new Point2D(largeSinglesPadding, largeSinglesXZHeight + (largeSinglesPadding * 2));
-                var largeSinglesChildrenPosition = new Point2D(largeSinglesPadding * 2 + largeSinglesOtherWidth, largeSinglesXYPosition.y);
+                var largeSinglesChildrenPosition = new Point2D(largeSinglesPadding + largeSinglesOtherWidth, largeSinglesXYPosition.y);
 
                 // Create groups that will hold the scatterplots
                 var largeSinglesXZGroup = mainGroup.append('g')
@@ -374,7 +392,8 @@ function demoView(volumeCells, volumeBounds, volumeLayers) {
                     console.log('I\'m a callback');
                 }
 
-                createScatterPlotLargeSingle(largeSinglesXZGroup, largeSinglesXZWidth, largeSinglesXZHeight, dataPointsXZ, xScale, yScale, rScale, cScale, callback, callback, callback);
+                createScatterPlotLargeSingle(largeSinglesXZGroup, largeSinglesXZWidth, largeSinglesXZHeight,
+                    dataPointsXZ, xScale, yScale, rScale, cScale, tooltipMove, tooltipHide, callback);
 
                 xScale.domain(volumeBounds.getRangeVolumeX())
                     .range([0, largeSinglesOtherWidth]);
@@ -382,7 +401,8 @@ function demoView(volumeCells, volumeBounds, volumeLayers) {
                 yScale.domain(volumeBounds.getRangeVolumeY())
                     .range([largeSinglesOtherHeight, 0]);
 
-                createScatterPlotLargeSingle(largeSinglesXYGroup, largeSinglesOtherWidth, largeSinglesOtherHeight, dataPointsXY, xScale, yScale, rScale, cScale, callback, callback, callback);
+                createScatterPlotLargeSingle(largeSinglesXYGroup, largeSinglesOtherWidth, largeSinglesOtherHeight,
+                    dataPointsXY, xScale, yScale, rScale, cScale, tooltipMove, tooltipHide, callback);
 
                 // TODO: create child scatterplot
             }
@@ -399,7 +419,8 @@ function demoView(volumeCells, volumeBounds, volumeLayers) {
                     .call(yAxis);
 
                 xAxis.scale(xScale)
-                    .orient('bottom');
+                    .orient('bottom')
+                    .ticks(6);
 
                 var xAxisGroup = group.append('g')
                     .attr('class', 'x axis')
@@ -465,12 +486,12 @@ function demoView(volumeCells, volumeBounds, volumeLayers) {
                 var zMin = data.zMin;
                 var zMax = 1.0;
 
-                for(var i=0; i<cells.length; ++i) {
+                for (var i = 0; i < cells.length; ++i) {
                     var position = computeGridPosition(i);
                     var group = mainGroup.append('g')
                         .attr({
                             transform: function () {
-                                position = position.multiply(smallMultipleOffsets);
+                                position = position.multiply(smallMultipleOffsets).add(new Point2D(smallMultiplePadding, 0));
                                 return 'translate' + position.toString();
                             }
                         });
@@ -504,7 +525,7 @@ function demoView(volumeCells, volumeBounds, volumeLayers) {
                             'text-anchor': 'middle'
                         }).text(cells[i]);
 
-                    createScatterPlotLargeSingle(group, smallMultipleWidth, smallMultipleHeight, tempMap, xScale, yScale, rScale, cScale);
+                    createScatterPlotLargeSingle(group, smallMultipleWidth, smallMultipleHeight, tempMap, xScale, yScale, rScale, cScale, tooltipMove, tooltipHide);
                 }
             }
         }
@@ -535,13 +556,17 @@ function demoView(volumeCells, volumeBounds, volumeLayers) {
                     var dataPointXZ = {
                         position: new Point2D(location.volumeX, z),
                         radius: location.radius,
-                        c: z
+                        c: z,
+                        parent: cells[i],
+                        id: location.id
                     };
 
                     var dataPointXY = {
                         position: new Point2D(location.volumeX, location.volumeY),
                         radius: location.radius,
-                        c: z
+                        c: z,
+                        parent: cells[i],
+                        id: location.id
                     };
 
                     zMin = Math.min(zMin, z);
@@ -562,5 +587,50 @@ function demoView(volumeCells, volumeBounds, volumeLayers) {
                 zMax: zMax
             }
         }
+
+        function tooltipCreate() {
+            tooltip = d3.select('body').append('div');
+
+            tooltip.attr('id', 'tooltip');
+
+            tooltip.html('')
+                .attr('class', 'tooltip')
+                .style('display', 'none');
+        }
+
+        function tooltipHide(d, i) {
+
+            d3.select(this)
+                .attr({
+                    fill: 'none',
+                    stroke: 'darkgrey'
+                }).moveToBack();
+
+            d3.select('#tooltip').style({'display': 'none'});
+        }
+
+        function tooltipMove(d, i) {
+
+            d3.select(this)
+                .attr({
+                    fill: 'darkblue',
+                    stroke: 'darkblue'
+                }).moveToFront();
+
+            var tip = 'ID: ' + d.id + '<br>' +
+                'Cell: ' + d.parent + '<br>';
+
+            tooltip.style('display', 'block');
+            tooltip.html(tip);
+
+            // Move the tooltip.
+            d3.select("#tooltip")
+                .style('top', d3.event.pageY + 2.5 + 'px')
+                .style('left', d3.event.pageX + 2.5 + 'px')
+                .style('opacity', 1)
+                .html(tip);
+        }
+
+
     }
 }
