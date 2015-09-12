@@ -1,7 +1,3 @@
-/**
- * Created by kerzner on 9/2/2015.
- */
-
 function addBlackRectToGroup(group) {
     group.append('rect')
         .attr({

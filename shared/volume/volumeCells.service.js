@@ -1,12 +1,8 @@
-/**
- * Copyright (c) Ethan Kerzner 2015
- */
-
 (function () {
     'use strict';
 
     angular
-        .module('formExample')
+        .module('app.volumeModule')
         .factory('volumeCells', volumeCells);
 
     volumeCells.$inject = ['$q', 'volumeOData'];

@@ -1,7 +1,3 @@
-/**
- * Copyright (c) Ethan Kerzner 2015
- */
-
 function Point2D(x, y) {
 
     var self = this;

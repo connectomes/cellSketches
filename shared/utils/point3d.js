@@ -1,7 +1,3 @@
-/**
- * Created by kerzner on 9/2/2015.
- */
-
 function Point3D(x, y, z) {
 
     var self = this;
