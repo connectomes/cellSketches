@@ -1,6 +1,3 @@
-node_modules/bower/*
 .idea/workspace.xml
-app/bower_components/*
-bower_components/*
-node_modules/*
+bower_components
 node_modules
