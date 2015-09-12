@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Hello World</title>
+
+    <!-- Third party stuff -->
+    <script src="../bower_components/angular/angular.js"></script>
+    <script src="../bower_components/d3/d3.js"></script>
+
+    <!-- The app -->
+    <script src="app.module.js"></script>
+    <script src="app.js"></script>
+
+    <!-- Shared modules. Order matters here. Module must be included before services. -->
+    <script src="../shared/volume/volume.module.js"></script>
+    <script src="../shared/volume/test.service.js"></script>
+    <script src="../shared/volume/volumeOdata.service.js"></script>
+    <script src="../shared/volume/volumeBounds.service.js"></script>
+    <script src="../shared/volume/volumeCells.service.js"></script>
+    <script src="../shared/volume/volumeLayers.service.js"></script>
+
+    <!-- Non-angular shared stuff. -->
+    <script src="../shared/utils/point2d.js"></script>
+    <script src="../shared/utils/point3d.js"></script>
+    <script src="../shared/utils/debug.js"></script>
+
+    <!-- Stylesheets. -->
+    <link rel="stylesheet" type="text/css" href="style.css">
+
+</head>
+
+<body ng-app="app.helloWorld" ng-controller="ExampleController as ctrl">
+
+
+
+<div class="top">
+    <h3>   Hello World</h3>
+</div>
+
+<div class="main">
+    If everything works correctly, the volume ranges should be printed below this.<br>
+    Volume X Range: {{rangeVolumeX}}<br>
+    Volume Y Range: {{rangeVolumeY}}
+</div>
+</body>
+</html>

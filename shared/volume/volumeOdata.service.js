@@ -1,21 +1,16 @@
-/**
- * Copyright (c) Ethan Kerzner 2015
- */
-
 (function () {
     'use strict';
 
     angular
-        .module('formExample')
+        .module('app.volumeModule')
         .factory('volumeOData', volumeOData);
 
-    volumeOData.$inject = ['$q'];
+    volumeOData.$inject = ['$q', '$http'];
 
-    function volumeOData($q) {
+    function volumeOData($q, $http) {
 
         var self = this;
-        self.serviceUri = "http://websvc1.connectomes.utah.edu/RC1/OData/ConnectomeData.svc/";
-        OData.defaultHttpClient.enableJsonpCallback = true;
+        self.serviceUri = "http://websvc1.connectomes.utah.edu/RC1/OData/";
 
         var service = {
             request: request,
@@ -34,10 +29,10 @@
             };
 
             var error = function (err) {
-                deferred.reject(err);
+                throw err;
             };
 
-            OData.read(self.serviceUri + uri, success, error);
+            $http.get(self.serviceUri + uri).then(success, error);
 
             return deferred.promise;
         }
@@ -51,10 +46,10 @@
             };
 
             var error = function (err) {
-                deferred.reject(err);
+                throw err;
             };
 
-            OData.read(uri, success, error);
+            $http.get(uri).then(success, error);
 
             return deferred.promise;
         }

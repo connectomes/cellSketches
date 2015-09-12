@@ -1,12 +1,8 @@
-/**
- * Copyright (c) Ethan Kerzner 2015
- */
-
 (function () {
     'use strict';
 
     angular
-        .module('formExample')
+        .module('app.volumeModule')
         .factory('volumeBounds', volumeBounds);
 
     volumeBounds.$inject = ['$q', 'volumeOData'];
@@ -35,28 +31,28 @@
 
             // Requests for bounding box of volume.
             var requests = [];
-            requests[0] = "Locations?$select=VolumeX&$orderby=VolumeX asc";
-            requests[1] = "Locations?$select=VolumeY&$orderby=VolumeY asc";
-            requests[2] = "Locations?$select=Z&$orderby=Z asc";
-            requests[3] = "Locations?$select=VolumeX&$orderby=VolumeX desc";
-            requests[4] = "Locations?$select=VolumeY&$orderby=VolumeY desc";
-            requests[5] = "Locations?$select=Z&$orderby=Z desc";
+            requests[0] = "Locations?$top=1&$select=VolumeX&$orderby=VolumeX asc";
+            requests[1] = "Locations?$top=1&$select=VolumeY&$orderby=VolumeY asc";
+            requests[2] = "Locations?$top=1&$select=Z&$orderby=Z asc";
+            requests[3] = "Locations?$top=1&$select=VolumeX&$orderby=VolumeX desc";
+            requests[4] = "Locations?$top=1&$select=VolumeY&$orderby=VolumeY desc";
+            requests[5] = "Locations?$top=1&$select=Z&$orderby=Z desc";
 
             var parseResults = function (promises) {
 
                 for (var i = 0; i < promises.length; ++i) {
                     if (i == 0) {
-                        self.bboxMin[0] = promises[i].results[0].VolumeX;
+                        self.bboxMin[0] = promises[i].data.value[0].VolumeX;
                     } else if (i == 1) {
-                        self.bboxMin[1] = promises[i].results[0].VolumeY;
+                        self.bboxMin[1] = promises[i].data.value[0].VolumeY;
                     } else if (i == 2) {
-                        self.bboxMin[2] = promises[i].results[0].Z;
+                        self.bboxMin[2] = promises[i].data.value[0].Z;
                     } else if (i == 3) {
-                        self.bboxMax[0] = promises[i].results[0].VolumeX;
+                        self.bboxMax[0] = promises[i].data.value[0].VolumeX;
                     } else if (i == 4) {
-                        self.bboxMax[1] = promises[i].results[0].VolumeY;
+                        self.bboxMax[1] = promises[i].data.value[0].VolumeY;
                     } else {
-                        self.bboxMax[2] = promises[i].results[0].Z;
+                        self.bboxMax[2] = promises[i].data.value[0].Z;
                     }
                 }
 

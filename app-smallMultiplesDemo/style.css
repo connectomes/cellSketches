@@ -1,0 +1,26 @@
+.top {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    height: 45px;
+    border-bottom: 1px solid darkgrey;
+}
+
+.left {
+    position: absolute;
+    left: 10px;
+    top: 45px;
+    bottom: 0;
+    width: 200px;
+}
+
+.main {
+    position: absolute;
+    left: 210px;
+    top: 45px;
+    right: 0;
+    bottom: 0;
+}
+
