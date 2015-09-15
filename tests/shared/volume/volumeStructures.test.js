@@ -1,5 +1,4 @@
 describe('VolumeStructures service test', function () {
-
     var volumeStructures, httpBackend;
 
     beforeEach(function () {
@@ -11,7 +10,7 @@ describe('VolumeStructures service test', function () {
         httpBackend = $httpBackend;
     }));
 
-    it('Test loading of volume structures', function () {
+    it('', function () {
 
         // Prepare fake http response for testing.
         httpBackend.whenGET('http://webdev.connectomes.utah.edu/RC1Test/OData/StructureTypes').respond({
@@ -1134,5 +1133,4 @@ describe('VolumeStructures service test', function () {
         // We expect 32 child structures to be returned.
         expect(volumeStructures.getNumChildStructureTypes() == 32).toBeTruthy();
     });
-
 });

@@ -34,9 +34,7 @@
 
 
              volumeCells.loadCellId(6117).then(function() {
-                 volumeCells.loadCellChildren(6117).then(function() {
                     $scope.cells = volumeCells.getCell(6117);
-                });
              });
 
 

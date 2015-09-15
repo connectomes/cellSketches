@@ -14,10 +14,11 @@
         self.cellLocations = [];
         self.cellChildren = [];
         self.cellChildrenLocations = [];
-        self.cellChildrenPartners = [3];
+        self.cellChildrenPartners = [];
 
         var service = {
             getCell: getCell,
+            getCellChildTypeIndexes: getCellChildTypeIndexes,
             getCellIndex: getCellIndex,
             getCellLocations: getCellLocations,
             getLoadedCellIds: getLoadedCellIds,
@@ -43,6 +44,21 @@
                 }
             }
             throw 'Error - tried to get cell ID, but it wasn\'t loaded yet:' + cellId;
+        }
+
+        function getCellChildTypeIndexes(cellIndex, childType) {
+
+            var cellChildren = self.cellChildren[cellIndex];
+
+            var currChildren = [];
+
+            for (var i = 0; i < cellChildren.length; ++i) {
+                if (cellChildren[i].type == childType) {
+                    currChildren.push(i);
+                }
+            }
+
+            return currChildren;
         }
 
         function getCellIndex(cellId) {
@@ -176,7 +192,7 @@
 
                         self.cellLocations.push(locations);
 
-                        loadCellChildren(id).then(function() {
+                        loadCellChildren(id).then(function () {
                             resolve();
                         });
                     }
@@ -212,11 +228,11 @@
 
                     var orderedPartners = [];
 
-                    for(var i=0; i<values.length; ++i) {
+                    for (var i = 0; i < values.length; ++i) {
 
                         var currPartnerIds = [];
 
-                        if(values[i].SourceOfLinks.length > 0) {
+                        if (values[i].SourceOfLinks.length > 0) {
 
                             if (values[i].SourceOfLinks[0].hasOwnProperty('Source')) {
 
@@ -227,7 +243,7 @@
                                 var parent = values[i].SourceOfLinks[0].Target.ParentID;
                                 var child = values[i].SourceOfLinks[0].TargetID;
                                 currPartnerIds.push(parent);
-                                orderedPartners.push( { partnerParent: parent, partnerIndex: child});
+                                orderedPartners.push({partnerParent: parent, partnerIndex: child});
 
                             } else {
 
@@ -241,7 +257,7 @@
                                 var parent = values[i].TargetOfLinks[0].Source.ParentID;
                                 var child = values[i].TargetOfLinks[0].SourceID;
                                 currPartnerIds.push(parent);
-                                orderedPartners.push( { partnerParent: parent, partnerIndex: child});
+                                orderedPartners.push({partnerParent: parent, partnerIndex: child});
 
                             } else if (values[i].TargetOfLinks[0].hasOwnProperty('Target')) {
 
@@ -253,11 +269,11 @@
                             }
                         } else {
 
-                            orderedPartners.push( { partnerParent: -1, partnerIndex: -1});
+                            orderedPartners.push({partnerParent: -1, partnerIndex: -1});
 
                         }
 
-                        for(var j=0; j<currPartnerIds.length; ++j) {
+                        for (var j = 0; j < currPartnerIds.length; ++j) {
                             if (partnerIds.indexOf(currPartnerIds[j]) == -1 && currPartnerIds[j] > -1) {
                                 partnerIds.push(currPartnerIds[j]);
                             }
@@ -266,7 +282,7 @@
                     }
                     var cellIndex = getCellIndex(cellId);
                     self.cellChildrenPartners[cellIndex] = orderedPartners;
-                    loadCellIds(partnerIds).then(function() {
+                    loadCellIds(partnerIds).then(function () {
                         resolve();
                     });
                 }
