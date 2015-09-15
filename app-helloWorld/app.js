@@ -28,16 +28,18 @@
         }
 
         function updateScopeData() {
+
             $scope.rangeVolumeX = volumeBounds.getRangeVolumeX();
             $scope.rangeVolumeY = volumeBounds.getRangeVolumeY();
 
-            /*
-            volumeCells.loadCellIds([6117, 321]).then(function() {
-                $scope.cells = volumeCells.getCell(6117);
-                $scope.cells = volumeCells.getCell(321);
-                volumeCells.loadCellNeighbors(6117);
-            });
-            */
+
+             volumeCells.loadCellId(6117).then(function() {
+                 volumeCells.loadCellChildren(6117).then(function() {
+                    $scope.cells = volumeCells.getCell(6117);
+                });
+             });
+
+
         }
 
         // Activate this.

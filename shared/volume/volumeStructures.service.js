@@ -54,8 +54,7 @@
                         self.childStructureTypeIndexes.push(i);
                     }
                 }
-                console.log(self.structureTypes);
-                console.log(self.childStructureTypeIndexes);
+
                 deferred.resolve();
             }
 
