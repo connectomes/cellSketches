@@ -1,10 +1,15 @@
 module.exports = function(config){
   config.set({
 
-    basePath : './',
+basePath : './',
 
     files : [
-    ],
+    'bower_components/angular/angular.js',
+    'bower_components/angular-mocks/angular-mocks.js',
+    'shared/volume/volume.module.js',
+    'shared/volume/*.js',
+    'tests/**/**/*.js'
+],
 
     autoWatch : true,
 
@@ -13,16 +18,15 @@ module.exports = function(config){
     browsers : ['Chrome'],
 
     plugins : [
-            'karma-chrome-launcher',
-            'karma-firefox-launcher',
-            'karma-jasmine',
-            'karma-junit-reporter'
-            ],
+    'karma-chrome-launcher',
+    'karma-jasmine',
+    'karma-junit-reporter'
+],
 
     junitReporter : {
-      outputFile: 'test_out/unit.xml',
-      suite: 'unit'
-    }
+    outputFile: 'test_out/unit.xml',
+        suite: 'unit'
+}
 
-  });
+});
 };

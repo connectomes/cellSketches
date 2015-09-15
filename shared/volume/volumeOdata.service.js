@@ -10,7 +10,7 @@
     function volumeOData($q, $http) {
 
         var self = this;
-        self.serviceUri = "http://websvc1.connectomes.utah.edu/RC1/OData/";
+        self.serviceUri = "http://webdev.connectomes.utah.edu/RC1Test/OData/";
 
         var service = {
             request: request,

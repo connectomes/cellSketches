@@ -1,12 +1,3 @@
-function addBlackRectToGroup(group) {
-    group.append('rect')
-        .attr({
-            width: 10,
-            height: 10,
-            fill: 'black'
-        });
-}
-
 function addBlackRectToGroup(group, width, height) {
     group.append('rect')
         .attr({
