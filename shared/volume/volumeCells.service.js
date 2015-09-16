@@ -18,9 +18,11 @@
 
         var service = {
             getCell: getCell,
+            getCellAt: getCellAt,
             getCellChildTypeIndexes: getCellChildTypeIndexes,
             getCellIndex: getCellIndex,
             getCellLocations: getCellLocations,
+            getCellNeighborIndexesByChildType: getCellNeighborIndexesByChildType,
             getLoadedCellIds: getLoadedCellIds,
             getNumCellChildren: getNumCellChildren,
             loadCellChildren: loadCellChildren,
@@ -46,6 +48,10 @@
             throw 'Error - tried to get cell ID, but it wasn\'t loaded yet:' + cellId;
         }
 
+        function getCellAt(index) {
+            return self.cells[index];
+        }
+
         function getCellChildTypeIndexes(cellIndex, childType) {
 
             var cellChildren = self.cellChildren[cellIndex];
@@ -59,6 +65,37 @@
             }
 
             return currChildren;
+        }
+
+        function getCellNeighborIndexesByChildType(cellIndex, childType) {
+
+            var childTypeSet = false;
+            var children = self.cellChildren[cellIndex];
+            var partners = self.cellChildrenPartners[cellIndex];
+            var neighbors = []; // to be returned
+
+            if (childType != '*' || childType != undefined) {
+                childTypeSet = true;
+                children = getCellChildTypeIndexes(cellIndex, childType);
+            }
+
+            for (var i=0; i<children.length; ++i) {
+
+                var currChildIndex = i;
+                if (childTypeSet) {
+                    currChildIndex = children[i];
+                }
+
+                var partnerParent = partners[currChildIndex].partnerParent;
+
+                if (partnerParent != -1) {
+                    var partnerParentIndex = getCellIndex(partnerParent);
+                    neighbors.push(partnerParentIndex);
+                }
+
+            }
+
+            return neighbors;
         }
 
         function getCellIndex(cellId) {
@@ -152,7 +189,7 @@
 
             return $q(function (resolve, reject) {
 
-                var request = "Structures?$filter=(ID eq " + id + ")&$expand=Locations($select=Radius,VolumeX,VolumeY,Z,ParentID,ID)";
+                var request = "Structures?$filter=(ID eq " + id + ")";//&$expand=Locations($select=Radius,VolumeX,VolumeY,Z,ParentID,ID)";
 
                 function success(data) {
 
@@ -174,27 +211,8 @@
 
                         self.cells.push(cell);
 
-                        var locations = [];
-                        for (var j = 0; j < currCell.Locations.length; ++j) {
+                        resolve();
 
-                            var currLocation = currCell.Locations[j];
-
-                            var location = {
-                                volumeX: currLocation.VolumeX,
-                                volumeY: currLocation.VolumeY,
-                                z: currLocation.Z,
-                                radius: currLocation.Radius,
-                                id: currLocation.ID
-                            };
-
-                            locations.push(location);
-                        }
-
-                        self.cellLocations.push(locations);
-
-                        loadCellChildren(id).then(function () {
-                            resolve();
-                        });
                     }
                 }
 
@@ -218,7 +236,7 @@
 
             return $q(function (resolve, reject) {
 
-                //var request = 'Structures(' + cellId + ')/Children?$expand=SourceOfLinks($expand=Target($select=ParentID)),TargetOfLinks($expand=Source($select=ParentID))';
+                var request = 'Structures(' + cellId + ')/Children?$expand=SourceOfLinks($expand=Target($select=ParentID)),TargetOfLinks($expand=Source($select=ParentID))';
 
                 function success(data) {
 

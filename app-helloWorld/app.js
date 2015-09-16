@@ -31,14 +31,18 @@
 
             $scope.rangeVolumeX = volumeBounds.getRangeVolumeX();
             $scope.rangeVolumeY = volumeBounds.getRangeVolumeY();
-
-
+            $scope.cells = [];
             volumeCells.loadCellId(6117).then(function () {
-                volumeCells.loadCellNeighbors(6117);
-                $scope.cells = volumeCells.getCell(6117);
+                volumeCells.loadCellChildren(6117).then(function() {
+                    volumeCells.loadCellNeighbors(6117).then(function() {
+                        var neighbors = volumeCells.getCellNeighborIndexesByChildType(0);
+                        for(var i=0; i<neighbors.length; ++i) {
+                            $scope.cells.push(volumeCells.getCellAt(neighbors[i]));
+                        }
+                        console.log("Done!");
+                    });
+                });
             });
-
-
         }
 
         // Activate this.

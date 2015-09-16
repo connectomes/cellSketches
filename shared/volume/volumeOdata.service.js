@@ -11,6 +11,7 @@
 
         var self = this;
         self.serviceUri = "http://webdev.connectomes.utah.edu/RC1Test/OData/";
+        //self.serviceUri = "http://websvc1.connectomes.utah.edu/RC1/OData/";
 
         var service = {
             request: request,
