@@ -23,6 +23,7 @@
             getCellIndex: getCellIndex,
             getCellLocations: getCellLocations,
             getCellNeighborIndexesByChildType: getCellNeighborIndexesByChildType,
+            getCellNeighborLabelsByChildType: getCellNeighborLabelsByChildType,
             getLoadedCellIds: getLoadedCellIds,
             getNumCellChildren: getNumCellChildren,
             loadCellChildren: loadCellChildren,
@@ -74,12 +75,12 @@
             var partners = self.cellChildrenPartners[cellIndex];
             var neighbors = []; // to be returned
 
-            if (childType != '*' || childType != undefined) {
+            if (childType != undefined) {
                 childTypeSet = true;
                 children = getCellChildTypeIndexes(cellIndex, childType);
             }
 
-            for (var i=0; i<children.length; ++i) {
+            for (var i = 0; i < children.length; ++i) {
 
                 var currChildIndex = i;
                 if (childTypeSet) {
@@ -96,6 +97,43 @@
             }
 
             return neighbors;
+        }
+
+        function getCellNeighborLabelsByChildType(cellIndex, childType) {
+
+            var neighbors = getCellNeighborIndexesByChildType(cellIndex, childType);
+            var labels = [];
+
+            for (var i = 0; i < neighbors.length; ++i) {
+
+                var currNeighbor = getCellAt(neighbors[i]);
+                var found = false;
+
+                // If currNeighbor's label is already in labels then add it to the per-label indexes. Else, create a new
+                // entry in labels for currNeighbor.
+                for (var j = 0; j < labels.length; ++j) {
+
+                    if (labels[j].label == currNeighbor.label) {
+
+                        found = true;
+
+                        if (labels[j].indexes.indexOf(neighbors[i]) == -1) {
+                            labels[j].indexes.push(neighbors[i]);
+                        }
+
+                        break;
+                    }
+                }
+
+                if (!found) {
+                    labels.push({
+                        label: currNeighbor.label,
+                        indexes: [neighbors[i]]
+                    });
+                }
+            }
+
+            return labels;
         }
 
         function getCellIndex(cellId) {
@@ -199,7 +237,15 @@
                     }
 
                     for (var i = 0; i < newCells.length; ++i) {
+
                         var currCell = newCells[i];
+
+                        // Clean up the label (some labels have trailing whitespace).
+                        if (currCell.Label) {
+                            currCell.Label = currCell.Label.trim();
+                        } else {
+                            currCell.Label = "null";
+                        }
 
                         var cell = {
                             id: currCell.ID,
@@ -212,7 +258,6 @@
                         self.cells.push(cell);
 
                         resolve();
-
                     }
                 }
 

@@ -35,9 +35,10 @@
             volumeCells.loadCellId(6117).then(function () {
                 volumeCells.loadCellChildren(6117).then(function() {
                     volumeCells.loadCellNeighbors(6117).then(function() {
-                        var neighbors = volumeCells.getCellNeighborIndexesByChildType(0);
-                        for(var i=0; i<neighbors.length; ++i) {
-                            $scope.cells.push(volumeCells.getCellAt(neighbors[i]));
+                        var labels = volumeCells.getCellNeighborLabelsByChildType(0);
+                        for(var i=0; i<labels.length; ++i) {
+
+                            $scope.cells.push(labels[i]);
                         }
                         console.log("Done!");
                     });
