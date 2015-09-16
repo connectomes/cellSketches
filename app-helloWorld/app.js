@@ -33,9 +33,10 @@
             $scope.rangeVolumeY = volumeBounds.getRangeVolumeY();
 
 
-             volumeCells.loadCellId(6117).then(function() {
-                    $scope.cells = volumeCells.getCell(6117);
-             });
+            volumeCells.loadCellId(6117).then(function () {
+                volumeCells.loadCellNeighbors(6117);
+                $scope.cells = volumeCells.getCell(6117);
+            });
 
 
         }

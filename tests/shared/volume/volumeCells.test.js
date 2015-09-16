@@ -42,7 +42,6 @@ describe('VolumeStructures service test', function () {
         expect(volumeCells.getNumCellChildren(id) == 506).toBeTruthy();
     });
 
-
     it('Get cell children by type', function() {
 
         var id = 6117;
@@ -62,5 +61,7 @@ describe('VolumeStructures service test', function () {
         expect(childrenIndexes.length == 0).toBeTruthy();
     });
 
+    it('Get cell children partners', function() {
 
+    });
 });

@@ -218,7 +218,7 @@
 
             return $q(function (resolve, reject) {
 
-                var request = 'Structures(' + cellId + ')/Children?$expand=SourceOfLinks($expand=Target($select=ParentID)),TargetOfLinks($expand=Source($select=ParentID))&$select=ID';
+                //var request = 'Structures(' + cellId + ')/Children?$expand=SourceOfLinks($expand=Target($select=ParentID)),TargetOfLinks($expand=Source($select=ParentID))';
 
                 function success(data) {
 
