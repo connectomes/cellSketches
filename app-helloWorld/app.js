@@ -32,19 +32,36 @@
             $scope.rangeVolumeX = volumeBounds.getRangeVolumeX();
             $scope.rangeVolumeY = volumeBounds.getRangeVolumeY();
             $scope.cells = [];
-            volumeCells.loadCellId(6117).then(function () {
-                volumeCells.loadCellChildren(6117).then(function() {
-                    volumeCells.loadCellNeighbors(6117).then(function() {
-                        var labels = volumeCells.getCellNeighborLabelsByChildType(0);
-                        for(var i=0; i<labels.length; ++i) {
 
-                            $scope.cells.push(labels[i]);
+            volumeCells.loadCellLabel('CBb4w').then(function () {
+
+                var cellsInLabel = volumeCells.getCellIndexesInLabel('CBb4w');
+
+                var promises = [];
+
+                for (var i = 0; i < cellsInLabel.length; ++i) {
+                    promises[i] = volumeCells.loadCellChildrenAt(cellsInLabel[i]);
+                }
+
+                $q.all(promises).then(function () {
+                    console.log('finished loading children');
+
+                    promises = [];
+
+                    for (var i = 0; i < cellsInLabel.length; ++i) {
+                        promises[i] = volumeCells.loadCellNeighborsAt(cellsInLabel[i]);
+                    }
+
+                    $q.all(promises).then(function () {
+                        console.log('finished loading cell neighbors');
+                        for (var i = 0; i < cellsInLabel.length; ++i) {
+                            console.log(volumeCells.getCellNeighborLabelsByChildType(i));
                         }
-                        console.log("Done!");
                     });
                 });
             });
         }
+
 
         // Activate this.
         activate().then(updateScopeData);
