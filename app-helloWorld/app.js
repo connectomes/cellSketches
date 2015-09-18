@@ -27,26 +27,38 @@
             return $q.all(promises);
         }
 
+        function checkForDuplicateCells() {
+            var loadedCells = volumeCells.getLoadedCellIds();
+
+            for(var i=0; i<loadedCells.length; ++i) {
+                for(var j=i+1; j<loadedCells.length; ++j) {
+                    if (loadedCells[i] == loadedCells[j]) {
+                        throw('Found duplicate cell ids loaded: ' + loadedCells[j] + ', ' + loadedCells[i]);
+                    }
+                }
+            }
+            console.log('Success!');
+        }
 
         function loadLocal() {
             var filename = 'shit.json';
-            volumeCells.loadFromFile(filename);
+
+            volumeCells.loadFromFile(filename).then(function() {
+                checkForDuplicateCells();
+            });
         }
-        function loadRemote() {
+
+        function loadRemoteStartsWith() {
 
             $scope.rangeVolumeX = volumeBounds.getRangeVolumeX();
             $scope.rangeVolumeY = volumeBounds.getRangeVolumeY();
             $scope.cells = [];
-            //var label = 'CBb4w';
-            var label = 'Rod BC';
-            volumeCells.loadCellLabel(label).then(function () {
-
-                var cellsInLabel = volumeCells.getCellIndexesInLabel(label);
-
+            volumeCells.loadCellStartsWith('CBb').then(function () {
                 var promises = [];
 
-                for (var i = 0; i < cellsInLabel.length; ++i) {
-                    promises[i] = volumeCells.loadCellChildrenAt(cellsInLabel[i]);
+                var numCells = volumeCells.getNumCells();
+                for (var i = 0; i < numCells; ++i) {
+                    promises[i] = volumeCells.loadCellChildrenAt(i);
                 }
 
                 $q.all(promises).then(function () {
@@ -54,20 +66,15 @@
 
                     promises = [];
 
-                    for (var i = 0; i < cellsInLabel.length; ++i) {
-                        promises[i] = volumeCells.loadCellNeighborsAt(cellsInLabel[i]);
+                    for (var i = 0; i < numCells; ++i) {
+                        promises[i] = volumeCells.loadCellNeighborsAt(i);
                     }
 
                     $q.all(promises).then(function () {
                         console.log('finished loading cell neighbors');
-                        var filename = 'shit.json';
+                        var filename = 'volumeCells.startsWithCBb.json';
                         volumeCells.saveAsFile(filename);
-
-                        //filename = '../tests/mock/shit.json';
-
-                        for (var i = 0; i < cellsInLabel.length; ++i) {
-                            console.log(volumeCells.getCellNeighborLabelsByChildType(i));
-                        }
+                        checkForDuplicateCells();
                     });
                 });
 
@@ -76,8 +83,48 @@
         }
 
 
+        function loadRemote () {
+
+            $scope.rangeVolumeX = volumeBounds.getRangeVolumeX();
+            $scope.rangeVolumeY = volumeBounds.getRangeVolumeY();
+            $scope.cells = [];
+            var labels = ['CBb4w', 'Rod BC', 'AC', 'Cbb5w', 'Cbb3m'];
+            volumeCells.loadCellLabels(labels).then(function () {
+
+                var cellsInLabels = [];
+                for(var i=0; i<labels.length; ++i) {
+                    cellsInLabels = cellsInLabels.concat(volumeCells.getCellIndexesInLabel(labels[i]));
+                }
+
+                var promises = [];
+
+                for (i = 0; i < cellsInLabels.length; ++i) {
+                    promises[i] = volumeCells.loadCellChildrenAt(cellsInLabels[i]);
+                }
+
+                $q.all(promises).then(function () {
+                    console.log('finished loading children');
+
+                    promises = [];
+
+                    for (var i = 0; i < cellsInLabels.length; ++i) {
+                        promises[i] = volumeCells.loadCellNeighborsAt(cellsInLabels[i]);
+                    }
+
+                    $q.all(promises).then(function () {
+                        console.log('finished loading cell neighbors');
+                        var filename = 'shit.json';
+                        volumeCells.saveAsFile(filename);
+                        checkForDuplicateCells();
+                    });
+                });
+
+            });
+
+        }
+
         // Activate this.
-        activate().then(loadLocal);
+        activate().then(loadRemoteStartsWith);
 
     }
 

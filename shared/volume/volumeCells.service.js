@@ -27,11 +27,14 @@
             getCellNeighborLabelsByChildType: getCellNeighborLabelsByChildType,
             getLoadedCellIds: getLoadedCellIds,
             getNumCellChildren: getNumCellChildren,
+            getNumCells: getNumCells,
             loadCellChildrenAt: loadCellChildrenAt,
             loadCellId: loadCellId,
             loadCellIds: loadCellIds,
             loadCellLabel: loadCellLabel,
+            loadCellLabels: loadCellLabels,
             loadCellNeighborsAt: loadCellNeighborsAt,
+            loadCellStartsWith: loadCellStartsWith,
             loadFromFile: loadFromFile,
             removeCellId: removeCellId,
             saveAsFile: saveAsFile
@@ -147,12 +150,14 @@
         }
 
         function getCellIndex(cellId) {
+
             for (var i = 0; i < self.cells.length; ++i) {
                 if (self.cells[i].id == cellId) {
                     return i;
                 }
             }
-            throw 'Error - tried to get cell index, but it wasn\'t loaded yet:' + cellId;
+
+            return -1;
         }
 
         function getCellIndexesInLabel(label) {
@@ -190,6 +195,10 @@
                     return self.cellChildren[i].length;
                 }
             }
+        }
+
+        function getNumCells() {
+            return self.cells.length;
         }
 
         function loadCellChildrenAt(index) {
@@ -262,30 +271,39 @@
 
                     for (var i = 0; i < newCells.length; ++i) {
 
-                        var currCell = newCells[i];
+                        var newCell = newCells[i];
 
                         // Clean up the label (some labels have trailing whitespace).
-                        if (currCell.Label) {
-                            currCell.Label = currCell.Label.trim();
+                        if (newCell.Label) {
+                            newCell.Label = newCell.Label.trim();
                         } else {
-                            currCell.Label = "null";
+                            newCell.Label = "null";
                         }
 
-                        var cell = {
-                            id: currCell.ID,
-                            locations: self.cellLocations.length,
-                            label: currCell.Label,
-                            notes: currCell.Notes,
-                            tags: currCell.Tags
-                        };
+                        var index = getCellIndex(newCell.ID);
 
-                        self.cells.push(cell);
+                        if(index == -1) {
+                            throw('Volume cells got a cell it didn\'t ask for!');
+                        }
+
+                        var currCell = self.cells[index];
+
+                        currCell.locations = self.cellLocations.length;
+                        currCell.label = newCell.Label;
+                        currCell.tags = newCell.Tags;
+                        currCell.notes = newCell.Notes;
 
                         resolve();
                     }
                 }
 
-                volumeOData.request(request).then(success, failure);
+                if(getCellIndex(id) > -1) {
+                    resolve();
+                } else {
+                    var cell = {id: id};
+                    self.cells.push(cell);
+                    volumeOData.request(request).then(success, failure);
+                }
             });
         }
 
@@ -419,18 +437,59 @@
 
         }
 
+        function loadCellLabels(labels) {
+
+            var promises = [];
+
+            for (var i = 0; i < labels.length; ++i) {
+                promises[i] = loadCellLabel(labels[i]);
+            }
+
+            return $q.all(promises);
+        }
+
+        function loadCellStartsWith(label) {
+
+            return $q(function (resolve, reject) {
+
+                var request = "Structures?$filter=(startswith(Label,%27" + label + "%27) and TypeID eq 1)&$select=ID";
+
+                function success(data) {
+
+                    var promises = [];
+
+                    var cellIds = data.data.value;
+
+                    for (var i = 0; i < cellIds.length; ++i) {
+                        promises[i] = loadCellId(cellIds[i].ID);
+                    }
+
+                    $q.all(promises).then(function () {
+                        resolve();
+                    });
+                }
+
+                volumeOData.request(request).then(success, failure);
+            });
+        }
+
         function loadFromFile(filename) {
 
-            function success(data) {
-                console.log(data);
-                console.log('yay');
-            }
+            return $q(function(resolve, reject) {
 
-            function error(data) {
-                console.log('shit');
-            }
+                function success(data) {
+                    console.log(data);
+                    console.log('yay');
+                    resolve();
+                }
 
-            $http.get('../tests/mock/shit.json').then(success, error);
+                function error(data) {
+                    console.log('shit');
+                    reject();
+                }
+
+                $http.get('../tests/mock/shit.json').then(success, error);
+            });
         }
 
         function removeCellId(id) {
