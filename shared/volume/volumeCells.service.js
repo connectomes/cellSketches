@@ -5,9 +5,9 @@
         .module('app.volumeModule')
         .factory('volumeCells', volumeCells);
 
-    volumeCells.$inject = ['$q', 'volumeOData'];
+    volumeCells.$inject = ['$q', '$http', 'volumeOData'];
 
-    function volumeCells($q, volumeOData) {
+    function volumeCells($q, $http, volumeOData) {
 
         var self = this;
         self.cells = [];
@@ -32,7 +32,9 @@
             loadCellIds: loadCellIds,
             loadCellLabel: loadCellLabel,
             loadCellNeighborsAt: loadCellNeighborsAt,
-            removeCellId: removeCellId
+            loadFromFile: loadFromFile,
+            removeCellId: removeCellId,
+            saveAsFile: saveAsFile
         };
 
         return service;
@@ -417,6 +419,20 @@
 
         }
 
+        function loadFromFile(filename) {
+
+            function success(data) {
+                console.log(data);
+                console.log('yay');
+            }
+
+            function error(data) {
+                console.log('shit');
+            }
+
+            $http.get('../tests/mock/shit.json').then(success, error);
+        }
+
         function removeCellId(id) {
             for (var i = 0; i < self.cells.length; ++i) {
                 if (self.cells[i].id == id) {
@@ -428,5 +444,23 @@
             throw 'Error - tried to remove cell id that was not loaded yet:' + id;
         }
 
+        function saveAsFile(filename) {
+
+            function getArrayAsJSON(name, value) {
+                return "\"" + name + "\":" + JSON.stringify(value);
+            }
+
+            var data = ["{\"value\": {" +
+                getArrayAsJSON('cells', self.cells) + "," +
+                getArrayAsJSON('cellChildren', self.cellChildren) + "," +
+                getArrayAsJSON('cellLocations', self.cellLocations) + "," +
+                getArrayAsJSON('cellChildrenLocations', self.cellChildrenLocations) + "," +
+                getArrayAsJSON('cellChildrenPartners', self.cellChildrenPartners) +
+             "}}"];
+
+
+            var blob = new Blob(data, {type: "text"});
+            saveAs(blob, filename);
+        }
     }
 }());
