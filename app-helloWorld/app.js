@@ -13,6 +13,8 @@
         var self = this;
         self.isActivated = false;
 
+        var startsWithStr = 'CBb4w';
+
         // Functions
         function activate() {
 
@@ -27,100 +29,97 @@
             return $q.all(promises);
         }
 
-        function checkForDuplicateCells() {
+        function checkLoadedCells() {
             var loadedCells = volumeCells.getLoadedCellIds();
 
-            for(var i=0; i<loadedCells.length; ++i) {
-                for(var j=i+1; j<loadedCells.length; ++j) {
+            for (var i = 0; i < loadedCells.length; ++i) {
+                for (var j = i + 1; j < loadedCells.length; ++j) {
                     if (loadedCells[i] == loadedCells[j]) {
                         throw('Found duplicate cell ids loaded: ' + loadedCells[j] + ', ' + loadedCells[i]);
                     }
                 }
             }
+            var numCells = volumeCells.getNumCells();
+
+            var foundAllNeighbors = true;
+            var foundAllChildLocations = true;
+
+            for (i = 0; i < numCells; ++i) {
+                var currCell = volumeCells.getCellAt(i);
+                if (!currCell.label.startsWith(startsWithStr)) {
+                    continue;
+                }
+                var numChildren = volumeCells.getNumCellChildrenAt(i);
+                for (j = 0; j < numChildren; ++j) {
+                    var partner = volumeCells.getCellChildPartnerAt(i, j);
+                    if (partner.partnerParent != -1) {
+
+
+                        var partnerIndex = volumeCells.getCellIndex(partner.partnerParent);
+
+                        if (!(partnerIndex > -1)) {
+                            console.log('No partner for cell index: ' + i);
+                            console.log('No partner for child index: ' + j);
+                            console.log(partner);
+                            console.log(volumeCells.getCellChildAt(i, j));
+                        }
+
+                        foundAllNeighbors = foundAllNeighbors && (partnerIndex > -1);
+                    }
+                    var locations = volumeCells.getCellChildLocationsAt(i, j);
+                    if (!(locations.length > 0)) {
+                        console.log(volumeCells.getCellChildAt(i, j));
+                        console.log('No locations for cell index: ' + i);
+                        console.log('No locations for child index: ' + j);
+                    }
+
+                    foundAllChildLocations = foundAllChildLocations && (locations.length > 0);
+
+                }
+            }
+
+
+            console.log('Found all neighbors? ' + (foundAllNeighbors ? 'yes' : 'no' ));
+            console.log('Found all child locations? ' + (foundAllChildLocations ? 'yes' : 'no' ));
+
             console.log('Success!');
         }
 
         function loadLocal() {
-            var filename = 'shit.json';
+            var filename = '../tests/mock/volumeCells.startsWithCBb.json';
 
-            volumeCells.loadFromFile(filename).then(function() {
-                checkForDuplicateCells();
+            volumeCells.loadFromFile(filename).then(function () {
+                checkLoadedCells();
             });
         }
 
         function loadRemoteStartsWith() {
-
             $scope.rangeVolumeX = volumeBounds.getRangeVolumeX();
             $scope.rangeVolumeY = volumeBounds.getRangeVolumeY();
             $scope.cells = [];
-            volumeCells.loadCellStartsWith('CBb').then(function () {
-                var promises = [];
 
+            volumeCells.loadCellStartsWith(startsWithStr).then(function () {
+
+                var promises = [];
                 var numCells = volumeCells.getNumCells();
+
                 for (var i = 0; i < numCells; ++i) {
                     promises[i] = volumeCells.loadCellChildrenAt(i);
                 }
 
                 $q.all(promises).then(function () {
-                    console.log('finished loading children');
 
                     promises = [];
 
                     for (var i = 0; i < numCells; ++i) {
-                        promises[i] = volumeCells.loadCellNeighborsAt(i);
+                        promises.push(volumeCells.loadCellNeighborsAt(i));
                     }
 
                     $q.all(promises).then(function () {
-                        console.log('finished loading cell neighbors');
-                        var filename = 'volumeCells.startsWithCBb.json';
-                        volumeCells.saveAsFile(filename);
-                        checkForDuplicateCells();
+                        checkLoadedCells();
                     });
                 });
-
             });
-
-        }
-
-
-        function loadRemote () {
-
-            $scope.rangeVolumeX = volumeBounds.getRangeVolumeX();
-            $scope.rangeVolumeY = volumeBounds.getRangeVolumeY();
-            $scope.cells = [];
-            var labels = ['CBb4w', 'Rod BC', 'AC', 'Cbb5w', 'Cbb3m'];
-            volumeCells.loadCellLabels(labels).then(function () {
-
-                var cellsInLabels = [];
-                for(var i=0; i<labels.length; ++i) {
-                    cellsInLabels = cellsInLabels.concat(volumeCells.getCellIndexesInLabel(labels[i]));
-                }
-
-                var promises = [];
-
-                for (i = 0; i < cellsInLabels.length; ++i) {
-                    promises[i] = volumeCells.loadCellChildrenAt(cellsInLabels[i]);
-                }
-
-                $q.all(promises).then(function () {
-                    console.log('finished loading children');
-
-                    promises = [];
-
-                    for (var i = 0; i < cellsInLabels.length; ++i) {
-                        promises[i] = volumeCells.loadCellNeighborsAt(cellsInLabels[i]);
-                    }
-
-                    $q.all(promises).then(function () {
-                        console.log('finished loading cell neighbors');
-                        var filename = 'shit.json';
-                        volumeCells.saveAsFile(filename);
-                        checkForDuplicateCells();
-                    });
-                });
-
-            });
-
         }
 
         // Activate this.

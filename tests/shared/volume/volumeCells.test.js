@@ -1,8 +1,9 @@
 describe('VolumeStructures service test', function () {
 
     var volumeCells, httpBackend;
-    var childQuery = 'http://webdev.connectomes.utah.edu/RC1Test/OData/Structures?$filter=(ParentID eq 6117)&$expand=Locations($select=Radius,VolumeX,VolumeY,Z,ParentID,ID)';
-    var structureQuery = 'http://webdev.connectomes.utah.edu/RC1Test/OData/Structures?$filter=(ID eq 6117)&$expand=Locations($select=Radius,VolumeX,VolumeY,Z,ParentID,ID)';
+    var childQuery = 'http://websvc1.connectomes.utah.edu/RC1/OData/Structures?$filter=(ParentID eq 6117)&$expand=Locations($select=Radius,VolumeX,VolumeY,Z,ParentID,ID)';
+    var structureQuery = 'http://websvc1.connectomes.utah.edu/RC1/OData/Structures?$filter=(ID eq 6117)';
+    var loadLocalQuery = '../tests/mock/volumeCells.startsWithCBb4.json';
 
     beforeEach(function () {
         module('app.volumeModule');
@@ -19,6 +20,8 @@ describe('VolumeStructures service test', function () {
         httpBackend.when('GET', childQuery).respond(
             readJSON('tests/mock/cell6117Children.json'));
 
+        httpBackend.when('GET', loadLocalQuery).respond(
+            readJSON('tests/mock/volumeCells.startsWithCBb.json'));
     }));
 
     afterEach(function () {
@@ -36,10 +39,6 @@ describe('VolumeStructures service test', function () {
         httpBackend.flush();
 
         expect(volumeCells.getLoadedCellIds().length == 1).toBeTruthy();
-
-        expect(volumeCells.getCellLocations(id).length == 1882).toBeTruthy();
-
-        expect(volumeCells.getNumCellChildren(id) == 506).toBeTruthy();
     });
 
     it('Get cell children by type', function() {
@@ -50,18 +49,34 @@ describe('VolumeStructures service test', function () {
 
         httpBackend.flush();
 
-        // Get children of type '28'
+        volumeCells.loadCellChildrenAt(0);
+
+        httpBackend.flush();
+
         var childrenIndexes = volumeCells.getCellChildTypeIndexes(0, 28);
 
+        // 30 is count of children with TypeID == 28.
         expect(childrenIndexes.length == 30).toBeTruthy();
 
-        // 1 is an invalid child type. expect nothing in return.
         childrenIndexes = volumeCells.getCellChildTypeIndexes(0, 1);
 
+        // There should be no children of 6117 with TypeID == 1.
         expect(childrenIndexes.length == 0).toBeTruthy();
     });
 
-    it('Get cell children partners', function() {
+    it('Load local starts with and get children', function() {
+
+        // Reading large json files seems to hang karma. What's going on here?
+        //volumeCells.loadFromFile(loadLocalQuery);
+
+        //httpBackend.flush();
+
+        //for(var i=0; i<volumeCells.getNumCells(); ++i) {
+            //var currCell = volumeCells.getCellAt(i);
+            //if(!currCell.label.startsWith('CBb')) {
+            //}
+        //}
 
     });
+
 });

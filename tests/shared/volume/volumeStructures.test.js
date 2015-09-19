@@ -13,8 +13,8 @@ describe('VolumeStructures service test', function () {
     it('', function () {
 
         // Prepare fake http response for testing.
-        httpBackend.whenGET('http://webdev.connectomes.utah.edu/RC1Test/OData/StructureTypes').respond({
-            "@odata.context": "http://webdev.connectomes.utah.edu/RC1Test/OData/$metadata#StructureTypes",
+        httpBackend.whenGET('http://websvc1.connectomes.utah.edu/RC1/OData/StructureTypes').respond({
+            "@odata.context": "http://websvc1.connectomes.utah.edu/RC1/OData/$metadata#StructureTypes",
             "value": [
                 {
                     "ID": 1,
