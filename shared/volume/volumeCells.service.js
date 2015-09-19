@@ -10,23 +10,30 @@
     function volumeCells($q, $http, volumeOData) {
 
         var self = this;
+        // Places where data will be stored.
         self.cells = [];
         self.cellLocations = [];
         self.cellChildren = [];
         self.cellChildrenLocations = [];
         self.cellChildrenPartners = [];
 
+        // Constant configurable values
+        self.maxCellsInFilter = 15;
+
         var service = {
             getCell: getCell,
             getCellAt: getCellAt,
-            getCellChildTypeIndexes: getCellChildTypeIndexes,
+            getCellChildAt: getCellChildAt,
+            getCellChildLocationsAt: getCellChildLocationsAt,
+            getCellChildPartnerAt: getCellChildPartnerAt,
+            getCellChildrenByTypeIndexes: getCellChildrenByTypeIndexes,
             getCellIndex: getCellIndex,
             getCellIndexesInLabel: getCellIndexesInLabel,
             getCellLocations: getCellLocations,
             getCellNeighborIndexesByChildType: getCellNeighborIndexesByChildType,
             getCellNeighborLabelsByChildType: getCellNeighborLabelsByChildType,
             getLoadedCellIds: getLoadedCellIds,
-            getNumCellChildren: getNumCellChildren,
+            getNumCellChildrenAt: getNumCellChildrenAt,
             getNumCells: getNumCells,
             loadCellChildrenAt: loadCellChildrenAt,
             loadCellId: loadCellId,
@@ -59,7 +66,7 @@
             return self.cells[index];
         }
 
-        function getCellChildTypeIndexes(cellIndex, childType) {
+        function getCellChildrenByTypeIndexes(cellIndex, childType) {
 
             var cellChildren = self.cellChildren[cellIndex];
 
@@ -74,6 +81,18 @@
             return currChildren;
         }
 
+        function getCellChildAt(cellIndex, childIndex) {
+            return self.cellChildren[cellIndex][childIndex];
+        }
+
+        function getCellChildLocationsAt(cellIndex, childIndex) {
+            return self.cellChildrenLocations[cellIndex][childIndex]
+        }
+
+        function getCellChildPartnerAt(cellIndex, childIndex) {
+            return self.cellChildrenPartners[cellIndex][childIndex];
+        }
+
         function getCellNeighborIndexesByChildType(cellIndex, childType) {
 
             var childTypeSet = false;
@@ -81,16 +100,9 @@
             var partners = self.cellChildrenPartners[cellIndex];
             var neighbors = []; // to be returned
 
-            console.log('getCellNeighborIndexesByChildType ' + cellIndex + ' ' + childType);
-            console.log('children ');
-            console.log(children);
-            console.log('partners ');
-            console.log(partners);
-
-
             if (childType != undefined) {
                 childTypeSet = true;
-                children = getCellChildTypeIndexes(cellIndex, childType);
+                children = getCellNeighborLabelsByChildType(cellIndex, childType);
             }
 
             for (var i = 0; i < children.length; ++i) {
@@ -113,6 +125,7 @@
         }
 
         function getCellNeighborLabelsByChildType(cellIndex, childType) {
+
             console.log('getting neighbors of cellIndex: ' + cellIndex);
             var neighbors = getCellNeighborIndexesByChildType(cellIndex, childType);
             var labels = [];
@@ -189,12 +202,8 @@
             return ids;
         }
 
-        function getNumCellChildren(cellId) {
-            for (var i = 0; i < self.cells.length; ++i) {
-                if (self.cells[i].id == cellId) {
-                    return self.cellChildren[i].length;
-                }
-            }
+        function getNumCellChildrenAt(cellIndex) {
+            return self.cellChildren[cellIndex].length;
         }
 
         function getNumCells() {
@@ -217,10 +226,15 @@
 
                         var currChild = cellChildren[i];
 
+                        if (currChild.Locations.length == 0) {
+                            console.log('Warning - cell child with no locations, ignoring it');
+                            console.log('StructureID: ' + currChild.ID);
+                            continue;
+                        }
+
                         var cellChild = {
                             id: currChild.ID,
-                            parentId: currChild.ParentID, // TODO: remove this
-                            locations: self.cellLocations.length,
+                            parentId: currChild.ParentID,  // TODO: remove this.
                             label: currChild.Label,
                             notes: currChild.Notes,
                             tags: currChild.Tags,
@@ -258,65 +272,51 @@
 
         function loadCellId(id) {
 
-            return $q(function (resolve, reject) {
+            loadCellIds([id]);
 
-                var request = "Structures?$filter=(ID eq " + id + ")";//&$expand=Locations($select=Radius,VolumeX,VolumeY,Z,ParentID,ID)";
-
-                function success(data) {
-
-                    var newCells = data.data.value;
-                    if (newCells.length == 0) {
-                        reject("Cell " + id + " does not exist!");
-                    }
-
-                    for (var i = 0; i < newCells.length; ++i) {
-
-                        var newCell = newCells[i];
-
-                        // Clean up the label (some labels have trailing whitespace).
-                        if (newCell.Label) {
-                            newCell.Label = newCell.Label.trim();
-                        } else {
-                            newCell.Label = "null";
-                        }
-
-                        var index = getCellIndex(newCell.ID);
-
-                        if(index == -1) {
-                            throw('Volume cells got a cell it didn\'t ask for!');
-                        }
-
-                        var currCell = self.cells[index];
-
-                        currCell.locations = self.cellLocations.length;
-                        currCell.label = newCell.Label;
-                        currCell.tags = newCell.Tags;
-                        currCell.notes = newCell.Notes;
-
-                        resolve();
-                    }
-                }
-
-                if(getCellIndex(id) > -1) {
-                    resolve();
-                } else {
-                    var cell = {id: id};
-                    self.cells.push(cell);
-                    volumeOData.request(request).then(success, failure);
-                }
-            });
         }
 
         function loadCellIds(cellIds) {
 
+            var filter = '(';
             var promises = [];
+            var numCellsInFilter = 0;
 
             for (var i = 0; i < cellIds.length; ++i) {
-                promises[i] = loadCellId(cellIds[i]);
+
+                // Is ID already loaded?
+                if (getCellIndex(cellIds[i]) > -1) {
+                    continue;
+                }
+
+                // This is where the cell gets stored when it gets returned from request.
+                var cell = {id: cellIds[i]};
+                self.cells.push(cell);
+
+                // Append to the monster filter.
+                if (i == 0 || filter === '(') {
+                    filter = filter + 'ID eq ' + cellIds[i];
+                }
+
+                filter = filter + ' or ID eq ' + cellIds[i];
+                numCellsInFilter++;
+
+                // Start request and reset filter.
+                if (numCellsInFilter > self.maxCellsInFilter) {
+                    filter = filter + ')';
+                    promises.push(loadCellIdsFromFilter(filter));
+                    filter = '(';
+                    numCellsInFilter = 0;
+                }
+            }
+
+            // Finished all cells, is there anything left in the filter?
+            if (numCellsInFilter > 0) {
+                filter = filter + ')';
+                promises.push(loadCellIdsFromFilter(filter));
             }
 
             return $q.all(promises);
-
         }
 
         function loadCellNeighborsAt(index) {
@@ -338,7 +338,8 @@
                     for (var i = 0; i < values.length; ++i) {
 
                         var currPartnerIds = [];
-
+                        var child = -1;
+                        var parent = -1;
                         if (values[i].SourceOfLinks.length > 0) {
 
                             if (values[i].SourceOfLinks[0].hasOwnProperty('Source')) {
@@ -347,16 +348,19 @@
 
                             } else if (values[i].SourceOfLinks[0].hasOwnProperty('Target')) {
 
-                                var parent = values[i].SourceOfLinks[0].Target.ParentID;
-                                var child = values[i].SourceOfLinks[0].TargetID;
+                                parent = values[i].SourceOfLinks[0].Target.ParentID;
+                                child = values[i].SourceOfLinks[0].TargetID;
+
                                 if (parent == null || child == null) {
                                     console.log('Warning - cell with id: ' + cellId + ' childid ' + self.cellChildren[index][i]);
                                     console.log('has an invalid target. Removing and ignoring child');
                                     self.cellChildren[index].splice(i, 1);
+                                    self.cellChildrenLocations[index].splice(i, 1);
                                 } else {
                                     currPartnerIds.push(parent);
                                     orderedPartners.push({partnerParent: parent, partnerIndex: child});
                                 }
+
                             } else {
 
                                 throw 'Source with no targets found! Wtf?';
@@ -366,12 +370,13 @@
 
                             if (values[i].TargetOfLinks[0].hasOwnProperty('Source')) {
 
-                                var parent = values[i].TargetOfLinks[0].Source.ParentID;
-                                var child = values[i].TargetOfLinks[0].SourceID;
+                                parent = values[i].TargetOfLinks[0].Source.ParentID;
+                                child = values[i].TargetOfLinks[0].SourceID;
                                 if (parent == null || child == null) {
                                     console.log('Warning - cell with id: ' + cellId + ' childid ' + self.cellChildren[index][i]);
                                     console.log('has an invalid target. Removing and ignoring child');
                                     self.cellChildren[index].splice(i, 1);
+                                    self.cellChildrenLocations[index].splice(i, 1);
                                 } else {
                                     currPartnerIds.push(parent);
                                     orderedPartners.push({partnerParent: parent, partnerIndex: child});
@@ -387,6 +392,7 @@
                             }
                         } else {
 
+                            // Child with no source or target.
                             orderedPartners.push({partnerParent: -1, partnerIndex: -1});
 
                         }
@@ -398,6 +404,7 @@
                         }
 
                     }
+
                     var cellIndex = getCellIndex(cellId);
 
                     self.cellChildrenPartners[cellIndex] = orderedPartners;
@@ -422,10 +429,13 @@
                     var promises = [];
 
                     var cellIds = data.data.value;
+                    var ids = [];
 
                     for (var i = 0; i < cellIds.length; ++i) {
-                        promises[i] = loadCellId(cellIds[i].ID);
+                        ids.push(cellIds[i].ID);
                     }
+
+                    promises.push(loadCellIds(ids));
 
                     $q.all(promises).then(function () {
                         resolve();
@@ -459,10 +469,12 @@
                     var promises = [];
 
                     var cellIds = data.data.value;
-
+                    var ids = [];
                     for (var i = 0; i < cellIds.length; ++i) {
-                        promises[i] = loadCellId(cellIds[i].ID);
+                        ids.push(cellIds[i].ID);
                     }
+
+                    promises.push(loadCellIds(ids));
 
                     $q.all(promises).then(function () {
                         resolve();
@@ -473,13 +485,32 @@
             });
         }
 
-        function loadFromFile(filename) {
+        function loadCellIdsFromFilter(filter) {
 
-            return $q(function(resolve, reject) {
+            return $q(function (resolve, reject) {
 
                 function success(data) {
-                    console.log(data);
-                    console.log('yay');
+                    parseCellData(data);
+                    resolve();
+                }
+
+                volumeOData.request(('Structures?$filter=' + filter)).then(success, failure);
+
+            });
+        }
+
+        function loadFromFile(filename) {
+
+            return $q(function (resolve, reject) {
+
+                function success(data) {
+
+                    var values = data.data.value;
+                    self.cells = values.cells;
+                    self.cellChildren = values.cellChildren;
+                    self.cellChildrenLocations = values.cellChildren;
+                    self.cellChildrenPartners = values.cellChildren;
+
                     resolve();
                 }
 
@@ -488,8 +519,38 @@
                     reject();
                 }
 
-                $http.get('../tests/mock/shit.json').then(success, error);
+                $http.get(filename).then(success, error);
             });
+        }
+
+        function parseCellData(cellData) {
+
+            var cells = cellData.data.value;
+
+            for (var i = 0; i < cells.length; ++i) {
+
+                var cell = cells[i];
+
+                // Find where to put the incoming cell.
+                var index = getCellIndex(cell.ID);
+                if (index == -1) {
+                    throw('Parsing cell that was not initiated!');
+                }
+
+                // Clean up label.
+                if (cell.Label) {
+                    cell.Label = cell.Label.trim();
+                } else {
+                    cell.Label = "null";
+                }
+
+                // Copy to new cell.
+                var currCell = self.cells[index];
+                currCell.locations = self.cellLocations.length;
+                currCell.label = cell.Label;
+                currCell.tags = cell.Tags;
+                currCell.notes = cell.Notes;
+            }
         }
 
         function removeCellId(id) {
@@ -510,12 +571,12 @@
             }
 
             var data = ["{\"value\": {" +
-                getArrayAsJSON('cells', self.cells) + "," +
-                getArrayAsJSON('cellChildren', self.cellChildren) + "," +
-                getArrayAsJSON('cellLocations', self.cellLocations) + "," +
-                getArrayAsJSON('cellChildrenLocations', self.cellChildrenLocations) + "," +
-                getArrayAsJSON('cellChildrenPartners', self.cellChildrenPartners) +
-             "}}"];
+            getArrayAsJSON('cells', self.cells) + "," +
+            getArrayAsJSON('cellChildren', self.cellChildren) + "," +
+            getArrayAsJSON('cellLocations', self.cellLocations) + "," +
+            getArrayAsJSON('cellChildrenLocations', self.cellChildrenLocations) + "," +
+            getArrayAsJSON('cellChildrenPartners', self.cellChildrenPartners) +
+            "}}"];
 
 
             var blob = new Blob(data, {type: "text"});
