@@ -12,7 +12,8 @@
     "html5-boilerplate": "~5.2.0",
     "d3": "~3.5.6",
     "filesaver": "*",
-    "d3.reusable": "~0.1.1"
+    "d3.reusable": "~0.1.1",
+    "d3.chart": "*"
   },
   "authors": [
     "Ethan <ethan.kerzner@gmail.com>"

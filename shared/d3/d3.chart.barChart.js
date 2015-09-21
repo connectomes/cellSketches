@@ -1,92 +1,66 @@
-(function() {
-    d3.chart('BarChart', {
-        initialize : function() {
-            this.yScale  = d3.scale.ordinal();
-            this.xScale  = d3.scale.linear();
-            this._color  = d3.scale.category10();
+function customAxis(g) {
+    g.selectAll("text")
+        .attr("x", -2)
+        .attr("dy", 3);
+}
 
-            this._width = this._width || this.base.attr('width') || 200;
-            this._height = this._height || this.base.attr('height') || 100;
+function BarChart(group, data, height, width) {
+    var self = this;
 
-            var barsLayerBase = this.base.append('g')
-                .classed('bars', true);
+    var paddingLeftPercent = 0.25;
+    var paddingTopPercent = 0.25;
 
-            this.layer('bars', barsLayerBase, {
+    self.yScale = d3.scale.ordinal();
+    self.xScale = d3.scale.linear();
 
-                dataBind: function(data) {
-                    var chart = this.chart();
+    self.xAxis = d3.svg.axis();
+    self.yAxis = d3.svg.axis();
 
-                    // Update the x-scale.
-                    chart.yScale.domain(data.map(function(d) { return d.name; }));
+    self.bars = group.append('g');
 
-                    // Update the y-scale.
-                    chart.xScale.domain([
-                        d3.min(data, function(d) { return d3.min([d.value, 0]); }),
-                        d3.max(data, function(d) { return d.value; })
-                    ]);
+    self.yScale
+        .domain(data.map(function (d) {
+            return d.name;
+        })).rangeBands([0, height * (1 - paddingTopPercent)]);
 
-                    console.log(chart.xScale.domain());
+    self.xScale
+        .domain([0,  10])
+        .range([0, width * (1-paddingLeftPercent)]);
 
-                    return this.selectAll('.bar')
-                        .data(data);
+    self.xAxis.scale(self.xScale)
+        .orient('bottom');
 
-                },
+    group.append('g')
+        .attr({
+            transform: 'translate(' + (paddingLeftPercent * width) + ', ' + (height - (height * paddingTopPercent)) + ')',
+            'font-size': '12px'
+        }).call(self.xAxis);
 
-                insert: function() {
-                    var chart = this.chart();
+    self.yAxis.scale(self.yScale)
+        .orient('left');
 
-                    // Append the bars
-                    return this.append('rect')
-                        .attr('fill', 'blue')
-                        .attr('width', chart.yScale.rangeBand());
-                },
+    group.append('g')
+        .attr({
+            transform: 'translate(' + (paddingLeftPercent * width) + ', 0)',
+            'font-size': '12px'
+        })
+        .call(self.yAxis).call(customAxis);
 
-                events: {
-                    enter: function() {
-                        var chart = this.chart();
-
-                        return this
-                            .attr('y', function(d) { return chart.yScale(d.name); })
-                            .attr('x', 0)
-                            .attr('width', function(d) { return chart.xScale(d3.max([0, d.value])); })
-                            .attr('height', function(d) { return chart.yScale.rangeBand(); })
-                            .attr('fill', function(d) {return 'steelblue'; });
-                    }
-                }
-
-            });
-        },
-
-        width: function(newWidth) {
-            if (arguments.length === 0) {
-                return this._width;
-            }
-            this._width = newWidth;
-            this.base.attr('width', this._width);
-
-            this.xScale.range([0, newWidth]);
-
-            return this;
-        },
-
-        height: function(newHeight) {
-            if (arguments.length === 0) {
-                return this._height;
-            }
-            this._height = newHeight;
-            this.base.attr('height', this._height);
-            this.yScale.rangeRoundBands([0, newHeight], 0.1);
-            return this;
-        },
-
-        xAxisLabel: function(label) {
-            console.log(label);
-            return this;
-        },
-
-        yAxisLabels: function(labels) {
-            console.log(labels);
-        }
-
-    });
-}());
+    self.bars.selectAll('.bar')
+        .data(data)
+        .enter()
+        .append('rect')
+        .attr('y', function (d) {
+            return self.yScale(d.name);
+        })
+        .attr('x', width * paddingLeftPercent)
+        .attr('width', function (d) {
+            return self.xScale(d3.max([0, d.value]));
+        })
+        .attr('height', function (d) {
+            return self.yScale.rangeBand();
+        })
+        .attr('fill', function (d) {
+            return 'steelblue';
+        });
+}
