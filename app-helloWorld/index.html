@@ -14,6 +14,9 @@
     <script src="app.module.js"></script>
     <script src="app.js"></script>
 
+    <!-- Directives -->
+    <script src="childrenBarChart.directive.js"></script>
+
     <!-- Shared modules. Order matters here. Module must be included before services. -->
     <script src="../shared/volume/volume.module.js"></script>
     <script src="../shared/volume/test.service.js"></script>
@@ -27,6 +30,7 @@
     <script src="../shared/utils/point2d.js"></script>
     <script src="../shared/utils/point3d.js"></script>
     <script src="../shared/utils/debug.js"></script>
+    <script src="../shared/utils/location.js"></script>
 
     <!-- Stylesheets. -->
     <link rel="stylesheet" type="text/css" href="style.css">
@@ -35,17 +39,7 @@
 
 <body ng-app="app.helloWorld" ng-controller="ExampleController as ctrl">
 
+<children-bar-chart></children-bar-chart>
 
-
-<div class="top">
-    <h3>   Hello World</h3>
-</div>
-
-<div class="main">
-    If everything works correctly, the volume ranges should be printed below this.<br>
-    Volume X Range: {{rangeVolumeX}}<br>
-    Volume Y Range: {{rangeVolumeY}}<br>
-    cell {{cells}}
-</div>
 </body>
 </html>

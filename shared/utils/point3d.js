@@ -7,5 +7,13 @@ function Point3D(x, y, z) {
 
     self.toString = function() {
         return '(' + self.x + ', ' + self.y + ', ' + self.z + ')';
-    }
+    };
+
+    self.multiply = function (rhs) {
+        return new Point2D(rhs.x * self.x, rhs.y * self.y, rhs.z * self.z);
+    };
+
+    self.add = function(rhs) {
+        return new Point2D(rhs.x + self.x, rhs.y + self.y, rhs.z + self.z);
+    };
 }

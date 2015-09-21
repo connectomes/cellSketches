@@ -13,7 +13,9 @@
         var self = this;
         self.isActivated = false;
 
-        var startsWithStr = 'CBb4w';
+        var startsWithStr = 'CBb';
+
+        $scope.selection = [];
 
         // Functions
         function activate() {
@@ -78,18 +80,31 @@
                 }
             }
 
-
             console.log('Found all neighbors? ' + (foundAllNeighbors ? 'yes' : 'no' ));
             console.log('Found all child locations? ' + (foundAllChildLocations ? 'yes' : 'no' ));
-
             console.log('Success!');
+
+        }
+
+        function createSetsFromLoadedCells() {
+            var label = 'CBb4w';
+            var indexes = volumeCells.getCellIndexesInLabel(label);
+            $scope.cells = [];
+            $scope.cells.push({name: label, indexes: indexes});
+            $scope.cells.push({name: 'candidate', indexes: [volumeCells.getCellIndex(6117)]});
         }
 
         function loadLocal() {
+
+            $scope.rangeVolumeX = volumeBounds.getRangeVolumeX();
+            $scope.rangeVolumeY = volumeBounds.getRangeVolumeY();
+            $scope.cells = [];
+
             var filename = '../tests/mock/volumeCells.startsWithCBb.json';
 
             volumeCells.loadFromFile(filename).then(function () {
                 checkLoadedCells();
+                createSetsFromLoadedCells();
             });
         }
 
@@ -113,17 +128,19 @@
 
                     for (var i = 0; i < numCells; ++i) {
                         promises.push(volumeCells.loadCellNeighborsAt(i));
+                        promises.push(volumeCells.loadCellLocationsAt(i));
                     }
 
                     $q.all(promises).then(function () {
                         checkLoadedCells();
+                        volumeCells.saveAsFile("volumeCells.startsWithCBb.json");
                     });
                 });
             });
         }
 
         // Activate this.
-        activate().then(loadRemoteStartsWith);
+        activate().then(loadLocal);
 
     }
 

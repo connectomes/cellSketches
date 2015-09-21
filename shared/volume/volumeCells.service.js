@@ -40,6 +40,7 @@
             loadCellIds: loadCellIds,
             loadCellLabel: loadCellLabel,
             loadCellLabels: loadCellLabels,
+            loadCellLocationsAt: loadCellLocationsAt,
             loadCellNeighborsAt: loadCellNeighborsAt,
             loadCellStartsWith: loadCellStartsWith,
             loadFromFile: loadFromFile,
@@ -61,6 +62,7 @@
             }
             throw 'Error - tried to get cell ID, but it wasn\'t loaded yet:' + cellId;
         }
+
 
         function getCellAt(index) {
             return self.cells[index];
@@ -271,9 +273,7 @@
         }
 
         function loadCellId(id) {
-
-            loadCellIds([id]);
-
+            return loadCellIds([id]);
         }
 
         function loadCellIds(cellIds) {
@@ -458,6 +458,29 @@
             return $q.all(promises);
         }
 
+        function loadCellLocationsAt(cellIndex) {
+
+            var cellId = getCellAt(cellIndex).id;
+
+            return $q(function (resolve, reject) {
+
+                var request = 'Locations?$filter=(ParentID eq ' + cellId + ')&$select=Radius,VolumeX,VolumeY,Z,ParentID,ID';
+
+                function success(data) {
+
+                    var values = data.data.value;
+                    var locations = [];
+                    for (var i = 0; i < values.length; ++i) {
+                        locations.push(new Location(values[i]));
+                    }
+                    self.cellLocations[cellIndex] = locations;
+                    resolve();
+                }
+
+                volumeOData.request(request).then(success, failure);
+            });
+        }
+
         function loadCellStartsWith(label) {
 
             return $q(function (resolve, reject) {
@@ -508,8 +531,9 @@
                     var values = data.data.value;
                     self.cells = values.cells;
                     self.cellChildren = values.cellChildren;
-                    self.cellChildrenLocations = values.cellChildren;
-                    self.cellChildrenPartners = values.cellChildren;
+                    self.cellChildrenLocations = values.cellChildrenLocations;
+                    self.cellChildrenPartners = values.cellChildrenPartners;
+                    self.cellLocations = values.cellLocations;
 
                     resolve();
                 }

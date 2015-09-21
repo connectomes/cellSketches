@@ -12,8 +12,8 @@ function addOutlineToGroup(group, width, height) {
         .attr({
             width: width,
             height: height,
-            fill: 'none'
-        }).style({
-            outline: 'thin solid black'
+            fill: 'none',
+            stroke: 'black',
+            'stroke-width': '1px'
         });
 }
