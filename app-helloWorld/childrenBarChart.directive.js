@@ -35,10 +35,10 @@
 
                 addOutlineToGroup(mainGroup, mainWidth, mainHeight);
 
-                var numSmallMultiplesPerRow = 4;
+                var numSmallMultiplesPerRow = 6;
                 var smallMultiplePadding = 10;
                 var smallMultipleWidth = (svgWidth - (numSmallMultiplesPerRow * smallMultiplePadding)) / numSmallMultiplesPerRow;
-                var smallMultipleHeight = smallMultipleWidth;
+                var smallMultipleHeight = 300;
                 var smallMultipleOffsets = new Point2D(smallMultiplePadding + smallMultipleWidth, smallMultiplePadding + smallMultipleHeight);
 
                 scope.$on('cellsChanged', cellsChanged);
@@ -65,42 +65,48 @@
                     console.log(yAxisLabels);
 
                     function getCellPartnersOfLabel(cellPartners, label) {
-                        for(var i=0; i<cellPartners.length; ++i) {
+                        for (var i = 0; i < cellPartners.length; ++i) {
                             if (cellPartners[i].label == label) {
                                 return cellPartners[i].indexes;
                             }
                         }
                         return [];
                     }
+                    var numCharts = 0;
+                    for (i = 0; i < cells.length; ++i) {
+                        for (j = 0; j < cells[i].indexes.length; ++j) {
+                            currIndex = cells[i].indexes[j];
+                            currPartners = volumeCells.getCellNeighborLabelsByChildType(currIndex, childType);
 
-                    var cellPartners = volumeCells.getCellNeighborLabelsByChildType(cells[0].indexes[0], childType);
-                    var currCellData = [];
-                    for(i=0; i<yAxisLabels.length; ++i) {
-                        currLabel = yAxisLabels[i];
-                        currPartners = getCellPartnersOfLabel(cellPartners, currLabel);
-                        currCellData.push({
-                            name: currLabel,
-                            value: currPartners.length,
-                            details: currPartners
-                        });
+                            var currCellData = [];
+                            for (k = 0; k < yAxisLabels.length; ++k) {
+                                currLabel = yAxisLabels[k];
+                                currPartners = getCellPartnersOfLabel(currPartners, currLabel);
+                                currCellData.push({
+                                    name: currLabel,
+                                    value: currPartners.length,
+                                    details: currPartners
+                                });
+                            }
+                            console.log(currCellData);
+
+                            var barChartGroup = mainGroup.append('g').attr({
+                                transform: function () {
+                                    var position = computeGridPosition(numCharts, numSmallMultiplesPerRow);
+                                    position = position.multiply(smallMultipleOffsets).add(new Point2D(smallMultiplePadding, 0));
+                                    return 'translate' + position.toString();
+                                }
+                            });
+                            var currCell = volumeCells.getCellAt(currIndex);
+                            var title = 'Cell: ' + currCell.id + ' label: ' + currCell.label;
+                            var chart = new BarChart(barChartGroup, currCellData, title, smallMultipleHeight, smallMultipleWidth);
+                            numCharts++;
+                        }
                     }
 
 
-                    console.log(currCellData);
-                    /// BarChart(group, domain, data, height) {
-                    var chart = new BarChart(mainGroup, currCellData, smallMultipleHeight, smallMultipleHeight);
-                    //var barChart = mainGroup
-                        //.chart("BarChart")
-                        //.width(200)
-                        //.height(150);
 
-                    //barChart.draw(
-                      //  currCellData
-                    //);
 
-                    //barChart.layer('bars').selectAll('*').on('click', function (d) {
-                      //  console.log(d.details);
-                    //});
                 }
 
                 // TODO Put this somewhere else
