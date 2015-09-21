@@ -11,7 +11,7 @@ module.exports = function (config) {
             'shared/volume/volume.module.js',
             'shared/volume/*.js',
             'tests/**/**/*.js',
-            {pattern: 'tests/mock/*.json', watched: true, served: true, included: false}
+            {pattern: 'tests/mock/*.json', served: true, included: false}
         ],
 
         autoWatch: true,

@@ -104,7 +104,7 @@
 
             if (childType != undefined) {
                 childTypeSet = true;
-                children = getCellNeighborLabelsByChildType(cellIndex, childType);
+                children = getCellChildrenByTypeIndexes(cellIndex, childType);
             }
 
             for (var i = 0; i < children.length; ++i) {
@@ -126,6 +126,11 @@
             return neighbors;
         }
 
+        /**
+         * @name getCellNeighborLabelsByChildType
+         * @desc Returns a cell's neighbors' labels reachable by a specific child type.
+         * @returns list of objects. each object contains a 'label' and 'indexes' field.
+         */
         function getCellNeighborLabelsByChildType(cellIndex, childType) {
 
             console.log('getting neighbors of cellIndex: ' + cellIndex);

@@ -22,9 +22,9 @@
 
             var promises = [];
 
-            promises[0] = volumeLayers.activate();
-            promises[1] = volumeBounds.activate();
-            promises[2] = volumeStructures.activate();
+            //promises[0] = volumeLayers.activate();
+            //promises[1] = volumeBounds.activate();
+            promises.push(volumeStructures.activate());
 
             self.isActivated = true;
 
@@ -92,6 +92,7 @@
             $scope.cells = [];
             $scope.cells.push({name: label, indexes: indexes});
             $scope.cells.push({name: 'candidate', indexes: [volumeCells.getCellIndex(6117)]});
+            $scope.$broadcast('cellsChanged', $scope.cells);
         }
 
         function loadLocal() {
