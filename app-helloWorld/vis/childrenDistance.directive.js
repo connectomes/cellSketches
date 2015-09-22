@@ -119,9 +119,9 @@
                             }
                         }
                         targetDataList.push(targetData);
-                        break;
+                        //break;
                     }
-                    console.log(targetDataList);
+                    var chart = new Histogram(mainGroup, targetDataList, "Histogram", smallMultipleHeight, smallMultipleWidth, [0, maxChildDistance], markClickCallback);
 
                     function getCellPartnersOfLabel(cellPartners, label) {
                         for (var i = 0; i < cellPartners.length; ++i) {

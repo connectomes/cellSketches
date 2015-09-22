@@ -15,7 +15,8 @@
 
         var startsWithStr = 'CBb';
 
-        $scope.selection = [];$scope.details = "";
+        $scope.selection = [];
+        $scope.details = "";
         // Functions
         function activate() {
 
@@ -23,7 +24,7 @@
 
             //promises[0] = volumeLayers.activate();
             //promises[1] = volumeBounds.activate();
-            promises.push(volumeStructures.activate());
+            //promises.push(volumeStructures.activate());
 
             self.isActivated = true;
 
@@ -89,8 +90,22 @@
             var label = 'CBb4w';
             var indexes = volumeCells.getCellIndexesInLabel(label);
             $scope.cells = [];
-            $scope.cells.push({name: label, indexes: indexes});
-            $scope.cells.push({name: 'candidate', indexes: [volumeCells.getCellIndex(6117)]});
+            $scope.cells.push({
+                name: label,
+                indexes: indexes
+            });
+
+            $scope.cells.push({
+                name: 'candidate',
+                indexes: [volumeCells.getCellIndex(6117)]
+            });
+
+            $scope.secondaryCells = [];
+            $scope.secondaryCells.push({
+                name: "CBb+",
+                indexes: volumeCells.getCellIndexesInLabelRegExp(new RegExp('CBb+'))
+            });
+
             $scope.$broadcast('cellsChanged', $scope.cells);
         }
 

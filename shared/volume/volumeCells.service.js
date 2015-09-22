@@ -29,8 +29,10 @@
             getCellChildLocationsAt: getCellChildLocationsAt,
             getCellChildPartnerAt: getCellChildPartnerAt,
             getCellChildrenByTypeIndexes: getCellChildrenByTypeIndexes,
+            getCellChildrenConnectedTo: getCellChildrenConnectedTo,
             getCellIndex: getCellIndex,
             getCellIndexesInLabel: getCellIndexesInLabel,
+            getCellIndexesInLabelRegExp: getCellIndexesInLabelRegExp,
             getCellLocations: getCellLocations,
             getCellNeighborIndexesByChildType: getCellNeighborIndexesByChildType,
             getCellNeighborLabelsByChildType: getCellNeighborLabelsByChildType,
@@ -98,6 +100,28 @@
             return currChildren;
         }
 
+        /**
+         * @name getCellChildrenConnectedTo
+         * @returns list of cell's child indexes that are connected to partnerIndexes and of the specified type.
+         */
+        function getCellChildrenConnectedTo(cellIndex, partnerIndexes, childType) {
+
+            var indexes = [];
+            var children = getCellChildrenByTypeIndexes(cellIndex, childType);
+
+            for (var i = 0; i < children.length; ++i) {
+                var currIndex = children[i];
+                var partner = self.cellChildrenPartners[cellIndex][currIndex];
+                var partnerParentIndex = getCellIndex(partner.partnerParent);
+                if (partnerIndexes.indexOf(partnerParentIndex) != -1) {
+                    indexes.push(currIndex);
+                }
+            }
+
+            return indexes;
+        }
+
+
         function getCellChildAt(cellIndex, childIndex) {
             return self.cellChildren[cellIndex][childIndex];
         }
@@ -105,7 +129,7 @@
         function getCellChildCenterOfGravityAt(cellIndex, childIndex) {
             var locations = getCellChildLocationsAt(cellIndex, childIndex);
             var center = new Point3D(0, 0, 0);
-            for(var i=0; i<locations.length; ++i) {
+            for (var i = 0; i < locations.length; ++i) {
                 center = center.add(locations[i].position);
             }
 
@@ -144,9 +168,9 @@
                 if (partnerParent != -1) {
                     var partnerParentIndex = getCellIndex(partnerParent);
                     neighbors.push({
-                            neighborIndex: partnerParentIndex,
-                            childIndex: currChildIndex
-                        });
+                        neighborIndex: partnerParentIndex,
+                        childIndex: currChildIndex
+                    });
                 }
 
             }
@@ -218,6 +242,17 @@
                 }
             }
 
+            return indexes;
+        }
+
+        function getCellIndexesInLabelRegExp(regexp) {
+            var indexes = [];
+            for (var i = 0; i < self.cells.length; ++i) {
+                var match = regexp.exec(self.cells[i].label);
+                if (match) {
+                    indexes.push(i);
+                }
+            }
             return indexes;
         }
 
