@@ -87,12 +87,11 @@
         }
 
         function createSetsFromLoadedCells() {
-            var label = 'CBb4w';
-            var indexes = volumeCells.getCellIndexesInLabel(label);
+            var label = 'CBb3+';
             $scope.cells = [];
             $scope.cells.push({
                 name: label,
-                indexes: indexes
+                indexes: volumeCells.getCellIndexesInLabelRegExp(new RegExp('CBb4w'))
             });
 
             $scope.cells.push({

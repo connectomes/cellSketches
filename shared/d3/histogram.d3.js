@@ -1,12 +1,7 @@
 //http://bl.ocks.org/mbostock/3048450
-function Histogram(group, inputData, title, height, width, xAxisDomain, callback) {
+function Histogram(group, inputData, title, height, width, xAxisDomain, yAxisDomain, callback) {
 
-    var values = d3.range(1000).map(d3.random.bates(10));
-
-// A formatter for counts.
-    var formatCount = d3.format(",.0f");
-
-    var margin = {top: 10, right: 30, bottom: 30, left: 30},
+    var margin = {top: 20, right: 30, bottom: 30, left: 30},
         width = width - margin.left - margin.right,
         height = height - margin.top - margin.bottom;
 
@@ -24,12 +19,8 @@ function Histogram(group, inputData, title, height, width, xAxisDomain, callback
         .bins(x.ticks(10))
     (distances);
 
-    var yDomain = [0, d3.max(data, function (d) {
-        return d.y;
-    })];
-
     var y = d3.scale.linear()
-        .domain(yDomain)
+        .domain(yAxisDomain)
         .range([height, 0]);
 
     var xAxis = d3.svg.axis()
@@ -47,17 +38,26 @@ function Histogram(group, inputData, title, height, width, xAxisDomain, callback
             }
         }
     );
-
     group.append('g')
         .attr({
-            transform: 'translate(' + margin.right + ', 0)',
+            transform: 'translate(5, 12)'
+        })
+        .append('text')
+        .text(title)
+        .style({
+            'font-size': '12px'
+        });
+    var svg = group.append('g').attr({
+        transform: 'translate(' + margin.right + ',' + margin.top + ')'
+    });
+
+
+    svg.append('g')
+        .attr({
             'font-size': '9px'
         })
         .call(yAxis);
 
-    var svg = group.append('g').attr({
-        transform: 'translate(' + margin.right + ',0)'
-    });
 
     var bar = svg.selectAll(".bar")
         .data(data)
@@ -70,10 +70,7 @@ function Histogram(group, inputData, title, height, width, xAxisDomain, callback
     bar.append("rect")
         .attr("x", 1)
         .attr("width", x(data[0].dx) - 1)
-        .attr("y", function (d) {
-            return -2;
-        })
-        .attr('height', 2)
+        .attr('height', function(d) {return height - y(d.y); })
         .attr('fill', 'steelblue');
 
     svg.append("g")

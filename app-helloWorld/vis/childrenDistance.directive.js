@@ -121,7 +121,41 @@
                         targetDataList.push(targetData);
                         //break;
                     }
-                    var chart = new Histogram(mainGroup, targetDataList, "Histogram", smallMultipleHeight, smallMultipleWidth, [0, maxChildDistance], markClickCallback);
+                    var yMin = 0;
+                    var yMax = 0;
+
+                    for(i=0; i<targetDataList.length; ++i) {
+
+                        var distances = targetDataList[i].children.map(function (d) {
+                            return d.distance;
+                        });
+
+                        var x = d3.scale.linear()
+                            .domain([0, maxChildDistance]);
+
+                        var data = d3.layout.histogram()
+                            .range([0, maxChildDistance])
+                            .bins(x.ticks(10))
+                        (distances);
+
+                        yMax = Math.max(d3.max(data, function (d) {
+                            return d.y;
+                        }), yMax);
+                    }
+
+                    for(i=0; i<targetDataList.length; ++i) {
+
+                        var chartGroup = mainGroup.append('g').attr({
+                            transform: function () {
+                                var position = computeGridPosition(i, numSmallMultiplesPerRow);
+                                position = position.multiply(smallMultipleOffsets).add(new Point2D(smallMultiplePadding, 10));
+                                return 'translate' + position.toString();
+                            }
+                        });
+
+
+                        var chart = new Histogram(chartGroup, [targetDataList[i]], targetDataList[i].targetLabel, smallMultipleHeight, smallMultipleWidth, [0, maxChildDistance], [yMin, yMax], markClickCallback);
+                    }
 
                     function getCellPartnersOfLabel(cellPartners, label) {
                         for (var i = 0; i < cellPartners.length; ++i) {
