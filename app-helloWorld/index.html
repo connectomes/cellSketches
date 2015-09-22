@@ -17,7 +17,9 @@
     <script src="app.js"></script>
 
     <!-- Directives -->
-    <script src="childrenBarChart.directive.js"></script>
+    <script src="vis/childrenBarChart.directive.js"></script>
+    <script src="vis/childrenDistance.directive.js"></script>
+
 
     <!-- Shared modules. Order matters here. Module must be included before services. -->
     <script src="../shared/volume/volume.module.js"></script>
@@ -45,6 +47,7 @@
 <body ng-app="app.helloWorld" ng-controller="ExampleController as ctrl">
 
 <children-bar-chart></children-bar-chart>
+<children-distance></children-distance>
 
 <br>
 <br>

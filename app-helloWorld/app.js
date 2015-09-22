@@ -15,8 +15,7 @@
 
         var startsWithStr = 'CBb';
 
-        $scope.selection = [];
-        $scope.details = "";
+        $scope.selection = [];$scope.details = "";
         // Functions
         function activate() {
 

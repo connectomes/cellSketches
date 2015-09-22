@@ -23,7 +23,9 @@
         var service = {
             getCell: getCell,
             getCellAt: getCellAt,
+            getCellCenterOfGravityAt: getCellCenterOfGravityAt,
             getCellChildAt: getCellChildAt,
+            getCellChildCenterOfGravityAt: getCellChildCenterOfGravityAt,
             getCellChildLocationsAt: getCellChildLocationsAt,
             getCellChildPartnerAt: getCellChildPartnerAt,
             getCellChildrenByTypeIndexes: getCellChildrenByTypeIndexes,
@@ -63,9 +65,22 @@
             throw 'Error - tried to get cell ID, but it wasn\'t loaded yet:' + cellId;
         }
 
-
         function getCellAt(index) {
             return self.cells[index];
+        }
+
+        function getCellCenterOfGravityAt(index) {
+            if (!self.cellLocations[index]) {
+                throw 'Tried to get cell center of gravity with not locations loaded.';
+            }
+
+            var locations = self.cellLocations[index];
+            var position = new Point3D(0.0, 0.0, 0.0);
+            for (var i = 0; i < locations.length; ++i) {
+                position = position.add(locations[i].position);
+            }
+
+            return position.multiply((1.0 / locations.length));
         }
 
         function getCellChildrenByTypeIndexes(cellIndex, childType) {
@@ -85,6 +100,16 @@
 
         function getCellChildAt(cellIndex, childIndex) {
             return self.cellChildren[cellIndex][childIndex];
+        }
+
+        function getCellChildCenterOfGravityAt(cellIndex, childIndex) {
+            var locations = getCellChildLocationsAt(cellIndex, childIndex);
+            var center = new Point3D(0, 0, 0);
+            for(var i=0; i<locations.length; ++i) {
+                center = center.add(locations[i].position);
+            }
+
+            return center.multiply(1.0 / locations.length);
         }
 
         function getCellChildLocationsAt(cellIndex, childIndex) {
@@ -118,7 +143,10 @@
 
                 if (partnerParent != -1) {
                     var partnerParentIndex = getCellIndex(partnerParent);
-                    neighbors.push(partnerParentIndex);
+                    neighbors.push({
+                            neighborIndex: partnerParentIndex,
+                            childIndex: currChildIndex
+                        });
                 }
 
             }
@@ -133,13 +161,12 @@
          */
         function getCellNeighborLabelsByChildType(cellIndex, childType) {
 
-            console.log('getting neighbors of cellIndex: ' + cellIndex);
             var neighbors = getCellNeighborIndexesByChildType(cellIndex, childType);
             var labels = [];
 
             for (var i = 0; i < neighbors.length; ++i) {
 
-                var currNeighbor = getCellAt(neighbors[i]);
+                var currNeighbor = getCellAt(neighbors[i].neighborIndex);
                 var found = false;
 
                 // If currNeighbor's label is already in labels then add it to the per-label indexes. Else, create a new
@@ -150,8 +177,9 @@
 
                         found = true;
 
-                        if (labels[j].indexes.indexOf(neighbors[i]) == -1) {
-                            labels[j].indexes.push(neighbors[i]);
+                        if (labels[j].neighborIndexes.indexOf(neighbors[i].neighborIndex) == -1) {
+                            labels[j].neighborIndexes.push(neighbors[i].neighborIndex);
+                            labels[j].childIndexes.push(neighbors[i].childIndex);
                         }
 
                         break;
@@ -161,7 +189,8 @@
                 if (!found) {
                     labels.push({
                         label: currNeighbor.label,
-                        indexes: [neighbors[i]]
+                        neighborIndexes: [neighbors[i].neighborIndex],
+                        childIndexes: [neighbors[i].childIndex]
                     });
                 }
             }
