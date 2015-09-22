@@ -16,7 +16,7 @@
         var startsWithStr = 'CBb';
 
         $scope.selection = [];
-
+        $scope.details = "";
         // Functions
         function activate() {
 
@@ -112,7 +112,7 @@
         function loadRemoteStartsWith() {
             $scope.rangeVolumeX = volumeBounds.getRangeVolumeX();
             $scope.rangeVolumeY = volumeBounds.getRangeVolumeY();
-            $scope.cells = [];
+            $scope.details = [];
 
             volumeCells.loadCellStartsWith(startsWithStr).then(function () {
 

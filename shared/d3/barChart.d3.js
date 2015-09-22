@@ -1,15 +1,10 @@
-function customAxis(g) {
-    g.selectAll("text")
-        .attr("x", -2)
-        .attr("dy", 3);
-}
+function BarChart(group, data, title, height, width, xAxisMax, callback) {
 
-function BarChart(group, data, title, height, width) {
     var self = this;
-    var paddingLeftPercent = 0.15;
-    var paddingBottomPercent = 0.25;
-    var paddingTopPercent = 0.025;
-    var paddingVertical = paddingTopPercent + paddingBottomPercent;
+    self.paddingLeftPercent = 0.15;
+    self.paddingBottomPercent = 0.10;
+    self.paddingTopPercent = 0.025;
+
     self.yScale = d3.scale.ordinal();
     self.xScale = d3.scale.linear();
 
@@ -30,18 +25,18 @@ function BarChart(group, data, title, height, width) {
     self.yScale
         .domain(data.map(function (d) {
             return d.name;
-        })).rangeBands([height * paddingTopPercent, height * (1 - paddingVertical)]);
+        })).rangeBands([height * self.paddingTopPercent, height * (1 - self.paddingBottomPercent)]);
 
     self.xScale
-        .domain([0, 10])
-        .range([0, width * (1 - paddingLeftPercent)]);
+        .domain([0, xAxisMax])
+        .range([0, width * (1 - self.paddingLeftPercent)]);
 
     self.xAxis.scale(self.xScale)
         .orient('bottom');
 
     group.append('g')
         .attr({
-            transform: 'translate(' + (paddingLeftPercent * width) + ', ' + (height - (height * paddingVertical)) + ')',
+            transform: 'translate(' + (self.paddingLeftPercent * width) + ', ' + (height - (height * self.paddingBottomPercent)) + ')',
             'font-size': '9px'
         }).call(self.xAxis);
 
@@ -51,7 +46,7 @@ function BarChart(group, data, title, height, width) {
 
     group.append('g')
         .attr({
-            transform: 'translate(' + (paddingLeftPercent * width) + ', 0)',
+            transform: 'translate(' + (self.paddingLeftPercent * width) + ', 0)',
             'font-size': '9px'
         })
         .call(self.yAxis).call(customAxis);
@@ -63,7 +58,7 @@ function BarChart(group, data, title, height, width) {
         .attr('y', function (d) {
             return self.yScale(d.name);
         })
-        .attr('x', width * paddingLeftPercent)
+        .attr('x', width * self.paddingLeftPercent)
         .attr('width', function (d) {
             return self.xScale(d3.max([0, d.value]));
         })
@@ -72,5 +67,12 @@ function BarChart(group, data, title, height, width) {
         })
         .attr('fill', function (d) {
             return 'steelblue';
-        });
+        }).on('click', callback);
+
+    // TODO: Put this somewhere else.
+    function customAxis(g) {
+        g.selectAll("text")
+            .attr("x", -2)
+            .attr("dy", 3);
+    }
 }
