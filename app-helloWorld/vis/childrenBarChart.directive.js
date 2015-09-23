@@ -41,9 +41,7 @@
 
             scope.$on('cellsChanged', cellsChanged);
 
-            function cellsChanged(slot, cells) {
-
-                var childType = 28; // Gap Junction
+            function cellsChanged(slot, cells, childType, useSecondaryCells, secondaryCells) {
 
                 // Get a unique list of all cell partner class types.
                 // This will be labels for the yAxis.

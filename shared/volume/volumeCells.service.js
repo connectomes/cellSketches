@@ -93,7 +93,9 @@
             var currChildren = [];
 
             for (var i = 0; i < cellChildren.length; ++i) {
-                if (cellChildren[i].type == childType) {
+                if(childType && cellChildren[i].type == childType) {
+                    currChildren.push(i);
+                } else if (childType == undefined) {
                     currChildren.push(i);
                 }
             }

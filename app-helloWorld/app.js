@@ -90,7 +90,10 @@
             var label = 'CBb3+';
 
             $scope.cells = [];
+            //$scope.useSecondaryCells = false;
+            $scope.useSecondaryCells = true;
 
+            //$scope.childType = 28;
             $scope.cells.push({
                 name: label,
                 indexes: volumeCells.getCellIndexesInLabelRegExp(new RegExp('CBb4w'))
@@ -125,7 +128,7 @@
 
             console.log($scope.secondaryCells);
 
-            $scope.$broadcast('cellsChanged', $scope.cells);
+            $scope.$broadcast('cellsChanged', $scope.cells, $scope.childType, $scope.useSecondaryCells, $scope.secondaryCells);
         }
 
         function loadLocal() {
