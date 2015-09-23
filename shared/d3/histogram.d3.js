@@ -19,6 +19,28 @@ function Histogram(group, inputData, title, height, width, xAxisDomain, yAxisDom
         .bins(x.ticks(10))
     (distances);
 
+    // Stitch together input data as details:
+    // For each bin...
+    for(var i=0; i<data.length; ++i) {
+        var currData = data[i];
+        var currDetails = {
+            parents: [],
+            children: []
+        };
+
+        // For each item in bin...
+        for(var j=0; j<currData.length; ++j) {
+            for(var k=0; k<inputData[0].children.length; ++k) {
+                var currDistance = inputData[0].children[k].distance;
+                if(currDistance == currData[j]) {
+                    currDetails.parents.push(inputData[0].children[k].parentIndex);
+                    currDetails.children.push(inputData[0].children[k].childIndex);
+                }
+            }
+        }
+        currData.details = currDetails;
+    }
+
     var y = d3.scale.linear()
         .domain(yAxisDomain)
         .range([height, 0]);
@@ -38,6 +60,7 @@ function Histogram(group, inputData, title, height, width, xAxisDomain, yAxisDom
             }
         }
     );
+
     group.append('g')
         .attr({
             transform: 'translate(5, 12)'
@@ -50,7 +73,6 @@ function Histogram(group, inputData, title, height, width, xAxisDomain, yAxisDom
     var svg = group.append('g').attr({
         transform: 'translate(' + margin.right + ',' + margin.top + ')'
     });
-
 
     svg.append('g')
         .attr({
@@ -71,7 +93,8 @@ function Histogram(group, inputData, title, height, width, xAxisDomain, yAxisDom
         .attr("x", 1)
         .attr("width", x(data[0].dx) - 1)
         .attr('height', function(d) {return height - y(d.y); })
-        .attr('fill', 'steelblue');
+        .attr('fill', 'steelblue')
+        .on('click', callback);
 
     svg.append("g")
         .attr("class", "x axis")

@@ -76,8 +76,6 @@
                         targetData.targetLabel = currTarget;
                         targetData.children = [];
 
-                        console.log('the current target is: ' + currTarget);
-
                         // For each of the loaded cell sets.
                         for (i = 0; i < cells.length; ++i) {
 
@@ -101,7 +99,7 @@
                                         var currChildIndex = currChildIndexes[childIndex];
                                         var childCog = volumeCells.getCellChildCenterOfGravityAt(currIndex, currChildIndex);
                                         var distance = childCog.distance(currCellCog);
-
+                                        //var distance = volumeCells.getCellChildRadiusAt(currIndex, currChildIndex) * 2;
                                         minChildDistance = Math.min(minChildDistance, distance);
 
                                         maxChildDistance = Math.max(maxChildDistance, distance);
@@ -111,6 +109,7 @@
                                         targetData.children.push({
                                             distance: distance,
                                             parentIndex: currIndex,
+                                            childIndex: childIndex,
                                             targetIndex: currPartners[partnerIndex].neighborIndexes[childIndex]
                                         });
                                     }
@@ -119,8 +118,10 @@
                             }
                         }
                         targetDataList.push(targetData);
-                        //break;
                     }
+
+                    console.log(targetDataList);
+
                     var yMin = 0;
                     var yMax = 0;
 
@@ -180,15 +181,19 @@
                 }
 
                 function markClickCallback(d) {
+                    console.log(d);
 
-                    var cells = [];
-
-                    for (var i = 0; i < d.details.length; ++i) {
-                        cells.push(volumeCells.getCellAt(d.details[i]).id);
+                    var details = d.details;
+                    var str = '';
+                    for(var i=0; i<details.parents.length; ++i) {
+                        var cellIndex = details.parents[i];
+                        var cellId = volumeCells.getCellAt(cellIndex).id;
+                        var childId = volumeCells.getCellChildAt(cellIndex, details.children[i]).id;
+                        str = str + 'Cell id: ' + cellId + ' child id: ' + childId + '.';
                     }
 
                     scope.$apply(function () {
-                        scope.details = cells;
+                        scope.details = str;
                     });
                 }
             }

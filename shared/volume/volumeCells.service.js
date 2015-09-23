@@ -28,6 +28,7 @@
             getCellChildCenterOfGravityAt: getCellChildCenterOfGravityAt,
             getCellChildLocationsAt: getCellChildLocationsAt,
             getCellChildPartnerAt: getCellChildPartnerAt,
+            getCellChildRadiusAt: getCellChildRadiusAt,
             getCellChildrenByTypeIndexes: getCellChildrenByTypeIndexes,
             getCellChildrenConnectedTo: getCellChildrenConnectedTo,
             getCellIndex: getCellIndex,
@@ -102,7 +103,7 @@
 
         /**
          * @name getCellChildrenConnectedTo
-         * @returns list of cell's child indexes that are connected to partnerIndexes and of the specified type.
+         * @returns Array of cell's child indexes that are connected to partnerIndexes and of the specified type.
          */
         function getCellChildrenConnectedTo(cellIndex, partnerIndexes, childType) {
 
@@ -142,6 +143,16 @@
 
         function getCellChildPartnerAt(cellIndex, childIndex) {
             return self.cellChildrenPartners[cellIndex][childIndex];
+        }
+
+        function getCellChildRadiusAt(cellIndex, childIndex) {
+            var locations = getCellChildLocationsAt(cellIndex, childIndex);
+            var sum = 0;
+            for (var i = 0; i < locations.length; ++i) {
+                sum = sum + locations[i].radius;
+            }
+
+            return (sum / locations.length);
         }
 
         function getCellNeighborIndexesByChildType(cellIndex, childType) {

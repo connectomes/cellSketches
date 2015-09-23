@@ -88,22 +88,42 @@
 
         function createSetsFromLoadedCells() {
             var label = 'CBb3+';
+
             $scope.cells = [];
+
             $scope.cells.push({
                 name: label,
                 indexes: volumeCells.getCellIndexesInLabelRegExp(new RegExp('CBb4w'))
             });
 
-            $scope.cells.push({
-                name: 'candidate',
-                indexes: [volumeCells.getCellIndex(6117)]
-            });
-
             $scope.secondaryCells = [];
+
             $scope.secondaryCells.push({
                 name: "CBb+",
                 indexes: volumeCells.getCellIndexesInLabelRegExp(new RegExp('CBb+'))
             });
+
+            $scope.secondaryCells.push({
+                name: 'AC',
+                indexes: volumeCells.getCellIndexesInLabelRegExp(new RegExp('AC+'))
+            });
+
+            $scope.secondaryCells.push({
+                name: 'GC ON',
+                indexes: volumeCells.getCellIndexesInLabelRegExp(new RegExp('GC ON'))
+            });
+
+            $scope.secondaryCells.push({
+                name: 'CBx',
+                indexes: volumeCells.getCellIndexesInLabelRegExp(new RegExp('CBx'))
+            });
+
+            $scope.secondaryCells.push({
+                name: 'null',
+                indexes: volumeCells.getCellIndexesInLabelRegExp(new RegExp('null'))
+            });
+
+            console.log($scope.secondaryCells);
 
             $scope.$broadcast('cellsChanged', $scope.cells);
         }
