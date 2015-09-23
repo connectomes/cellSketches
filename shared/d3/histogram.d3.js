@@ -70,6 +70,7 @@ function Histogram(group, inputData, title, height, width, xAxisDomain, yAxisDom
         .style({
             'font-size': '12px'
         });
+
     var svg = group.append('g').attr({
         transform: 'translate(' + margin.right + ',' + margin.top + ')'
     });
@@ -80,6 +81,13 @@ function Histogram(group, inputData, title, height, width, xAxisDomain, yAxisDom
         })
         .call(yAxis);
 
+    svg.append("g")
+        .attr("class", "x axis")
+        .attr("transform", "translate(0," + height + ")")
+        .attr({
+            'font-size': '9px'
+        })
+        .call(xAxis);
 
     var bar = svg.selectAll(".bar")
         .data(data)
@@ -96,8 +104,4 @@ function Histogram(group, inputData, title, height, width, xAxisDomain, yAxisDom
         .attr('fill', 'steelblue')
         .on('click', callback);
 
-    svg.append("g")
-        .attr("class", "x axis")
-        .attr("transform", "translate(0," + height + ")")
-        .call(xAxis);
 }
