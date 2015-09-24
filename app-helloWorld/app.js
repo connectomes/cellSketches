@@ -17,6 +17,7 @@
 
         $scope.selection = [];
         $scope.details = "";
+        $scope.useSecondaryCells = false;
         // Functions
         function activate() {
 
@@ -86,14 +87,16 @@
 
         }
 
-        function createSetsFromLoadedCells() {
+        $scope.createSetsFromLoadedCells = function() {
+            console.log('hello');
             var label = 'CBb3+';
 
             $scope.cells = [];
-            $scope.useSecondaryCells = false;
-            $scope.useSecondaryCells = true;
+            $scope.secondaryCells = [];
+            console.log($scope.useSecondaryCells);
 
             $scope.childType = 28;
+            //$scope.childType = 28;
             $scope.cells.push({
                 name: label,
                 indexes: volumeCells.getCellIndexesInLabelRegExp(new RegExp('CBb4w'))
@@ -129,7 +132,7 @@
             console.log($scope.secondaryCells);
 
             $scope.$broadcast('cellsChanged', $scope.cells, $scope.childType, $scope.useSecondaryCells, $scope.secondaryCells);
-        }
+        };
 
         function loadLocal() {
 
@@ -141,7 +144,7 @@
 
             volumeCells.loadFromFile(filename).then(function () {
                 checkLoadedCells();
-                createSetsFromLoadedCells();
+                $scope.createSetsFromLoadedCells();
             });
         }
 

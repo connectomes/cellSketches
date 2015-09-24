@@ -48,7 +48,7 @@ function Histogram(group, inputData, title, height, width, xAxisDomain, yAxisDom
     var xAxis = d3.svg.axis()
         .scale(x)
         .orient("bottom")
-        .ticks(1);
+        .tickValues(xAxisDomain);
 
     var yAxis = d3.svg.axis()
         .scale(y)

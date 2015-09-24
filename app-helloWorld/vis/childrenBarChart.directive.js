@@ -43,6 +43,9 @@
 
             function cellsChanged(slot, cells, childType, useSecondaryCells, secondaryCells) {
 
+                mainGroup.selectAll('*').remove();
+                addOutlineToGroup(mainGroup, mainWidth, mainHeight);
+
                 // Get a unique list of all cell partner class types.
                 // This will be labels for the yAxis.
                 var yAxisLabels = getYAxisLabels(cells, childType, useSecondaryCells, secondaryCells);

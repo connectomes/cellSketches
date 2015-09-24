@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="utf-8">
-    <title>Child Partner Count</title>
+    <title>Child Diameter</title>
 
     <!-- Third party stuff -->
     <script src="../bower_components/angular/angular.js"></script>
@@ -47,11 +47,12 @@
 </head>
 
 <body ng-app="app.helloWorld" ng-controller="ExampleController as ctrl">
-<h2>No. of Children By Partner Class</h2>
+<h2>Children Diameter Histogram</h2>
+
 <form name="myForm">
 <input type="checkbox" ng-model="useSecondaryCells" ng-click="createSetsFromLoadedCells()">use secondary cells
 </form>
-<children-bar-chart></children-bar-chart>
+<children-radius></children-radius>
 
 <br>
 <br>

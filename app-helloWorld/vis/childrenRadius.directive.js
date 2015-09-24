@@ -2,12 +2,12 @@
     'use strict';
 
     angular.module('app.helloWorld')
-        .directive('childrenDistance', childrenDistance);
+        .directive('childrenRadius', childrenRadius);
 
-    childrenDistance.$inject = ['volumeCells', 'volumeStructures'];
+    childrenRadius.$inject = ['volumeCells', 'volumeStructures'];
 
-    function childrenDistance(volumeCells, volumeStructures) {
-        var useRadius = false;
+    function childrenRadius(volumeCells, volumeStructures) {
+        var useRadius = true;
         return {
             link: link,
             restrict: 'EA'
