@@ -30,7 +30,7 @@
             getCellChildPartnerAt: getCellChildPartnerAt,
             getCellChildRadiusAt: getCellChildRadiusAt,
             getCellChildrenByTypeIndexes: getCellChildrenByTypeIndexes,
-            getCellChildrenConnectedTo: getCellChildrenConnectedTo,
+            getCellChildrenConnectedToIndexes: getCellChildrenConnectedToIndexes,
             getCellIndex: getCellIndex,
             getCellIndexesInLabel: getCellIndexesInLabel,
             getCellIndexesInLabelRegExp: getCellIndexesInLabelRegExp,
@@ -107,7 +107,7 @@
          * @name getCellChildrenConnectedTo
          * @returns Array of cell's child indexes that are connected to partnerIndexes and of the specified type.
          */
-        function getCellChildrenConnectedTo(cellIndex, partnerIndexes, childType) {
+        function getCellChildrenConnectedToIndexes(cellIndex, partnerIndexes, childType) {
 
             var indexes = [];
             var children = getCellChildrenByTypeIndexes(cellIndex, childType);
@@ -123,7 +123,6 @@
 
             return indexes;
         }
-
 
         function getCellChildAt(cellIndex, childIndex) {
             return self.cellChildren[cellIndex][childIndex];

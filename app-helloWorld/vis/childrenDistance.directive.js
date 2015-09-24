@@ -227,14 +227,14 @@
                             for (j = 0; j < cells[i].indexes.length; ++j) {
                                 currIndex = cells[i].indexes[j];
                                 currCellCog = volumeCells.getCellCenterOfGravityAt(currIndex);
-                                currChildIndexes = volumeCells.getCellChildrenConnectedTo(currIndex, currTargetIndexes, childType);
+                                currChildIndexes = volumeCells.getCellChildrenConnectedToIndexes(currIndex, currTargetIndexes, childType);
                                 for (childIndex = 0; childIndex < currChildIndexes.length; ++childIndex) {
                                     currChildIndex = currChildIndexes[childIndex];
                                     childCog = volumeCells.getCellChildCenterOfGravityAt(currIndex, currChildIndex);
                                     distance = childCog.distance(currCellCog);
+
                                     //var distance = volumeCells.getCellChildRadiusAt(currIndex, currChildIndex) * 2;
                                     minChildDistance = Math.min(minChildDistance, distance);
-
                                     maxChildDistance = Math.max(maxChildDistance, distance);
 
                                     // TODO: assert this label is equal to target label.

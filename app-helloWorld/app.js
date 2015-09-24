@@ -41,8 +41,8 @@
                     }
                 }
             }
-            var numCells = volumeCells.getNumCells();
 
+            var numCells = volumeCells.getNumCells();
             var foundAllNeighbors = true;
             var foundAllChildLocations = true;
 
@@ -90,10 +90,10 @@
             var label = 'CBb3+';
 
             $scope.cells = [];
-            //$scope.useSecondaryCells = false;
+            $scope.useSecondaryCells = false;
             $scope.useSecondaryCells = true;
 
-            //$scope.childType = 28;
+            $scope.childType = 28;
             $scope.cells.push({
                 name: label,
                 indexes: volumeCells.getCellIndexesInLabelRegExp(new RegExp('CBb4w'))
@@ -107,8 +107,8 @@
             });
 
             $scope.secondaryCells.push({
-                name: 'AC',
-                indexes: volumeCells.getCellIndexesInLabelRegExp(new RegExp('AC+'))
+                name: '^AC',
+                indexes: volumeCells.getCellIndexesInLabelRegExp(new RegExp('^AC'))
             });
 
             $scope.secondaryCells.push({

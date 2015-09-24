@@ -45,73 +45,122 @@
 
                 // Get a unique list of all cell partner class types.
                 // This will be labels for the yAxis.
+                var yAxisLabels = getYAxisLabels(cells, childType, useSecondaryCells, secondaryCells);
+
+                yAxisLabels.sort();
+                console.log(yAxisLabels);
+
+
+                // Create a bar chart for each cell.
+                var data = getChartDataListAndTitles(cells, childType, yAxisLabels, useSecondaryCells, secondaryCells);
+                var chartDataList = data.chartDataList;
+                var chartTitles = data.chartTitles;
+                var xAxisMaximum = data.xAxisMaximum;
+
+
+                for (var i = 0; i < chartDataList.length; ++i) {
+
+                    var barChartGroup = mainGroup.append('g').attr({
+                        transform: function () {
+                            var position = computeGridPosition(i, numSmallMultiplesPerRow);
+                            position = position.multiply(smallMultipleOffsets).add(new Point2D(smallMultiplePadding, 10));
+                            return 'translate' + position.toString();
+                        }
+                    });
+
+                    var chart = new BarChart(barChartGroup, chartDataList[i], chartTitles[i], smallMultipleHeight, smallMultipleWidth, xAxisMaximum, markClickCallback);
+                }
+
+
+            }
+
+            function getYAxisLabels(cells, childType, useSecondaryCells, secondaryCells) {
                 var yAxisLabels = [];
+                if (!useSecondaryCells) {
+                    for (var i = 0; i < cells.length; ++i) {
+                        for (var j = 0; j < cells[i].indexes.length; ++j) {
+
+                            var currIndex = cells[i].indexes[j];
+                            var currPartners = volumeCells.getCellNeighborLabelsByChildType(currIndex, childType);
+
+                            for (var k = 0; k < currPartners.length; ++k) {
+
+                                var currLabel = currPartners[k].label;
+
+                                if (yAxisLabels.indexOf(currLabel) == -1) {
+                                    yAxisLabels.push(currLabel);
+                                }
+
+                            }
+                        }
+                    }
+
+                } else {
+                    for (i = 0; i < secondaryCells.length; ++i) {
+                        yAxisLabels.push(secondaryCells[i].name);
+                    }
+                }
+                return yAxisLabels;
+            }
+
+            function getChartDataListAndTitles(cells, childType, yAxisLabels, useSecondaryCells, secondaryCells) {
                 var xAxisMaximum = 0;
+                var chartDataList = [];
+                var chartTitles = [];
 
                 for (var i = 0; i < cells.length; ++i) {
                     for (var j = 0; j < cells[i].indexes.length; ++j) {
 
                         var currIndex = cells[i].indexes[j];
-                        var currPartners = volumeCells.getCellNeighborLabelsByChildType(currIndex, childType);
-
-                        for (var k = 0; k < currPartners.length; ++k) {
-
-                            var currLabel = currPartners[k].label;
-
-                            if (yAxisLabels.indexOf(currLabel) == -1) {
-                                yAxisLabels.push(currLabel);
-                            }
-
-                            xAxisMaximum = Math.max(xAxisMaximum, currPartners[k].neighborIndexes.length);
-                        }
-                    }
-                }
-
-                yAxisLabels.sort();
-
-                function getCellPartnersOfLabel(cellPartners, label) {
-                    for (var i = 0; i < cellPartners.length; ++i) {
-                        if (cellPartners[i].label == label) {
-                            return cellPartners[i].neighborIndexes;
-                        }
-                    }
-                    return [];
-                }
-
-                var numCharts = 0;
-                // Create a bar chart for each cell.
-                for (i = 0; i < cells.length; ++i) {
-                    for (j = 0; j < cells[i].indexes.length; ++j) {
-
-                        currIndex = cells[i].indexes[j];
-                        currPartners = volumeCells.getCellNeighborLabelsByChildType(currIndex, childType);
                         var currCellData = [];
 
-                        for (k = 0; k < yAxisLabels.length; ++k) {
+                        for (var k = 0; k < yAxisLabels.length; ++k) {
+                            var currLabel = yAxisLabels[k];
 
-                            currLabel = yAxisLabels[k];
-                            var labelPartners = getCellPartnersOfLabel(currPartners, currLabel);
+                            if (!useSecondaryCells) {
+                                var cellsInLabel = volumeCells.getCellIndexesInLabel(currLabel);
+                                console.log(cellsInLabel);
+                                var currCellChildren = volumeCells.getCellChildrenConnectedToIndexes(currIndex, cellsInLabel, childType);
+                            } else {
+                                var currSecondaryCellIndex = -1;
+                                for (var n = 0; n < secondaryCells.length; ++n) {
+                                    if (secondaryCells[n].name == currLabel) {
+                                        currSecondaryCellIndex = n;
+                                        break;
+                                    }
+                                }
+
+                                currCellChildren = volumeCells.getCellChildrenConnectedToIndexes(currIndex, secondaryCells[currSecondaryCellIndex].indexes, childType);
+                                console.log(secondaryCells[currSecondaryCellIndex].indexes);
+                            }
+
+
+                            var details = [];
+
+                            for (n = 0; n < currCellChildren.length; n++) {
+                                details.push(volumeCells.getCellChildAt(currIndex, currCellChildren[n]).id);
+                            }
 
                             currCellData.push({
                                 name: currLabel,
-                                value: labelPartners.length,
-                                details: labelPartners
+                                value: currCellChildren.length,
+                                details: details
                             });
+
+                            xAxisMaximum = Math.max(xAxisMaximum, currCellChildren.length);
+
                         }
 
-                        var barChartGroup = mainGroup.append('g').attr({
-                            transform: function () {
-                                var position = computeGridPosition(numCharts, numSmallMultiplesPerRow);
-                                position = position.multiply(smallMultipleOffsets).add(new Point2D(smallMultiplePadding, 10));
-                                return 'translate' + position.toString();
-                            }
-                        });
-
+                        chartDataList.push(currCellData);
                         var currCell = volumeCells.getCellAt(currIndex);
-                        var title = 'Cell: ' + currCell.id + ' label: ' + currCell.label;
-                        var chart = new BarChart(barChartGroup, currCellData, title, smallMultipleHeight, smallMultipleWidth, xAxisMaximum, markClickCallback);
-                        numCharts++;
+                        chartTitles.push('Cell: ' + currCell.id + ' label: ' + currCell.label);
                     }
+                }
+
+                return {
+                    chartDataList: chartDataList,
+                    chartTitles: chartTitles,
+                    xAxisMaximum: xAxisMaximum
                 }
             }
 
@@ -130,14 +179,24 @@
 
                 var cells = [];
 
-                for (var i = 0; i < d.details.length; ++i) {
-                    cells.push(volumeCells.getCellAt(d.details[i]).id);
-                }
+                //for (var i = 0; i < d.details.length; ++i) {
+                //cells.push(volumeCells.getCellAt(d.details[i]).id);
+                //}
 
                 scope.$apply(function () {
-                    scope.details = cells;
+                    scope.details = d.details;
                 });
             }
+
+            function getCellPartnersOfLabel(cellPartners, label) {
+                for (var i = 0; i < cellPartners.length; ++i) {
+                    if (cellPartners[i].label == label) {
+                        return cellPartners[i].neighborIndexes;
+                    }
+                }
+                return [];
+            }
+
         }
 
     }
