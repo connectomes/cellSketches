@@ -51,17 +51,42 @@
                 var yAxisLabels = getYAxisLabels(cells, childType, useSecondaryCells, secondaryCells);
 
                 yAxisLabels.sort();
-                console.log(yAxisLabels);
-
 
                 // Create a bar chart for each cell.
                 var data = getChartDataListAndTitles(cells, childType, yAxisLabels, useSecondaryCells, secondaryCells);
                 var chartDataList = data.chartDataList;
                 var chartTitles = data.chartTitles;
                 var xAxisMaximum = data.xAxisMaximum;
+                var cellIds = data.cellIds;
 
+                var output = "cellid, hull area, num children";
 
-                for (var i = 0; i < chartDataList.length; ++i) {
+                for(var i=0; i<yAxisLabels.length; ++i) {
+                    output = output + ", " + yAxisLabels[i];
+                }
+
+                output = output + '\n';
+                var outputBinary = false;
+                //outputBinary = true;
+                for(i=0; i<cellIds.length; ++i) {
+                    output = output + cellIds[i] + ', ';
+                    output = output + volumeCells.getCellConvexHullAreaAt(volumeCells.getCellIndex(cellIds[i])) + ', ';
+                    output = output + volumeCells.getNumCellChildrenAt(volumeCells.getCellIndex(cellIds[i]));
+
+                    for (var j = 0; j < yAxisLabels.length; ++j) {
+                        if(outputBinary) {
+                            output = output + ", " + ((chartDataList[i][j].value > 0) ? '1' : '0');
+                        } else {
+                            output = output + ", " + chartDataList[i][j].value;
+                        }
+                    }
+
+                    output = output + '\n';
+                }
+
+                console.log(output);
+
+                for (i = 0; i < chartDataList.length; ++i) {
 
                     var barChartGroup = mainGroup.append('g').attr({
                         transform: function () {
@@ -110,7 +135,7 @@
                 var xAxisMaximum = 0;
                 var chartDataList = [];
                 var chartTitles = [];
-
+                var cellIds = [];
                 for (var i = 0; i < cells.length; ++i) {
                     for (var j = 0; j < cells[i].indexes.length; ++j) {
 
@@ -156,6 +181,7 @@
 
                         chartDataList.push(currCellData);
                         var currCell = volumeCells.getCellAt(currIndex);
+                        cellIds.push(currCell.id);
                         chartTitles.push('Cell: ' + currCell.id + ' label: ' + currCell.label);
                     }
                 }
@@ -163,7 +189,8 @@
                 return {
                     chartDataList: chartDataList,
                     chartTitles: chartTitles,
-                    xAxisMaximum: xAxisMaximum
+                    xAxisMaximum: xAxisMaximum,
+                    cellIds: cellIds
                 }
             }
 

@@ -31,6 +31,7 @@
             getCellChildRadiusAt: getCellChildRadiusAt,
             getCellChildrenByTypeIndexes: getCellChildrenByTypeIndexes,
             getCellChildrenConnectedToIndexes: getCellChildrenConnectedToIndexes,
+            getCellConvexHullAreaAt: getCellConvexHullAreaAt,
             getCellIndex: getCellIndex,
             getCellIndexesInLabel: getCellIndexesInLabel,
             getCellIndexesInLabelRegExp: getCellIndexesInLabelRegExp,
@@ -154,6 +155,15 @@
             }
 
             return (sum / locations.length);
+        }
+
+        function getCellConvexHullAreaAt(cellIndex) {
+            var locations = self.cellLocations[cellIndex];
+            var vertices = [];
+            for(var i=0; i<locations.length; ++i) {
+                vertices.push([locations[i].position.x, locations[i].position.y]);
+            }
+            return areaOfConvexHull(vertices);
         }
 
         function getCellNeighborIndexesByChildType(cellIndex, childType) {
@@ -375,11 +385,11 @@
                 self.cells.push(cell);
 
                 // Append to the monster filter.
-                if (i == 0 || filter === '(') {
+                if (i == 0 || filter == '(') {
                     filter = filter + 'ID eq ' + cellIds[i];
+                } else {
+                    filter = filter + ' or ID eq ' + cellIds[i];
                 }
-
-                filter = filter + ' or ID eq ' + cellIds[i];
                 numCellsInFilter++;
 
                 // Start request and reset filter.

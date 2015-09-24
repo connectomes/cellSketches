@@ -90,13 +90,12 @@
         $scope.createSetsFromLoadedCells = function() {
             console.log('hello');
             var label = 'CBb3+';
-
             $scope.cells = [];
             $scope.secondaryCells = [];
             console.log($scope.useSecondaryCells);
 
             $scope.childType = 28;
-            //$scope.childType = 28;
+            //$scope.childType = undefined;
             $scope.cells.push({
                 name: label,
                 indexes: volumeCells.getCellIndexesInLabelRegExp(new RegExp('CBb4w'))
