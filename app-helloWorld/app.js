@@ -129,6 +129,10 @@
             });
 
             console.log($scope.secondaryCells);
+            var cellIndex = volumeCells.getCellIndex(170);
+            var cellCenter = volumeCells.getCellConvexHullAt(cellIndex);
+
+
 
             $scope.$broadcast('cellsChanged', $scope.cells, $scope.childType, $scope.useSecondaryCells, $scope.secondaryCells);
         };

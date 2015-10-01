@@ -31,7 +31,7 @@
             getCellChildRadiusAt: getCellChildRadiusAt,
             getCellChildrenByTypeIndexes: getCellChildrenByTypeIndexes,
             getCellChildrenConnectedToIndexes: getCellChildrenConnectedToIndexes,
-            getCellConvexHullAreaAt: getCellConvexHullAreaAt,
+            getCellConvexHullAt: getCellConvexHullAt,
             getCellIndex: getCellIndex,
             getCellIndexesInLabel: getCellIndexesInLabel,
             getCellIndexesInLabelRegExp: getCellIndexesInLabelRegExp,
@@ -157,13 +157,14 @@
             return (sum / locations.length);
         }
 
-        function getCellConvexHullAreaAt(cellIndex) {
+        function getCellConvexHullAt(cellIndex) {
             var locations = self.cellLocations[cellIndex];
             var vertices = [];
             for(var i=0; i<locations.length; ++i) {
                 vertices.push([locations[i].position.x, locations[i].position.y]);
             }
-            return areaOfConvexHull(vertices);
+            var hull = d3.geom.hull(vertices);
+            return d3.geom.polygon(hull);
         }
 
         function getCellNeighborIndexesByChildType(cellIndex, childType) {

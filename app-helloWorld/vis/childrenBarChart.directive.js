@@ -70,7 +70,7 @@
                 //outputBinary = true;
                 for(i=0; i<cellIds.length; ++i) {
                     output = output + cellIds[i] + ', ';
-                    output = output + volumeCells.getCellConvexHullAreaAt(volumeCells.getCellIndex(cellIds[i])) + ', ';
+                    output = output + volumeCells.getCellConvexHullAt(volumeCells.getCellIndex(cellIds[i])).area() + ', ';
                     output = output + volumeCells.getNumCellChildrenAt(volumeCells.getCellIndex(cellIds[i]));
 
                     for (var j = 0; j < yAxisLabels.length; ++j) {
