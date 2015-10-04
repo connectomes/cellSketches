@@ -1,28 +1,36 @@
-function Point3D(x, y, z) {
+utils.Point3D = (function () {
+    'use strict';
 
-    var self = this;
-    self.x = x;
-    self.y = y;
-    self.z = z;
+    function Point3D(x, y, z) {
+        this.x = x;
+        this.y = y;
+        this.z = z;
+    }
 
-    self.toString = function() {
+    Point3D.prototype.toString = function () {
+        var self = this;
         return '(' + self.x + ', ' + self.y + ', ' + self.z + ')';
     };
 
-    self.multiply = function (rhs) {
-        if(rhs.hasOwnProperty('x') && rhs.hasOwnProperty('y') && rhs.hasOwnProperty('z')) {
+    Point3D.prototype.multiply = function (rhs) {
+        var self = this;
+        if (rhs.hasOwnProperty('x') && rhs.hasOwnProperty('y') && rhs.hasOwnProperty('z')) {
             return new Point3D(rhs.x * self.x, rhs.y * self.y, rhs.z * self.z);
         } else {
             return new Point3D(rhs * self.x, rhs * self.y, rhs * self.z);
         }
     };
 
-    self.add = function(rhs) {
+    Point3D.prototype.add = function (rhs) {
+        var self = this;
         return new Point3D(rhs.x + self.x, rhs.y + self.y, rhs.z + self.z);
     };
 
-    self.distance = function(rhs) {
+    Point3D.prototype.distance = function (rhs) {
+        var self = this;
         return Math.sqrt(Math.pow((self.x - rhs.x), 2) + Math.pow((self.y - rhs.y), 2) + Math.pow((self.z - rhs.z), 2));
-    }
+    };
 
-}
+    return Point3D;
+
+})();

@@ -35,7 +35,7 @@
             var smallMultiplePadding = 10;
             var smallMultipleWidth = (svgWidth - (numSmallMultiplesPerRow * smallMultiplePadding)) / numSmallMultiplesPerRow;
             var smallMultipleHeight = 250;
-            var smallMultipleOffsets = new Point2D(smallMultiplePadding + smallMultipleWidth, smallMultiplePadding + smallMultipleHeight);
+            var smallMultipleOffsets = new utils.Point2D(smallMultiplePadding + smallMultipleWidth, smallMultiplePadding + smallMultipleHeight);
 
             scope.$on('cellsChanged', cellsChanged);
 
@@ -82,7 +82,7 @@
                     var chartGroup = mainGroup.append('g').attr({
                         transform: function () {
                             var position = computeGridPosition(i, numSmallMultiplesPerRow);
-                            position = position.multiply(smallMultipleOffsets).add(new Point2D(smallMultiplePadding, 10));
+                            position = position.multiply(smallMultipleOffsets).add(new utils.Point2D(smallMultiplePadding, 10));
                             return 'translate' + position.toString();
                         }
                     });
@@ -267,11 +267,11 @@
             // TODO Put this somewhere else
             function computeGridPosition(i, numSmallMultiplesPerRow) {
                 if (i < numSmallMultiplesPerRow) {
-                    return new Point2D(i, 0);
+                    return new utils.Point2D(i, 0);
                 } else {
                     var row = Math.floor(i / numSmallMultiplesPerRow);
                     var col = i % numSmallMultiplesPerRow;
-                    return new Point2D(col, row);
+                    return new utils.Point2D(col, row);
                 }
             }
 

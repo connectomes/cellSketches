@@ -79,7 +79,7 @@
             }
 
             var locations = self.cellLocations[index];
-            var position = new Point3D(0.0, 0.0, 0.0);
+            var position = new utils.Point3D(0.0, 0.0, 0.0);
             for (var i = 0; i < locations.length; ++i) {
                 position = position.add(locations[i].position);
             }
@@ -131,7 +131,7 @@
 
         function getCellChildCenterOfGravityAt(cellIndex, childIndex) {
             var locations = getCellChildLocationsAt(cellIndex, childIndex);
-            var center = new Point3D(0, 0, 0);
+            var center = new utils.Point3D(0, 0, 0);
             for (var i = 0; i < locations.length; ++i) {
                 center = center.add(locations[i].position);
             }
@@ -341,7 +341,7 @@
                             var currLocation = currChild.Locations[j];
 
                             var location = {
-                                position: new Point3D(currLocation.VolumeX, currLocation.VolumeY, currLocation.Z),
+                                position: new utils.Point3D(currLocation.VolumeX, currLocation.VolumeY, currLocation.Z),
                                 radius: currLocation.Radius,
                                 id: currLocation.ID
                             };
