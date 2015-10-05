@@ -3,3 +3,17 @@
     stroke: black;
     stroke-width: 1px;
 }
+
+#header {
+    height: 55px;
+}
+
+#sidebar {
+    float:left;
+    height: 100%;
+    width:300px;
+}
+
+#content {
+    margin-left: 300px;
+}

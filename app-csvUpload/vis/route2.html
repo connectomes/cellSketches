@@ -4,10 +4,21 @@
     <input type="checkbox" ng-model="checked" ng-change="selectionChanged(true)">
 </label>
 
-<label ng-show="!checked">Select cell:
-    <select name="repeatSelect" ng-model="singleCell" ng-show="!checked" ng-change="selectionChanged(false)" ng-options="id for id in masterCells[0].ids">
-</select>
-</label>
+<div id="sidebar">
+    <label ng-show="!checked">Select cell:
+        <select name="repeatSelect" ng-model="singleCell" ng-show="!checked" ng-change="selectionChanged(false)" ng-options="id for id in masterCells[0].ids"></select>
+    </label>
+    <hr>
+    <label>Units:
+        <select name="units" ng-model="units" ng-change="unitsChanged()" ng-options="id for id in ['px', 'nm']"></select>
+    </label>
+    <hr>
+    <button ng-click="saveCurrentCellChildrenData()">Download</button>
+</div>
+
+<div id="content">
+
 <children-distance></children-distance><br/>
-<button ng-click="saveCurrentCellChildrenData()">Download</button>
+
 {{details}}
+</div>

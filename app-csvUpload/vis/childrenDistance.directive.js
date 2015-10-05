@@ -45,7 +45,7 @@
                 cellsChanged('', cells, scope.$parent.childType, false, false);
             }
 
-            function cellsChanged(slot, cells, childType, useSecondaryCells, secondaryCells) {
+            function cellsChanged(slot, cells, childType, useSecondaryCells, secondaryCells, convertToNm) {
                 if(!scope.$parent.checked) {
                     cells.indexes = [volumeCells.getCellIndex(scope.$parent.singleCell)];
                 }
@@ -60,7 +60,7 @@
 
                 targets.sort();
 
-                var vals = getTargetDataList(cells, childType, targets, useSecondaryCells, secondaryCells);
+                var vals = getTargetDataList(cells, childType, targets, useSecondaryCells, secondaryCells, convertToNm);
                 var targetDataList = vals.list;
                 var minChildDistance = vals.minChildDistance;
                 var maxChildDistance = vals.maxChildDistance;
@@ -155,7 +155,7 @@
              * @returns Object containing 1) Array of all children in cells that grouped by their connection to
              * targetCells along with a value (distance) 2) minDistance of children and 3) maxDistance of children.
              */
-            function getTargetDataList(cells, childType, targets, useSecondaryCells, secondaryCells) {
+            function getTargetDataList(cells, childType, targets, useSecondaryCells, secondaryCells, convertToNm) {
 
                 var minChildDistance = 10000000;
                 var maxChildDistance = 0.0;
@@ -191,7 +191,7 @@
                                     for (var childIndex = 0; childIndex < currChildIndexes.length; ++childIndex) {
                                         var currChildIndex = currChildIndexes[childIndex];
                                         var childCog = volumeCells.getCellChildCenterOfGravityAt(currIndex, currChildIndex);
-                                        var distance = childCog.distance(center);
+                                        var distance = childCog.distance(center) * (convertToNm ? utils.nmPerPixel : 1.0);
 
                                         if (useRadius) {
                                             distance = volumeCells.getCellChildRadiusAt(currIndex, currChildIndex) * 2;
@@ -248,7 +248,7 @@
                                 for (childIndex = 0; childIndex < currChildIndexes.length; ++childIndex) {
                                     currChildIndex = currChildIndexes[childIndex];
                                     childCog = volumeCells.getCellChildCenterOfGravityAt(currIndex, currChildIndex);
-                                    distance = childCog.distance(center);
+                                    distance = childCog.distance(center) * (convertToNm ? utils.nmPerPixel : 1.0);
                                     if (useRadius) {
                                         distance = volumeCells.getCellChildRadiusAt(currIndex, currChildIndex) * 2;
                                     }

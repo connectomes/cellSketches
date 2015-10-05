@@ -13,6 +13,7 @@
         $scope.cellsLoading = false;
         $scope.childType = 28;
         $scope.checked = true;
+        $scope.units = 'nm';
         $scope.singleCell = undefined;
         $scope.cellIdsSelected = function (sets) {
             $scope.cellsLoading = true;
@@ -72,11 +73,12 @@
                     childCenter = childCenter.add(locations[j].position.getAs2D());
                 }
                 childCenter = childCenter.multiply(1.0 / locations.length);
-                var distance = childCenter.distance(centroid);
+                var distancePx = childCenter.distance(centroid);
+                var distanceNm = childCenter.distance(centroid) * utils.nmPerPixel;
                 var partner = volumeCells.getCellChildPartnerAt(index, children[i]);
                 if(partner.parentId != -1) {
                     var partnerCell = volumeCells.getCell(partner.parentId);
-                    str = str + cellId + ', ' + child.id + ', ' + child.type + ', ' + distance + ', ' + partnerCell.id + ', ' + partnerCell.label + '\n';
+                    str = str + cellId + ', ' + child.id + ', ' + child.type + ', ' + distancePx + ', ' + distanceNm + ', ' + partnerCell.id + ', ' + partnerCell.label + '\n';
                 }
             }
             return str;
@@ -91,7 +93,7 @@
                 $scope.cells[0].ids.push(this.singleCell);
                 $scope.cells[0].indexes.push(volumeCells.getCellIndex(this.singleCell));
             }
-            $scope.$broadcast('cellsChanged', $scope.cells, $scope.childType, $scope.useSecondaryCells, $scope.secondaryCells);
+            $scope.$broadcast('cellsChanged', $scope.cells, $scope.childType, $scope.useSecondaryCells, $scope.secondaryCells, this.units == "nm");
         };
 
         $scope.saveCurrentCellChildrenData = function() {
@@ -101,7 +103,12 @@
               data = data + $scope.saveCellNeighborsAsCsv(volumeCells.getCellAt(indexes[i]).id);
             }
             console.log(data);
-        }
+        };
+
+        $scope.unitsChanged = function() {
+            console.log($scope.units);
+            $scope.$broadcast('cellsChanged', $scope.cells, $scope.childType, $scope.useSecondaryCells, $scope.secondaryCells, this.units == "nm");
+        };
     }
 
 })();
