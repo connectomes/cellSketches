@@ -3,7 +3,8 @@ describe('VolumeStructures service test', function () {
     var volumeCells, httpBackend;
     var childQuery = 'http://websvc1.connectomes.utah.edu/RC1/OData/Structures?$filter=(ParentID eq 6117)&$expand=Locations($select=Radius,VolumeX,VolumeY,Z,ParentID,ID)';
     var structureQuery = 'http://websvc1.connectomes.utah.edu/RC1/OData/Structures?$filter=(ID eq 6117)';
-    var loadLocalQuery = '../tests/mock/volumeCells.startsWithCBb4.json';
+    var loadLocalQuery = '../tests/mock/volumeCells.startsWithCBb4w.json';
+
 
     beforeEach(function () {
         module('app.volumeModule');
@@ -20,8 +21,9 @@ describe('VolumeStructures service test', function () {
         httpBackend.when('GET', childQuery).respond(
             readJSON('tests/mock/cell6117Children.json'));
 
+
         httpBackend.when('GET', loadLocalQuery).respond(
-            readJSON('tests/mock/volumeCells.startsWithCBb.json'));
+            readJSON('tests/mock/volumeCells.startsWithCBb4w.json'));
     }));
 
     afterEach(function () {
@@ -53,12 +55,12 @@ describe('VolumeStructures service test', function () {
 
         httpBackend.flush();
 
-        var childrenIndexes = volumeCells.getCellChildTypeIndexes(0, 28);
+        var childrenIndexes = volumeCells.getCellChildrenByTypeIndexes(0, 28);
 
         // 30 is count of children with TypeID == 28.
         expect(childrenIndexes.length == 30).toBeTruthy();
 
-        childrenIndexes = volumeCells.getCellChildTypeIndexes(0, 1);
+        childrenIndexes = volumeCells.getCellChildrenByTypeIndexes(0, 1);
 
         // There should be no children of 6117 with TypeID == 1.
         expect(childrenIndexes.length == 0).toBeTruthy();
@@ -66,16 +68,11 @@ describe('VolumeStructures service test', function () {
 
     it('Load local starts with and get children', function() {
 
-        // Reading large json files seems to hang karma. What's going on here?
-        //volumeCells.loadFromFile(loadLocalQuery);
+        volumeCells.loadFromFile(loadLocalQuery);
 
-        //httpBackend.flush();
+        httpBackend.flush();
 
-        //for(var i=0; i<volumeCells.getNumCells(); ++i) {
-            //var currCell = volumeCells.getCellAt(i);
-            //if(!currCell.label.startsWith('CBb')) {
-            //}
-        //}
+        console.log(volumeCells);
 
     });
 

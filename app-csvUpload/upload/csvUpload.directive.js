@@ -43,7 +43,7 @@
                         var name = currLine[0];
                         var cells = [];
                         for (var j = 1; j < currLine.length; ++j) {
-                            cells.push(currLine[j]);
+                            cells.push(Number(currLine[j]));
                         }
                         sets.push({
                             name: name,

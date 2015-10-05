@@ -31,6 +31,11 @@ utils.Point3D = (function () {
         return Math.sqrt(Math.pow((self.x - rhs.x), 2) + Math.pow((self.y - rhs.y), 2) + Math.pow((self.z - rhs.z), 2));
     };
 
+    Point3D.prototype.getAs2D = function() {
+        var self = this;
+        return new utils.Point2D(self.x, self.y);
+    };
+
     return Point3D;
 
 })();

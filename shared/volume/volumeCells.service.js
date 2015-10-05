@@ -23,7 +23,6 @@
         var service = {
             getCell: getCell,
             getCellAt: getCellAt,
-            getCellCenterOfGravityAt: getCellCenterOfGravityAt,
             getCellChildAt: getCellChildAt,
             getCellChildCenterOfGravityAt: getCellChildCenterOfGravityAt,
             getCellChildLocationsAt: getCellChildLocationsAt,
@@ -73,20 +72,6 @@
             return self.cells[index];
         }
 
-        function getCellCenterOfGravityAt(index) {
-            if (!self.cellLocations[index]) {
-                throw 'Tried to get cell center of gravity with not locations loaded.';
-            }
-
-            var locations = self.cellLocations[index];
-            var position = new utils.Point3D(0.0, 0.0, 0.0);
-            for (var i = 0; i < locations.length; ++i) {
-                position = position.add(locations[i].position);
-            }
-
-            return position.multiply((1.0 / locations.length));
-        }
-
         function getCellChildrenByTypeIndexes(cellIndex, childType) {
 
             var cellChildren = self.cellChildren[cellIndex];
@@ -131,9 +116,9 @@
 
         function getCellChildCenterOfGravityAt(cellIndex, childIndex) {
             var locations = getCellChildLocationsAt(cellIndex, childIndex);
-            var center = new utils.Point3D(0, 0, 0);
+            var center = new utils.Point2D(0, 0);
             for (var i = 0; i < locations.length; ++i) {
-                center = center.add(locations[i].position);
+                center = center.add(locations[i].position.getAs2D());
             }
 
             return center.multiply(1.0 / locations.length);

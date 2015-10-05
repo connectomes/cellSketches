@@ -1,19 +1,21 @@
 (function () {
     'use strict';
 
-    angular.module('app.helloWorld')
+    angular.module('app.csvUpload')
         .directive('childrenDistance', childrenDistance);
-
+    console.log('fuck fuck fuck');
     childrenDistance.$inject = ['volumeCells', 'volumeStructures'];
 
     function childrenDistance(volumeCells, volumeStructures) {
         var useRadius = false;
         return {
             link: link,
-            restrict: 'EA'
+            restrict: 'E'
         };
 
         function link(scope, element, attrs) {
+            console.log('child distance link');
+            console.log(scope);
             var svgWidth = 1350;
             var svgHeight = 800;
 
@@ -38,8 +40,16 @@
             var smallMultipleOffsets = new utils.Point2D(smallMultiplePadding + smallMultipleWidth, smallMultiplePadding + smallMultipleHeight);
 
             scope.$on('cellsChanged', cellsChanged);
+            if(scope.$parent.cells) {
+                var cells = angular.copy(scope.$parent.cells);
+                cellsChanged('', cells, scope.$parent.childType, false, false);
+            }
 
             function cellsChanged(slot, cells, childType, useSecondaryCells, secondaryCells) {
+                if(!scope.$parent.checked) {
+                    cells.indexes = [volumeCells.getCellIndex(scope.$parent.singleCell)];
+                }
+                console.log('cells changed!!!');
                 mainGroup.selectAll('*').remove();
                 addOutlineToGroup(mainGroup, mainWidth, mainHeight);
 
@@ -166,7 +176,8 @@
 
                                 var currIndex = cells[i].indexes[j];
                                 var currPartners = volumeCells.getCellNeighborLabelsByChildType(currIndex, childType);
-                                var currCellCog = volumeCells.getCellCenterOfGravityAt(currIndex);
+                                var center = volumeCells.getCellConvexHullAt(currIndex).centroid();
+                                center = new utils.Point2D(center[0], center[1]);
 
                                 // For each partner of the cell.
                                 for (var partnerIndex = 0; partnerIndex < currPartners.length; partnerIndex++) {
@@ -180,7 +191,7 @@
                                     for (var childIndex = 0; childIndex < currChildIndexes.length; ++childIndex) {
                                         var currChildIndex = currChildIndexes[childIndex];
                                         var childCog = volumeCells.getCellChildCenterOfGravityAt(currIndex, currChildIndex);
-                                        var distance = childCog.distance(currCellCog);
+                                        var distance = childCog.distance(center);
 
                                         if (useRadius) {
                                             distance = volumeCells.getCellChildRadiusAt(currIndex, currChildIndex) * 2;
@@ -230,12 +241,14 @@
                             // For each cell in the set.
                             for (j = 0; j < cells[i].indexes.length; ++j) {
                                 currIndex = cells[i].indexes[j];
-                                currCellCog = volumeCells.getCellCenterOfGravityAt(currIndex);
+                                //currCellCog = volumeCells.(currIndex);
+                                center = volumeCells.getCellConvexHullAt(currIndex).centroid();
+                                center = new utils.Point2D(center[0], center[1]);
                                 currChildIndexes = volumeCells.getCellChildrenConnectedToIndexes(currIndex, currTargetIndexes, childType);
                                 for (childIndex = 0; childIndex < currChildIndexes.length; ++childIndex) {
                                     currChildIndex = currChildIndexes[childIndex];
                                     childCog = volumeCells.getCellChildCenterOfGravityAt(currIndex, currChildIndex);
-                                    distance = childCog.distance(currCellCog);
+                                    distance = childCog.distance(center);
                                     if (useRadius) {
                                         distance = volumeCells.getCellChildRadiusAt(currIndex, currChildIndex) * 2;
                                     }

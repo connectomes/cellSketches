@@ -13,7 +13,7 @@
         var self = this;
         self.isActivated = false;
 
-        var startsWithStr = 'CBb';
+        var startsWithStr = 'CBb4w';
 
         $scope.selection = [];
         $scope.details = "";
@@ -177,13 +177,15 @@
                     $q.all(promises).then(function () {
                         checkLoadedCells();
                         volumeCells.saveAsFile("volumeCells.startsWithCBb.json");
+                        $scope.createSetsFromLoadedCells();
+
                     });
                 });
             });
         }
 
         // Activate this.
-        activate().then(loadLocal);
+        activate().then(loadRemoteStartsWith);
 
     }
 
