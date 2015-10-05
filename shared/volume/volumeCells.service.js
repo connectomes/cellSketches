@@ -79,7 +79,7 @@
             var currChildren = [];
 
             for (var i = 0; i < cellChildren.length; ++i) {
-                if(childType && cellChildren[i].type == childType) {
+                if (childType && cellChildren[i].type == childType) {
                     currChildren.push(i);
                 } else if (childType == undefined) {
                     currChildren.push(i);
@@ -145,7 +145,7 @@
         function getCellConvexHullAt(cellIndex) {
             var locations = self.cellLocations[cellIndex];
             var vertices = [];
-            for(var i=0; i<locations.length; ++i) {
+            for (var i = 0; i < locations.length; ++i) {
                 vertices.push([locations[i].position.x, locations[i].position.y]);
             }
             var hull = d3.geom.hull(vertices);
@@ -595,19 +595,79 @@
 
                 function success(data) {
 
+                    // Create new objects for each of the saved object-literals.
+                    // There must be a better way to do this...
                     var values = data.data.value;
-                    self.cells = values.cells;
-                    self.cellChildren = values.cellChildren;
-                    self.cellChildrenLocations = values.cellChildrenLocations;
-                    self.cellChildrenPartners = values.cellChildrenPartners;
-                    self.cellLocations = values.cellLocations;
+
+                    // Parse cells.
+                    var numCells = values.cells.length;
+                    for (var i = 0; i < numCells; ++i) {
+                        var currCell = values.cells[i];
+                        var cell = new utils.Cell(currCell.id);
+                        cell.init(currCell.locationIndex, currCell.label, currCell.tags, currCell.notes);
+                        self.cells.push(currCell);
+                    }
+
+                    // Parse cell children.
+                    var numChildren = values.cellChildren.length;
+                    for (i = 0; i < numChildren; ++i) {
+                        var currChild = values.cellChildren[i];
+                        var child = new utils.CellChild(currChild.id, currChild.parentId, currChild.label,
+                            currChild.tags, currChild.notes, currChild.type);
+                        self.cellChildren.push(child);
+                    }
+
+                    // Parse cell children locations.
+                    // self.cellChildrenLocations[i] - list of list of locations of cell children i
+                    // self.cellChildrenLocations[i][j] - list of locations for child j of cell i
+                    // self.cellChildrenLocations[i][j][k] - location k for child j or cell i
+                    var numChildrenLocations = values.cellChildrenLocations.length;
+                    for (i = 0; i < numChildrenLocations; ++i) {
+                        numChildren = values.cellChildrenLocations[i].length;
+                        var childrenLocations = [];
+                        for (var j = 0; j < numChildren; ++j) {
+                            var locations = [];
+                            var currLocations = values.cellChildrenLocations[i][j];
+                            var numLocations = currLocations.length;
+                            for (var k = 0; k < numLocations; ++k) {
+                                var currLocation = currLocations[k];
+                                locations.push(new utils.Location(currLocation.id, currLocation.parentId, currLocation.position.x,
+                                    currLocation.position.y, currLocation.position.z, currLocation.radius));
+                            }
+                        }
+                        self.cellChildrenLocations.push(locations);
+                    }
+
+                    // Parse cell child partners. Only two levels of nesting here.
+                    var numChildrenPartners = values.cellChildrenPartners.length;
+                    for (i = 0; i < numChildrenPartners; ++i) {
+                        var numPartners = values.cellChildrenPartners[i].length;
+                        var partners = [];
+                        for (j = 0; j < numPartners; ++j) {
+                            var currPartner = values.cellChildrenPartners[i][j];
+                            partners.push(new utils.CellPartner(currPartner.parentId, currPartner.partnerIndex));
+                        }
+                        self.cellChildrenPartners.push(partners);
+                    }
+
+                    // Parse cell locations. Only two levels of nesting here too.
+                    var numCellLocations = values.cellLocations.length;
+                    for (i = 0; i < numCellLocations; ++i) {
+                        numLocations = values.cellLocations[i].length;
+                        locations = [];
+                        for (j = 0; j < numLocations; ++j) {
+                            currLocation = values.cellLocations[i][j];
+                            locations.push(new utils.Location(currLocation.id, currLocation.parentId, currLocation.position.x,
+                                currLocation.position.y, currLocation.position.z, currLocation.radius));
+                        }
+                        self.cellLocations.push(locations);
+                    }
 
                     resolve();
                 }
 
                 function error(data) {
-                    console.log('shit');
-                    reject();
+                    throw('Something went wrong reading data from file' + data);
                 }
 
                 $http.get(filename).then(success, error);

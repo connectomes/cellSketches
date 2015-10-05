@@ -49,16 +49,20 @@
 
             for (i = 0; i < numCells; ++i) {
                 var currCell = volumeCells.getCellAt(i);
-                if (!currCell.label.startsWith(startsWithStr)) {
+                //if (!currCell.label.startsWith(startsWithStr)) {
+                  //  continue;
+                //}
+
+                if(!(currCell.id == 6117)) {
                     continue;
                 }
                 var numChildren = volumeCells.getNumCellChildrenAt(i);
                 for (j = 0; j < numChildren; ++j) {
                     var partner = volumeCells.getCellChildPartnerAt(i, j);
-                    if (partner.partnerParent != -1) {
+                    if (partner.parentId != -1) {
 
 
-                        var partnerIndex = volumeCells.getCellIndex(partner.partnerParent);
+                        var partnerIndex = volumeCells.getCellIndex(partner.parentId);
 
                         if (!(partnerIndex > -1)) {
                             console.log('No partner for cell index: ' + i);
@@ -88,6 +92,7 @@
         }
 
         $scope.createSetsFromLoadedCells = function() {
+            return;
             console.log('hello');
             var label = 'CBb3+';
             $scope.cells = [];
@@ -128,12 +133,6 @@
                 indexes: volumeCells.getCellIndexesInLabelRegExp(new RegExp('null'))
             });
 
-            console.log($scope.secondaryCells);
-            var cellIndex = volumeCells.getCellIndex(170);
-            var cellCenter = volumeCells.getCellConvexHullAt(cellIndex);
-
-
-
             $scope.$broadcast('cellsChanged', $scope.cells, $scope.childType, $scope.useSecondaryCells, $scope.secondaryCells);
         };
 
@@ -143,7 +142,7 @@
             $scope.rangeVolumeY = volumeBounds.getRangeVolumeY();
             $scope.cells = [];
 
-            var filename = '../tests/mock/volumeCells.startsWithCBb.json';
+            var filename = '../tests/mock/volumeCells.6117.json';
 
             volumeCells.loadFromFile(filename).then(function () {
                 checkLoadedCells();
@@ -156,7 +155,8 @@
             $scope.rangeVolumeY = volumeBounds.getRangeVolumeY();
             $scope.details = [];
 
-            volumeCells.loadCellStartsWith(startsWithStr).then(function () {
+            //volumeCells.loadCellStartsWith(startsWithStr).then(function () {
+            volumeCells.loadCellId(6117).then(function() {
 
                 var promises = [];
                 var numCells = volumeCells.getNumCells();
@@ -185,7 +185,7 @@
         }
 
         // Activate this.
-        activate().then(loadRemoteStartsWith);
+        activate().then(loadLocal);
 
     }
 
