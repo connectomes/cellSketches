@@ -1,9 +1,13 @@
-function Location(odataLocation) {
-    var self = this;
+utils.Location = (function () {
+    'use strict';
 
-    self.id = odataLocation.ID;
-    self.parentId = odataLocation.ParentID;
-    self.position = new utils.Point3D(odataLocation.VolumeX, odataLocation.VolumeY, odataLocation.Z);
+    function Location(id, parentId, volumeX, volumeY, z, radius) {
+        var self = this;
+        self.id = id;
+        self.parentId = parentId;
+        self.position = new utils.Point3D(volumeX, volumeY, z);
+        self.radius = radius;
+    }
 
-    return self;
-}
+    return Location;
+})();

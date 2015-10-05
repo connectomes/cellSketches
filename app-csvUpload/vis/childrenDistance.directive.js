@@ -262,7 +262,7 @@
                                         distance: distance,
                                         parentIndex: currIndex,
                                         childIndex: childIndex,
-                                        targetIndex: volumeCells.getCellChildPartnerAt(currIndex, childIndex).parentIndex
+                                        targetIndex: volumeCells.getCellChildPartnerAt(currIndex, childIndex).parentId
                                     });
                                 }
                             }

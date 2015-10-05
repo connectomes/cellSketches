@@ -101,7 +101,7 @@
             for (var i = 0; i < children.length; ++i) {
                 var currIndex = children[i];
                 var partner = self.cellChildrenPartners[cellIndex][currIndex];
-                var partnerParentIndex = getCellIndex(partner.partnerParent);
+                var partnerParentIndex = getCellIndex(partner.parentId);
                 if (partnerIndexes.indexOf(partnerParentIndex) != -1) {
                     indexes.push(currIndex);
                 }
@@ -171,10 +171,10 @@
                     currChildIndex = children[i];
                 }
 
-                var partnerParent = partners[currChildIndex].partnerParent;
+                var parentId = partners[currChildIndex].parentId;
 
-                if (partnerParent != -1) {
-                    var partnerParentIndex = getCellIndex(partnerParent);
+                if (parentId != -1) {
+                    var partnerParentIndex = getCellIndex(parentId);
                     neighbors.push({
                         neighborIndex: partnerParentIndex,
                         childIndex: currChildIndex
@@ -311,26 +311,14 @@
                             continue;
                         }
 
-                        var cellChild = {
-                            id: currChild.ID,
-                            parentId: currChild.ParentID,  // TODO: remove this.
-                            label: currChild.Label,
-                            notes: currChild.Notes,
-                            tags: currChild.Tags,
-                            type: currChild.TypeID
-                        };
+                        var cellChild = new utils.CellChild(currChild.ID, currChild.ParentID, currChild.Label,
+                            currChild.Notes, currChild.Tags, currChild.TypeID);
 
                         var currChildlocations = [];
                         for (var j = 0; j < currChild.Locations.length; ++j) {
 
                             var currLocation = currChild.Locations[j];
-
-                            var location = {
-                                position: new utils.Point3D(currLocation.VolumeX, currLocation.VolumeY, currLocation.Z),
-                                radius: currLocation.Radius,
-                                id: currLocation.ID
-                            };
-
+                            var location = new utils.Location(currLocation.ID, currLocation.ParentID, currLocation.VolumeX, currLocation.VolumeY, currLocation.Z, currLocation.Radius);
                             currChildlocations.push(location);
                         }
 
@@ -367,7 +355,7 @@
                 }
 
                 // This is where the cell gets stored when it gets returned from request.
-                var cell = {id: cellIds[i]};
+                var cell = new utils.Cell(cellIds[i]);
                 self.cells.push(cell);
 
                 // Append to the monster filter.
@@ -435,7 +423,7 @@
                                     self.cellChildrenLocations[index].splice(i, 1);
                                 } else {
                                     currPartnerIds.push(parent);
-                                    orderedPartners.push({partnerParent: parent, partnerIndex: child});
+                                    orderedPartners.push(new utils.CellPartner(parent, child));
                                 }
 
                             } else {
@@ -456,7 +444,7 @@
                                     self.cellChildrenLocations[index].splice(i, 1);
                                 } else {
                                     currPartnerIds.push(parent);
-                                    orderedPartners.push({partnerParent: parent, partnerIndex: child});
+                                    orderedPartners.push(new utils.CellPartner(parent, child));
                                 }
 
                             } else if (values[i].TargetOfLinks[0].hasOwnProperty('Target')) {
@@ -470,7 +458,7 @@
                         } else {
 
                             // Child with no source or target.
-                            orderedPartners.push({partnerParent: -1, partnerIndex: -1});
+                            orderedPartners.push(new utils.CellPartner(-1, -1));
 
                         }
 
@@ -548,7 +536,9 @@
                     var values = data.data.value;
                     var locations = [];
                     for (var i = 0; i < values.length; ++i) {
-                        locations.push(new Location(values[i]));
+                        var currLocation = values[i];
+                        var location = new utils.Location(currLocation.ID, currLocation.ParentID, currLocation.VolumeX, currLocation.VolumeY, currLocation.Z, currLocation.Radius);
+                        locations.push(location);
                     }
                     self.cellLocations[cellIndex] = locations;
                     resolve();
@@ -647,10 +637,7 @@
 
                 // Copy to new cell.
                 var currCell = self.cells[index];
-                currCell.locations = self.cellLocations.length;
-                currCell.label = cell.Label;
-                currCell.tags = cell.Tags;
-                currCell.notes = cell.Notes;
+                currCell.init(self.cellLocations.length, cell.Label, cell.Tags, cell.Notes);
             }
         }
 

@@ -33,7 +33,7 @@ function Histogram(group, inputData, title, height, width, xAxisDomain, yAxisDom
             for(var k=0; k<inputData[0].children.length; ++k) {
                 var currDistance = inputData[0].children[k].distance;
                 if(currDistance == currData[j]) {
-                    currDetails.parents.push(inputData[0].children[k].parentIndex);
+                    currDetails.parents.push(inputData[0].children[k].parentId);
                     currDetails.children.push(inputData[0].children[k].childIndex);
                 }
             }

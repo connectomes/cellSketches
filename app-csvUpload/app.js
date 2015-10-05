@@ -74,8 +74,8 @@
                 childCenter = childCenter.multiply(1.0 / locations.length);
                 var distance = childCenter.distance(centroid);
                 var partner = volumeCells.getCellChildPartnerAt(index, children[i]);
-                if(partner.partnerParent != -1) {
-                    var partnerCell = volumeCells.getCell(partner.partnerParent);
+                if(partner.parentId != -1) {
+                    var partnerCell = volumeCells.getCell(partner.parentId);
                     str = str + cellId + ', ' + child.id + ', ' + child.type + ', ' + distance + ', ' + partnerCell.id + ', ' + partnerCell.label + '\n';
                 }
             }

@@ -1,4 +1,6 @@
 utils.Point2D = (function () {
+    'use strict';
+
     function Point2D(x, y) {
         var self = this;
         self.x = x;
