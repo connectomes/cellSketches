@@ -50,6 +50,7 @@
             loadCellStartsWith: loadCellStartsWith,
             loadFromFile: loadFromFile,
             removeCellId: removeCellId,
+            reset: reset,
             saveAsFile: saveAsFile
         };
 
@@ -712,6 +713,14 @@
                 }
             }
             throw 'Error - tried to remove cell id that was not loaded yet:' + id;
+        }
+
+        function reset() {
+            self.cells = [];
+            self.cellLocations = [];
+            self.cellChildren = [];
+            self.cellChildrenLocations = [];
+            self.cellChildrenPartners = [];
         }
 
         function saveAsFile(filename) {

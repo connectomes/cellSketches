@@ -66,16 +66,18 @@
 
         $scope.cellIdsSelected = function (cells) {
             $scope.model.cellsLoading = true;
+            $scope.model.cellsLoaded = false;
             self.cells = cells;
-
+            volumeCells.reset();
             // Load cells that the user asked for.
             volumeCells.loadCellIds(self.cells).then(function () {
                 var promises = [];
-                var numCells = volumeCells.getNumCells();
+                var numCells = self.cells.length;
 
                 // Load cell children that the user asked for.
                 for (var j = 0; j < numCells; ++j) {
-                    promises[j] = volumeCells.loadCellChildrenAt(j);
+                    var cellIndex = volumeCells.getCellIndex(self.cells[j]);
+                    promises[j] = volumeCells.loadCellChildrenAt(cellIndex);
                 }
 
                 // Load all cell neighbors and locations
@@ -83,13 +85,16 @@
                     promises = [];
 
                     for (var j = 0; j < numCells; ++j) {
-                        promises.push(volumeCells.loadCellNeighborsAt(j));
-                        promises.push(volumeCells.loadCellLocationsAt(j));
+                        var cellIndex = volumeCells.getCellIndex(self.cells[j]);
+                        promises.push(volumeCells.loadCellNeighborsAt(cellIndex));
+                        promises.push(volumeCells.loadCellLocationsAt(cellIndex));
                     }
 
                     $q.all(promises).then(function () {
                         // Now we're finished loading cells from http.
                         numCells = self.cells.length;
+                        $scope.model.masterCells.ids = [];
+                        $scope.model.masterCells.indexes = [];
                         for (var i = 0; i < numCells; ++i) {
                             var currId = self.cells[i];
                             $scope.model.masterCells.ids.push(currId);
