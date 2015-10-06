@@ -39,7 +39,7 @@
 
                     var cleanStructure = {
                         id: currStructure.ID,
-                        name: currStructure.Name,
+                        name: currStructure.Name.trim(),
                         code: currStructure.Code,
                         parentId: currStructure.ParentID,
                         color: currStructure.Color

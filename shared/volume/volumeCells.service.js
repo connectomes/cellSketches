@@ -77,11 +77,13 @@
             var cellChildren = self.cellChildren[cellIndex];
 
             var currChildren = [];
-
+            var isChildTypeArray = (childType.length != undefined);
             for (var i = 0; i < cellChildren.length; ++i) {
-                if (childType && cellChildren[i].type == childType) {
+                if (!isChildTypeArray && childType && cellChildren[i].type == childType) {
                     currChildren.push(i);
                 } else if (childType == undefined) {
+                    currChildren.push(i);
+                } else if (isChildTypeArray && childType && childType.indexOf(cellChildren[i].type) > -1) {
                     currChildren.push(i);
                 }
             }
@@ -312,7 +314,7 @@
                         }
 
                         var cellChild = new utils.CellChild(currChild.ID, currChild.ParentID, currChild.Label,
-                            currChild.Notes, currChild.Tags, currChild.TypeID);
+                            currChild.Notes, currChild.Tags, currChild.TypeID, currChild.Confidence);
 
                         var currChildlocations = [];
                         for (var j = 0; j < currChild.Locations.length; ++j) {
@@ -613,7 +615,7 @@
                     for (i = 0; i < numChildren; ++i) {
                         var currChild = values.cellChildren[i];
                         var child = new utils.CellChild(currChild.id, currChild.parentId, currChild.label,
-                            currChild.tags, currChild.notes, currChild.type);
+                            currChild.tags, currChild.notes, currChild.type, currChild.confidence);
                         self.cellChildren.push(child);
                     }
 
