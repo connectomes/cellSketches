@@ -185,7 +185,7 @@
         }
 
         // Activate this.
-        activate().then(loadLocal);
+        activate().then(loadRemoteStartsWith);
 
     }
 

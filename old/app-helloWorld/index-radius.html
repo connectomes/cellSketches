@@ -3,13 +3,11 @@
 
 <head>
     <meta charset="utf-8">
-    <title>Child Partner Count</title>
+    <title>Child Diameter</title>
 
     <!-- Third party stuff -->
     <script src="../bower_components/angular/angular.js"></script>
     <script src="../bower_components/d3/d3.js"></script>
-    <script src="../bower_components/d3.chart/d3.chart.js"></script>
-    <script src="../bower_components/d3.reusable/d3.reusable.js"></script>
     <script src="../bower_components/filesaver/FileSaver.js"></script>
 
     <!-- The app -->
@@ -18,7 +16,6 @@
 
     <!-- Directives -->
     <script src="vis/childrenBarChart.directive.js"></script>
-    <script src="../app-csvUpload/vis/childrenDistance.directive.js"></script>
     <script src="vis/childrenRadius.directive.js"></script>
 
     <!-- Shared modules. Order matters here. Module must be included before services. -->
@@ -45,15 +42,15 @@
 
     <!-- Stylesheets. -->
     <link rel="stylesheet" type="text/css" href="style.css">
-
 </head>
 
 <body ng-app="app.helloWorld" ng-controller="ExampleController as ctrl">
-<h2>No. of Children By Partner Class</h2>
+<h2>Children Diameter Histogram</h2>
+
 <form name="myForm">
 <input type="checkbox" ng-model="useSecondaryCells" ng-click="createSetsFromLoadedCells()">use secondary cells
 </form>
-<children-bar-chart></children-bar-chart>
+<children-radius></children-radius>
 
 <br>
 <br>
