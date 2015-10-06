@@ -1,11 +1,14 @@
-<input type="file" id="file" name="file"/>
-<button ng-click="add()">Add</button>
+<div>
+<h4>Select a file</h4>
+</div>
+<input type="file" id="file" name="file" />
+<button ng-click="add()">Load cells in file</button>
 
 <div ng-show="model.cellsLoading">
-    <h3>Loading cells...</h3>
+    <h4>Loading cells...</h4>
 </div>
 
 <div ng-show="model.cellsLoaded">
-    <h3>Finished loading {{model.masterCells.indexes.length}} cells!</h3>
-    <a ui-sref="route2">Cell children distance</a>
+    <h4>Finished loading {{model.masterCells.indexes.length}} cells!</h4>
+    <a ui-sref="route2">Go to the children</a>
 </div>

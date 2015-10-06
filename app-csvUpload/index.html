@@ -49,11 +49,23 @@
     <link rel="stylesheet" type="text/css" href="../bower_components/ui-select/dist/select.css">
 
     <!-- TODO: switch to only local stylesheets-->
-    <link rel="stylesheet" type="text/css" href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/2.3.1/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css"
+          href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/2.3.1/css/bootstrap.min.css">
     <link rel="stylesheet" type="text/css" href="http://cdnjs.cloudflare.com/ajax/libs/select2/3.4.5/select2.css">
 </head>
+<div class="navbar navbar-fixed-top">
+    <div class="navbar-inner">
+        <a class="brand" ui-sref="route1">Cell-Vi</a>
 
+        <div class="container">
+            <ul class="nav">
+                <li ui-sref-active="active"><a ui-sref="route1">Cells</a></li>
+                <li ui-sref-active="active"><a ui-sref="route2">Children</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
 <body ng-app="app.csvUpload" ng-controller="ExampleController as ctrl">
-        <div ui-view></div>
+<div ui-view></div>
 </body>
 </html>
