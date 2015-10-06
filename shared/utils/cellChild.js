@@ -1,7 +1,7 @@
 utils.CellChild = (function () {
     'use strict';
 
-    function CellChild(id, parentId, label, tags, notes, type) {
+    function CellChild(id, parentId, label, tags, notes, type, confidence) {
         var self = this;
         self.id = id;
         self.parentId = parentId;
@@ -9,6 +9,7 @@ utils.CellChild = (function () {
         self.tags = tags;
         self.notes = notes;
         self.type = type;
+        self.confidence = confidence;
     }
 
     return CellChild;

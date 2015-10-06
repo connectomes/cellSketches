@@ -8,6 +8,9 @@
     <!-- Third party stuff -->
     <script src="../bower_components/angular/angular.js"></script>
     <script src="../bower_components/angular-ui-router/release/angular-ui-router.js"></script>
+    <script src="../bower_components/angular-sanitize/angular-sanitize.js"></script>
+    <script src="../bower_components/ui-select/dist/select.js"></script>
+
     <script src="../bower_components/d3/d3.js"></script>
     <script src="../bower_components/d3.chart/d3.chart.js"></script>
     <script src="../bower_components/d3.reusable/d3.reusable.js"></script>
@@ -43,14 +46,14 @@
 
     <!-- Stylesheets. -->
     <link rel="stylesheet" type="text/css" href="style.css">
-    <link href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/2.3.1/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="../bower_components/ui-select/dist/select.css">
 
-
+    <!-- TODO: switch to only local stylesheets-->
+    <link rel="stylesheet" type="text/css" href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/2.3.1/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="http://cdnjs.cloudflare.com/ajax/libs/select2/3.4.5/select2.css">
 </head>
+
 <body ng-app="app.csvUpload" ng-controller="ExampleController as ctrl">
-
-
         <div ui-view></div>
-
 </body>
 </html>

@@ -1,11 +1,11 @@
 <input type="file" id="file" name="file"/>
 <button ng-click="add()">Add</button>
 
-<div ng-show="cellsLoading">
+<div ng-show="model.cellsLoading">
     <h3>Loading cells...</h3>
 </div>
 
-<div ng-show="cellsLoaded">
-    <h3>Finished loading {{cells.length}} cells!</h3>
+<div ng-show="model.cellsLoaded">
+    <h3>Finished loading {{model.masterCells.indexes.length}} cells!</h3>
     <a ui-sref="route2">Cell children distance</a>
 </div>

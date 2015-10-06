@@ -3,7 +3,7 @@
 
     angular.module('app.csvUpload')
         .directive('childrenDistance', childrenDistance);
-    console.log('fuck fuck fuck');
+
     childrenDistance.$inject = ['volumeCells', 'volumeStructures'];
 
     function childrenDistance(volumeCells, volumeStructures) {
@@ -40,15 +40,20 @@
             var smallMultipleOffsets = new utils.Point2D(smallMultiplePadding + smallMultipleWidth, smallMultiplePadding + smallMultipleHeight);
 
             scope.$on('cellsChanged', cellsChanged);
-            if(scope.$parent.cells) {
-                var cells = angular.copy(scope.$parent.cells);
-                cellsChanged('', cells, scope.$parent.childType, false, false);
+            if (scope.model.cells) {
+                cellsChanged('', scope.model.cells, scope.model.childType, false, false, true);
             }
 
+            /**
+             * @name getTargetLabels
+             * @param slot is unused
+             * @param cells is an object that has a member 'indexes' -- other attributes of cells are ignored for now
+             * @param childType is list of child type codes e.g., [28] for gap junctions
+             * @param useSecondaryCells is currently unused
+             * @param secondaryCells is also unused
+             * @param convertToNm is true only if units should be converted from pixels to nm
+             */
             function cellsChanged(slot, cells, childType, useSecondaryCells, secondaryCells, convertToNm) {
-                if(!scope.$parent.checked) {
-                    cells.indexes = [volumeCells.getCellIndex(scope.$parent.singleCell)];
-                }
                 console.log('cells changed!!!');
                 mainGroup.selectAll('*').remove();
                 addOutlineToGroup(mainGroup, mainWidth, mainHeight);
@@ -120,26 +125,23 @@
                 var targets = [];
 
                 if (!useSecondaryCells) {
-                    // For each loaded set...
-                    for (var i = 0; i < cells.length; ++i) {
+                    // For each cell in the set...
+                    for (var i = 0; i < cells.indexes.length; ++i) {
 
-                        // For each cell in the set...
-                        for (var j = 0; j < cells[i].indexes.length; ++j) {
+                        var currIndex = cells.indexes[i];
+                        var currPartners = volumeCells.getCellNeighborLabelsByChildType(currIndex, childType);
 
-                            var currIndex = cells[i].indexes[j];
-                            var currPartners = volumeCells.getCellNeighborLabelsByChildType(currIndex, childType);
+                        // For each cell partner label...
+                        for (var partnerIndex = 0; partnerIndex < currPartners.length; ++partnerIndex) {
 
-                            // For each cell partner label...
-                            for (var partnerIndex = 0; partnerIndex < currPartners.length; ++partnerIndex) {
+                            // Add it to a list of unique labels.
+                            var currLabel = currPartners[partnerIndex].label;
 
-                                // Add it to a list of unique labels.
-                                var currLabel = currPartners[partnerIndex].label;
-
-                                if (targets.indexOf(currLabel) == -1) {
-                                    targets.push(currLabel);
-                                }
+                            if (targets.indexOf(currLabel) == -1) {
+                                targets.push(currLabel);
                             }
                         }
+
                     }
                 } else {
                     for (i = 0; i < secondaryCells.length; ++i) {
@@ -161,56 +163,52 @@
                 var maxChildDistance = 0.0;
                 var targetDataList = [];
                 var targetData;
+                var currTarget;
                 if (!useSecondaryCells) {
                     for (var target = 0; target < targets.length; ++target) {
-                        var targetData = {};
-                        var currTarget = targets[target];
+                        targetData = {};
+                        currTarget = targets[target];
                         targetData.targetLabel = currTarget;
                         targetData.children = [];
 
-                        // For each of the loaded cell sets.
-                        for (var i = 0; i < cells.length; ++i) {
+                        // For each cell in the set.
+                        for (var i = 0; i < cells.indexes.length; ++i) {
 
-                            // For each cell in the set.
-                            for (var j = 0; j < cells[i].indexes.length; ++j) {
+                            var currIndex = cells.indexes[i];
+                            var currPartners = volumeCells.getCellNeighborLabelsByChildType(currIndex, childType);
+                            var center = volumeCells.getCellConvexHullAt(currIndex).centroid();
+                            center = new utils.Point2D(center[0], center[1]);
 
-                                var currIndex = cells[i].indexes[j];
-                                var currPartners = volumeCells.getCellNeighborLabelsByChildType(currIndex, childType);
-                                var center = volumeCells.getCellConvexHullAt(currIndex).centroid();
-                                center = new utils.Point2D(center[0], center[1]);
-
-                                // For each partner of the cell.
-                                for (var partnerIndex = 0; partnerIndex < currPartners.length; partnerIndex++) {
-                                    // If the partner doesn't point to the current label then continue.
-                                    if (currPartners[partnerIndex].label != currTarget) {
-                                        continue;
-                                    }
-
-                                    // For each child that is connected to the desired target.
-                                    var currChildIndexes = currPartners[partnerIndex].childIndexes;
-                                    for (var childIndex = 0; childIndex < currChildIndexes.length; ++childIndex) {
-                                        var currChildIndex = currChildIndexes[childIndex];
-                                        var childCog = volumeCells.getCellChildCenterOfGravityAt(currIndex, currChildIndex);
-                                        var distance = childCog.distance(center) * (convertToNm ? utils.nmPerPixel : 1.0);
-
-                                        if (useRadius) {
-                                            distance = volumeCells.getCellChildRadiusAt(currIndex, currChildIndex) * 2;
-                                        }
-
-                                        minChildDistance = Math.min(minChildDistance, distance);
-
-                                        maxChildDistance = Math.max(maxChildDistance, distance);
-
-                                        // TODO: assert this label is equal to target label.
-                                        // console.log(volumeCells.getCellAt(currPartners[partnerIndex].neighborIndexes[childIndex]).label);
-                                        targetData.children.push({
-                                            distance: distance,
-                                            parentIndex: currIndex,
-                                            childIndex: childIndex,
-                                            targetIndex: currPartners[partnerIndex].neighborIndexes[childIndex]
-                                        });
-                                    }
+                            // For each partner of the cell.
+                            for (var partnerIndex = 0; partnerIndex < currPartners.length; partnerIndex++) {
+                                // If the partner doesn't point to the current label then continue.
+                                if (currPartners[partnerIndex].label != currTarget) {
+                                    continue;
                                 }
+
+                                // For each child that is connected to the desired target.
+                                var currChildIndexes = currPartners[partnerIndex].childIndexes;
+                                for (var childIndex = 0; childIndex < currChildIndexes.length; ++childIndex) {
+                                    var currChildIndex = currChildIndexes[childIndex];
+                                    var childCog = volumeCells.getCellChildCenterOfGravityAt(currIndex, currChildIndex);
+                                    var distance = childCog.distance(center) * (convertToNm ? utils.nmPerPixel : 1.0);
+
+                                    if (useRadius) {
+                                        distance = volumeCells.getCellChildRadiusAt(currIndex, currChildIndex) * 2;
+                                    }
+
+                                    minChildDistance = Math.min(minChildDistance, distance);
+                                    maxChildDistance = Math.max(maxChildDistance, distance);
+
+                                    // TODO: assert this label is equal to target label.
+                                    targetData.children.push({
+                                        distance: distance,
+                                        parentIndex: currIndex,
+                                        childIndex: childIndex,
+                                        targetIndex: currPartners[partnerIndex].neighborIndexes[childIndex]
+                                    });
+                                }
+
 
                             }
                         }
@@ -236,37 +234,36 @@
                             throw 'Error getting cell targets';
                         }
 
-                        // For each of the loaded cell sets.
-                        for (i = 0; i < cells.length; ++i) {
-                            // For each cell in the set.
-                            for (j = 0; j < cells[i].indexes.length; ++j) {
-                                currIndex = cells[i].indexes[j];
-                                //currCellCog = volumeCells.(currIndex);
-                                center = volumeCells.getCellConvexHullAt(currIndex).centroid();
-                                center = new utils.Point2D(center[0], center[1]);
-                                currChildIndexes = volumeCells.getCellChildrenConnectedToIndexes(currIndex, currTargetIndexes, childType);
-                                for (childIndex = 0; childIndex < currChildIndexes.length; ++childIndex) {
-                                    currChildIndex = currChildIndexes[childIndex];
-                                    childCog = volumeCells.getCellChildCenterOfGravityAt(currIndex, currChildIndex);
-                                    distance = childCog.distance(center) * (convertToNm ? utils.nmPerPixel : 1.0);
-                                    if (useRadius) {
-                                        distance = volumeCells.getCellChildRadiusAt(currIndex, currChildIndex) * 2;
-                                    }
-                                    //var distance = volumeCells.getCellChildRadiusAt(currIndex, currChildIndex) * 2;
-                                    minChildDistance = Math.min(minChildDistance, distance);
-                                    maxChildDistance = Math.max(maxChildDistance, distance);
 
-                                    // TODO: assert this label is equal to target label.
-                                    // console.log(volumeCells.getCellAt(currPartners[partnerIndex].neighborIndexes[childIndex]).label);
-                                    targetData.children.push({
-                                        distance: distance,
-                                        parentIndex: currIndex,
-                                        childIndex: childIndex,
-                                        targetIndex: volumeCells.getCellChildPartnerAt(currIndex, childIndex).parentId
-                                    });
+                        // For each cell in the set.
+                        for (j = 0; j < cells.indexes.length; ++j) {
+                            currIndex = cells.indexes[j];
+                            //currCellCog = volumeCells.(currIndex);
+                            center = volumeCells.getCellConvexHullAt(currIndex).centroid();
+                            center = new utils.Point2D(center[0], center[1]);
+                            currChildIndexes = volumeCells.getCellChildrenConnectedToIndexes(currIndex, currTargetIndexes, childType);
+                            for (childIndex = 0; childIndex < currChildIndexes.length; ++childIndex) {
+                                currChildIndex = currChildIndexes[childIndex];
+                                childCog = volumeCells.getCellChildCenterOfGravityAt(currIndex, currChildIndex);
+                                distance = childCog.distance(center) * (convertToNm ? utils.nmPerPixel : 1.0);
+                                if (useRadius) {
+                                    distance = volumeCells.getCellChildRadiusAt(currIndex, currChildIndex) * 2;
                                 }
+                                //var distance = volumeCells.getCellChildRadiusAt(currIndex, currChildIndex) * 2;
+                                minChildDistance = Math.min(minChildDistance, distance);
+                                maxChildDistance = Math.max(maxChildDistance, distance);
+
+                                // TODO: assert this label is equal to target label.
+                                // console.log(volumeCells.getCellAt(currPartners[partnerIndex].neighborIndexes[childIndex]).label);
+                                targetData.children.push({
+                                    distance: distance,
+                                    parentIndex: currIndex,
+                                    childIndex: childIndex,
+                                    targetIndex: volumeCells.getCellChildPartnerAt(currIndex, childIndex).parentId
+                                });
                             }
                         }
+
                         targetDataList.push(targetData);
                     }
                 }

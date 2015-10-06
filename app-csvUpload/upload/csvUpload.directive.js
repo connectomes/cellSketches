@@ -14,7 +14,7 @@
         };
 
         function link(scope, element, attrs) {
-            console.log('fuck');
+
         }
 
         function controller($scope) {
@@ -36,22 +36,19 @@
                     }
 
                     var input = (binary).toString();
-                    var lines = input.split('\n');
-                    var sets = [];
-                    for (i = 0; i < lines.length; ++i) {
-                        var currLine = lines[i].split(',');
-                        var name = currLine[0];
-                        var cells = [];
-                        for (var j = 1; j < currLine.length; ++j) {
-                            cells.push(Number(currLine[j]));
-                        }
-                        sets.push({
-                            name: name,
-                            cells: cells
-                        });
-                    }
-                    $scope.cellIdsSelected(sets);
 
+                    // remove whitespace
+                    input = input.replace(/(\r\n|\n|\r)/gm, '');
+
+                    input = input.split(',');
+                    var cells = [];
+                    var numInputs = input.length;
+                    for (i = 0; i < numInputs; ++i) {
+                        var currId = input[i];
+                        cells.push(currId);
+                    }
+
+                    $scope.cellIdsSelected(cells);
                 }
 
             }
