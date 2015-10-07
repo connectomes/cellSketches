@@ -1,0 +1,21 @@
+.domain {
+    fill: none;
+    stroke: black;
+    stroke-width: 1px;
+}
+
+#header {
+    height: 55px;
+    margin-left: 2px;
+}
+
+#sidebar {
+    margin-left: 10px;
+    float:left;
+    height: 100%;
+    width: 290px;
+}
+
+#content {
+    margin-left: 302px;
+}
