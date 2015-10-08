@@ -18,7 +18,8 @@
                     allCellsChecked: true,
                     units: 'nm',
                     selectedCells: [],
-                    selectedChildTypes: ["Gap Junction", "Unknown"]
+                    selectedChildTypes: ["Gap Junction", "Unknown"],
+                    selectedChildAttribute: 'Distance from center'
                 },
 
                 // all available cells to be displayed
@@ -32,6 +33,12 @@
                     ids: [],
                     names: []
                 },
+
+                // all available child attributes
+                masterChildAttributes: [
+                    'Distance from center',
+                    'Diameter'
+                ],
 
                 // cells and childType are what the user has currently selected
                 cells: {ids: [], indexes: []},
@@ -61,7 +68,7 @@
         };
 
         $scope.broadcastChange = function () {
-            $scope.$broadcast('cellsChanged', $scope.model.cells, $scope.model.childType, $scope.useSecondaryCells, $scope.secondaryCells, $scope.model.ui.units == 'nm');
+            $scope.$broadcast('cellsChanged', $scope.model.cells, $scope.model.childType, $scope.useSecondaryCells, $scope.secondaryCells, $scope.model.ui.units == 'nm', $scope.model.ui.selectedChildAttribute == 'Diameter');
         };
 
         $scope.cellIdsSelected = function (cells) {

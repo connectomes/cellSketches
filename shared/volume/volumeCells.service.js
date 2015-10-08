@@ -137,12 +137,12 @@
 
         function getCellChildRadiusAt(cellIndex, childIndex) {
             var locations = getCellChildLocationsAt(cellIndex, childIndex);
-            var sum = 0;
+            var radius = 0;
             for (var i = 0; i < locations.length; ++i) {
-                sum = sum + locations[i].radius;
+                radius = Math.max(locations[i].radius, radius);
             }
 
-            return (sum / locations.length);
+            return radius;
         }
 
         function getCellConvexHullAt(cellIndex) {

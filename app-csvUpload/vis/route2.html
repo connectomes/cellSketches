@@ -26,6 +26,12 @@
     </label>
 
     <hr>
+    <label>Attribute:
+        <select name="attribute" ng-model="model.ui.selectedChildAttribute" ng-change="broadcastChange()"
+                ng-options="str for str in model.masterChildAttributes"></select>
+    </label>
+    <hr>
+
     <label>Units:
         <select name="units" ng-model="model.ui.units" ng-change="unitsChanged()"
                 ng-options="str for str in ['px', 'nm']"></select>

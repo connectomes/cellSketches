@@ -7,7 +7,6 @@
     childrenDistance.$inject = ['volumeCells', 'volumeStructures'];
 
     function childrenDistance(volumeCells, volumeStructures) {
-        var useRadius = false;
         return {
             link: link,
             restrict: 'E'
@@ -53,7 +52,7 @@
              * @param secondaryCells is also unused
              * @param convertToNm is true only if units should be converted from pixels to nm
              */
-            function cellsChanged(slot, cells, childType, useSecondaryCells, secondaryCells, convertToNm) {
+            function cellsChanged(slot, cells, childType, useSecondaryCells, secondaryCells, convertToNm, useRadius) {
                 console.log('cells changed!!!');
                 mainGroup.selectAll('*').remove();
                 addOutlineToGroup(mainGroup, mainWidth, mainHeight);
@@ -65,7 +64,7 @@
 
                 targets.sort();
 
-                var vals = getTargetDataList(cells, childType, targets, useSecondaryCells, secondaryCells, convertToNm);
+                var vals = getTargetDataList(cells, childType, targets, useSecondaryCells, secondaryCells, convertToNm, useRadius);
                 var targetDataList = vals.list;
                 var minChildDistance = vals.minChildDistance;
                 var maxChildDistance = vals.maxChildDistance;
@@ -157,7 +156,7 @@
              * @returns Object containing 1) Array of all children in cells that grouped by their connection to
              * targetCells along with a value (distance) 2) minDistance of children and 3) maxDistance of children.
              */
-            function getTargetDataList(cells, childType, targets, useSecondaryCells, secondaryCells, convertToNm) {
+            function getTargetDataList(cells, childType, targets, useSecondaryCells, secondaryCells, convertToNm, useRadius) {
 
                 var minChildDistance = 10000000;
                 var maxChildDistance = 0.0;
@@ -195,6 +194,7 @@
 
                                     if (useRadius) {
                                         distance = volumeCells.getCellChildRadiusAt(currIndex, currChildIndex) * 2;
+                                        distance = distance * (convertToNm ? utils.nmPerPixel : 1.0);
                                     }
 
                                     minChildDistance = Math.min(minChildDistance, distance);
@@ -248,6 +248,7 @@
                                 distance = childCog.distance(center) * (convertToNm ? utils.nmPerPixel : 1.0);
                                 if (useRadius) {
                                     distance = volumeCells.getCellChildRadiusAt(currIndex, currChildIndex) * 2;
+                                    distance = distance * (convertToNm ? utils.nmPerPixel : 1.0);
                                 }
                                 //var distance = volumeCells.getCellChildRadiusAt(currIndex, currChildIndex) * 2;
                                 minChildDistance = Math.min(minChildDistance, distance);
