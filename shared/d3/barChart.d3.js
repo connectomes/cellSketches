@@ -55,6 +55,7 @@ function BarChart(group, data, title, height, width, xAxisMax, callback) {
         .data(data)
         .enter()
         .append('rect')
+        .attr('class', 'bar')
         .attr('y', function (d) {
             return self.yScale(d.name);
         })
@@ -64,9 +65,6 @@ function BarChart(group, data, title, height, width, xAxisMax, callback) {
         })
         .attr('height', function (d) {
             return self.yScale.rangeBand();
-        })
-        .attr('fill', function (d) {
-            return 'steelblue';
         }).on('click', callback);
 
     // TODO: Put this somewhere else.

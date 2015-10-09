@@ -612,12 +612,19 @@
                     }
 
                     // Parse cell children.
+                    // self.cellChildren[i] - list of all children for cell at index i
+                    // self.cellChildren[i][j] - jth child of cell i
                     var numChildren = values.cellChildren.length;
                     for (i = 0; i < numChildren; ++i) {
-                        var currChild = values.cellChildren[i];
-                        var child = new utils.CellChild(currChild.id, currChild.parentId, currChild.label,
-                            currChild.tags, currChild.notes, currChild.type, currChild.confidence);
-                        self.cellChildren.push(child);
+                        var currChildren = values.cellChildren[i];
+                        var children = [];
+                        for(j=0; j<currChildren.length; ++j) {
+                            var currChild = currChildren[j];
+                            var child = new utils.CellChild(currChild.id, currChild.parentId, currChild.label,
+                                currChild.tags, currChild.notes, currChild.type, currChild.confidence);
+                                children.push(child);
+                        }
+                        self.cellChildren.push(children);
                     }
 
                     // Parse cell children locations.
@@ -637,8 +644,9 @@
                                 locations.push(new utils.Location(currLocation.id, currLocation.parentId, currLocation.position.x,
                                     currLocation.position.y, currLocation.position.z, currLocation.radius));
                             }
+                            childrenLocations.push(locations);
                         }
-                        self.cellChildrenLocations.push(locations);
+                        self.cellChildrenLocations.push(childrenLocations);
                     }
 
                     // Parse cell child partners. Only two levels of nesting here.

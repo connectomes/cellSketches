@@ -1,5 +1,7 @@
 //http://bl.ocks.org/mbostock/3048450
 function Histogram(group, inputData, title, height, width, xAxisDomain, yAxisDomain, callback) {
+    var self = this;
+    self.selectedBar = -1;
 
     var margin = {top: 20, right: 30, bottom: 30, left: 30},
         width = width - margin.left - margin.right,
@@ -73,6 +75,8 @@ function Histogram(group, inputData, title, height, width, xAxisDomain, yAxisDom
 
     var svg = group.append('g').attr({
         transform: 'translate(' + margin.right + ',' + margin.top + ')'
+    }).on('click', function() {
+        self.selectedBar = -1;
     });
 
     svg.append('g')
@@ -91,8 +95,8 @@ function Histogram(group, inputData, title, height, width, xAxisDomain, yAxisDom
 
     var bar = svg.selectAll(".bar")
         .data(data)
-        .enter().append("g")
-        .attr("class", "bar")
+        .enter()
+        .append("g")
         .attr("transform", function (d) {
             return "translate(" + x(d.x) + "," + y(d.y) + ")";
         });
@@ -101,7 +105,23 @@ function Histogram(group, inputData, title, height, width, xAxisDomain, yAxisDom
         .attr("x", 1)
         .attr("width", x(data[0].dx) - 1)
         .attr('height', function(d) {return height - y(d.y); })
-        .attr('fill', 'steelblue')
-        .on('click', callback);
+        .attr("class", "bar")
+        .on('click', function(d, i) {
+
+            if(self.selectedBar != -1) {
+                bar.selectAll('rect').
+                    filter(function(d, i) {
+                        return i == self.selectedBar;
+                    })
+                    .attr('class', 'bar');
+
+
+            }
+
+            self.selectedBar = i;
+            d3.select(this)
+                .attr('class', 'selected');
+            d3.event.stopPropagation();
+        });
 
 }

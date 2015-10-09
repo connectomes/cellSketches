@@ -32,10 +32,10 @@
                     'transform': 'translate(' + mainPadding / 2 + ',' + mainPadding / 2 + ')'
                 });
 
-            var numSmallMultiplesPerRow = 6;
-            var smallMultiplePadding = 10;
+            var numSmallMultiplesPerRow = 8;
+            var smallMultiplePadding = -5;
             var smallMultipleWidth = (svgWidth - (numSmallMultiplesPerRow * smallMultiplePadding)) / numSmallMultiplesPerRow;
-            var smallMultipleHeight = 250;
+            var smallMultipleHeight = 125;
             var smallMultipleOffsets = new utils.Point2D(smallMultiplePadding + smallMultipleWidth, smallMultiplePadding + smallMultipleHeight);
 
             scope.$on('cellsChanged', cellsChanged);
@@ -96,7 +96,7 @@
                     var chartGroup = mainGroup.append('g').attr({
                         transform: function () {
                             var position = computeGridPosition(i, numSmallMultiplesPerRow);
-                            position = position.multiply(smallMultipleOffsets).add(new utils.Point2D(smallMultiplePadding, 10));
+                            position = position.multiply(smallMultipleOffsets);
                             return 'translate' + position.toString();
                         }
                     });
