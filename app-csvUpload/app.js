@@ -59,7 +59,7 @@
 
                 volumeStructures.activate().then(parseMasterChildTypes);
                 if (!$scope.model.usingRemote) {
-                    volumeCells.loadFromFile('../tests/mock/twoCells.json').then(function () {
+                    volumeCells.loadFromFile('../tests/mock/Aiis.json').then(function () {
                         $scope.cellIdsSelected([6117, 307]);
                     });
                 }
@@ -132,6 +132,10 @@
                 });
             } else {
                 // Finished loading.
+                self.cells = [];
+                for(i=0; i<4; ++i) {
+                    self.cells.push(volumeCells.getCellAt(i).id);
+                }
                 $scope.model.cellsLoading = false;
                 $scope.model.cellsLoaded = true;
                 var numCells = self.cells.length;
@@ -189,6 +193,8 @@
 
                 var distancePx = childCenter.distance(centroid);
                 var distanceNm = childCenter.distance(centroid) * utils.nmPerPixel;
+                var diameterPx = volumeCells.getCellChildRadiusAt(index, children[i]) * 2
+                var diameterNm = diameterPx * utils.nmPerPixel;
                 var partner = volumeCells.getCellChildPartnerAt(index, children[i]);
 
                 if (partner.parentId != -1) {
@@ -196,14 +202,14 @@
                 } else {
                     partnerCell = {id: -1, label: 'undefined'};
                 }
-                str = str + cellId + ', ' + child.id + ', ' + child.type + ', ' + child.confidence + ',' + distancePx + ', ' + distanceNm + ', ' + partnerCell.id + ', ' + partnerCell.label + '\n';
+                str = str + cellId + ', ' + child.id + ', ' + child.type + ', ' + child.confidence + ',' + distancePx + ', ' + distanceNm + ', ' + partnerCell.id + ', ' + partnerCell.label + ', ' + diameterPx + ', ' + diameterNm + '\n'
             }
             return str;
         };
 
         $scope.saveCurrentCellChildrenData = function () {
             var indexes = $scope.model.cells.indexes;
-            var data = "parent id, child id, child type, child confidence, distance (px), distance (nm), child target id, child target label\n";
+            var data = "parent id, child id, child type, child confidence, distance (px), distance (nm), child target id, child target label, max diameter (px), max diameter (nm)\n";
 
             var numIndexes = indexes.length;
             for (var i = 0; i < numIndexes; ++i) {

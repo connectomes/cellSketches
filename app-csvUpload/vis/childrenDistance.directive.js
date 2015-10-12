@@ -22,21 +22,45 @@
                 append('svg').attr({
                     width: svgWidth,
                     height: svgHeight
-                });
+                }).on('click', clearSelection);
 
             var mainPadding = 20;
             var mainWidth = svgWidth - mainPadding;
-            var mainHeight = svgHeight - mainPadding;
+            var mainHeight = 500;
+            var detailHeight = 250;
             var mainGroup = svg.append('g').
                 attr({
                     'transform': 'translate(' + mainPadding / 2 + ',' + mainPadding / 2 + ')'
                 });
+
+            var detailGroup = svg.append('g')
+                .attr({
+                    'transform': 'translate(' + mainPadding / 2 + ',' + (mainHeight + mainPadding) + ')'
+                });
+
+            var detailRect = svg.append('rect')
+                .attr({
+                    'transform': 'translate(' + mainPadding / 2 + ',' + (mainHeight + mainPadding) + ')',
+                    width: mainWidth,
+                    height: detailHeight,
+                    fill: 'transparent'
+                })
+                .on('click', function () {
+                    d3.event.stopPropagation()
+                });
+
+            detailGroup.on('click', function () {
+                d3.stopPropagation();
+            });
+
 
             var numSmallMultiplesPerRow = 8;
             var smallMultiplePadding = -5;
             var smallMultipleWidth = (svgWidth - (numSmallMultiplesPerRow * smallMultiplePadding)) / numSmallMultiplesPerRow;
             var smallMultipleHeight = 125;
             var smallMultipleOffsets = new utils.Point2D(smallMultiplePadding + smallMultipleWidth, smallMultiplePadding + smallMultipleHeight);
+
+            var currentSelection = null;
 
             scope.$on('cellsChanged', cellsChanged);
             if (scope.model.cells) {
@@ -55,6 +79,8 @@
             function cellsChanged(slot, cells, childType, useSecondaryCells, secondaryCells, convertToNm, useRadius) {
                 console.log('cells changed!!!');
                 mainGroup.selectAll('*').remove();
+                detailGroup.selectAll('*').remove();
+                addOutlineToGroup(detailGroup, mainWidth, detailHeight);
                 addOutlineToGroup(mainGroup, mainWidth, mainHeight);
 
                 //var childType = undefined;
@@ -289,18 +315,88 @@
             function markClickCallback(d) {
                 console.log(d);
 
+                clearSelection();
+                currentSelection = this;
+                d3.select(this)
+                    .style('fill', 'darkgrey');
+
+
                 var details = d.details;
-                var str = '';
+                updateDetails(d.details);
+                d3.event.stopPropagation();
+                scope.$apply(function () {
+                    //scope.details = str;
+                });
+            }
+
+            function updateDetails(details) {
+
+                var parents = [];
+                var children = [];
+
+                // Group children ids by their parent ids
                 for (var i = 0; i < details.parents.length; ++i) {
                     var cellIndex = details.parents[i];
                     var cellId = volumeCells.getCellAt(cellIndex).id;
+                    var localIndex = parents.indexOf(cellId);
                     var childId = volumeCells.getCellChildAt(cellIndex, details.children[i]).id;
-                    str = str + 'Cell id: ' + cellId + ' child id: ' + childId + '.';
+                    if (localIndex == -1) {
+                        parents.push(cellId);
+                        children.push([childId]);
+                    } else {
+                        children[localIndex].push(childId);
+                    }
                 }
 
-                scope.$apply(function () {
-                    scope.details = str;
+                // Clear old details
+                detailGroup.selectAll('g').remove();
+
+                var group = detailGroup.append('g').attr({
+                    transform: 'translate(' + 10 + ', ' + 16 + ')'
                 });
+
+                var cellsGroups = group.append('g');
+
+                var cellsTexts = cellsGroups
+                    .selectAll('g')
+                    .data(parents)
+                    .enter()
+                    .append('g')
+                    .attr('transform', function (d, i) {
+                        return 'translate(' + 0 + ',' + (i * 50) + ')';
+                    });
+
+                cellsTexts.append('g')
+                    .append('text')
+                    .text(function (d) {
+                        return 'Cell: ' + d;
+                    });
+
+                var childrenGroups = group.append('g');
+
+                var childrenTexts = childrenGroups
+                    .selectAll('g')
+                    .data(children)
+                    .enter()
+                    .append('g')
+                    .attr('transform', function (d, i) {
+                        return 'translate(' + 20 + ', ' + (2 * (i + 1) - 1) * 25 + ')';
+                    });
+
+                childrenTexts.append('g').append('text').text(function (d) {
+                    return 'Children: ' + d;
+                });
+
+            }
+
+            function clearSelection() {
+                if (currentSelection) {
+                    d3.select(currentSelection)
+                        .style('fill', '');
+                }
+                currentSelection = null;
+                detailGroup.selectAll('*').remove();
+                addOutlineToGroup(detailGroup, mainWidth, detailHeight);
             }
         }
     }

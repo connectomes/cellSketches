@@ -3,7 +3,7 @@ utils.Cell = (function () {
 
     function Cell(id) {
         var self = this;
-        self.id = id;
+        self.id = parseInt(id);
         self.locationIndex = -1;
         self.label = "";
         self.tags = "";

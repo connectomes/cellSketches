@@ -1,7 +1,6 @@
 //http://bl.ocks.org/mbostock/3048450
 function Histogram(group, inputData, title, height, width, xAxisDomain, yAxisDomain, callback) {
     var self = this;
-    self.selectedBar = -1;
 
     var margin = {top: 20, right: 30, bottom: 30, left: 30},
         width = width - margin.left - margin.right,
@@ -35,7 +34,7 @@ function Histogram(group, inputData, title, height, width, xAxisDomain, yAxisDom
             for(var k=0; k<inputData[0].children.length; ++k) {
                 var currDistance = inputData[0].children[k].distance;
                 if(currDistance == currData[j]) {
-                    currDetails.parents.push(inputData[0].children[k].parentId);
+                    currDetails.parents.push(inputData[0].children[k].parentIndex);
                     currDetails.children.push(inputData[0].children[k].childIndex);
                 }
             }
@@ -54,14 +53,10 @@ function Histogram(group, inputData, title, height, width, xAxisDomain, yAxisDom
 
     var yAxis = d3.svg.axis()
         .scale(y)
-        .orient('left').tickFormat(function (d) {
-            if ((d % 1) == 0) {
-                return d;
-            } else {
-                return "";
-            }
-        }
-    );
+        .orient('left')
+        .tickFormat(function (d) {
+            return d;
+        }).ticks(4);
 
     group.append('g')
         .attr({
@@ -75,12 +70,11 @@ function Histogram(group, inputData, title, height, width, xAxisDomain, yAxisDom
 
     var svg = group.append('g').attr({
         transform: 'translate(' + margin.right + ',' + margin.top + ')'
-    }).on('click', function() {
-        self.selectedBar = -1;
     });
 
     svg.append('g')
         .attr({
+            class: 'y axis',
             'font-size': '9px'
         })
         .call(yAxis);
@@ -98,7 +92,7 @@ function Histogram(group, inputData, title, height, width, xAxisDomain, yAxisDom
         .enter()
         .append("g")
         .attr("transform", function (d) {
-            return "translate(" + x(d.x) + "," + y(d.y) + ")";
+            return "translate(" + x(d.x) + "," + (y(d.y) - 0.5) + ")";
         });
 
     bar.append("rect")
@@ -106,22 +100,5 @@ function Histogram(group, inputData, title, height, width, xAxisDomain, yAxisDom
         .attr("width", x(data[0].dx) - 1)
         .attr('height', function(d) {return height - y(d.y); })
         .attr("class", "bar")
-        .on('click', function(d, i) {
-
-            if(self.selectedBar != -1) {
-                bar.selectAll('rect').
-                    filter(function(d, i) {
-                        return i == self.selectedBar;
-                    })
-                    .attr('class', 'bar');
-
-
-            }
-
-            self.selectedBar = i;
-            d3.select(this)
-                .attr('class', 'selected');
-            d3.event.stopPropagation();
-        });
-
+        .on('click', callback);
 }
