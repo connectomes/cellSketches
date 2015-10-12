@@ -48,7 +48,7 @@
                 cellsLoading: false,
                 cellsLoaded: false,
                 isActivated: false,
-                usingRemote: false
+                usingRemote: true
             };
 
         $scope.activate = function () {
@@ -125,7 +125,6 @@
                             // All cells are selected by default.
                             $scope.model.ui.selectedCells = angular.copy($scope.model.masterCells);
                             $scope.model.cells = angular.copy($scope.model.masterCells);
-                            volumeCells.saveAsFile('twoCells.json');
                             $scope.broadcastChange();
                         });
                     });
