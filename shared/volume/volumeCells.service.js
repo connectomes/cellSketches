@@ -311,7 +311,7 @@
                         if (currChild.Locations.length == 0) {
                             console.log('Warning - cell child with no locations, ignoring it');
                             console.log('StructureID: ' + currChild.ID);
-                            continue;
+//                            continue;
                         }
 
                         var cellChild = new utils.CellChild(currChild.ID, currChild.ParentID, currChild.Label,

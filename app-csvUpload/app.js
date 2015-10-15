@@ -189,12 +189,18 @@
                 }
 
                 childCenter = childCenter.multiply(1.0 / locations.length);
-
-                var distancePx = childCenter.distance(centroid);
-                var distanceNm = childCenter.distance(centroid) * utils.nmPerPixel;
-                var diameterPx = volumeCells.getCellChildRadiusAt(index, children[i]) * 2
-                var diameterNm = diameterPx * utils.nmPerPixel;
-                var partner = volumeCells.getCellChildPartnerAt(index, children[i]);
+                if(locations.length > 1) {
+                    var distancePx = childCenter.distance(centroid);
+                    var distanceNm = childCenter.distance(centroid) * utils.nmPerPixel;
+                    var diameterPx = volumeCells.getCellChildRadiusAt(index, children[i]) * 2;
+                    var diameterNm = diameterPx * utils.nmPerPixel;
+                } else {
+                    distancePx = 'null';
+                    distanceNm = 'null';
+                    diameterPx = 'null';
+                    diameterNm = 'null';
+                }
+                    var partner = volumeCells.getCellChildPartnerAt(index, children[i]);
 
                 if (partner.parentId != -1) {
                     var partnerCell = volumeCells.getCell(partner.parentId);
