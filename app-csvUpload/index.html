@@ -16,10 +16,12 @@
     <!-- The app -->
     <script src="app.module.js"></script>
     <script src="app.js"></script>
-    <script src="upload/csvUpload.directive.js"></script>
     <script src="vis/childrenDistance.directive.js"></script>
 
     <!-- Shared modules. Order matters here. Module must be included before services. -->
+    <script src="../shared/io/io.module.js"></script>
+    <script src="../shared/io/ioCsvInput.directive.js"></script>
+
     <script src="../shared/volume/volume.module.js"></script>
     <script src="../shared/volume/volumeOdata.service.js"></script>
     <script src="../shared/volume/volumeBounds.service.js"></script>
