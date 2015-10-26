@@ -9,6 +9,7 @@
 </div>
 
 <div ng-show="model.cellsLoaded">
-    <h4>Finished loading {{model.masterCells.indexes.length}} cells!</h4>
+    <h4>Finished loading these cells:{{model.masterCells.ids}}</h4>
+    <h4>Failed to load these cells:{{model.invalidIds}}</h4>
     <a ui-sref="route2">Go to the children</a>
 </div>

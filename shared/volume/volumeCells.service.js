@@ -731,7 +731,7 @@
 
             var allCellsReturned = (requestIdFound.indexOf(false) == -1);
             if (allCellsReturned) {
-                resolve(requestIds);
+                resolve({validIds: requestIds, invalidIds: []});
             } else {
 
                 var invalidIds = [];
@@ -739,10 +739,17 @@
                 for (i = 0; i < requestIdFound.length; ++i) {
                     if (!requestIdFound[i]) {
                         invalidIds.push(requestIds[i]);
+                        removeCellId(requestIds[i]);
                     }
                 }
 
-                reject(invalidIds);
+                for (i = 0; i < requestIdFound.length; ++i) {
+                    if (!requestIdFound[i]) {
+                        requestIds.splice(i, 1);
+                    }
+                }
+
+                reject({validIds: requestIds, invalidIds: invalidIds});
             }
         }
 

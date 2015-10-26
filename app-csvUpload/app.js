@@ -40,6 +40,9 @@
                     'Diameter'
                 ],
 
+                // cells that were requested but not loaded
+                invalidIds: [],
+
                 // cells and childType are what the user has currently selected
                 cells: {ids: [], indexes: []},
                 childType: [28, 244],
@@ -82,53 +85,58 @@
         $scope.cellIdsSelected = function (cells) {
             $scope.model.cellsLoading = true;
             $scope.model.cellsLoaded = false;
-            self.cells = cells;
-            if ($scope.model.usingRemote) {
-                volumeCells.reset();
-                // Load cells that the user asked for.
 
-                volumeCells.loadCellIds(self.cells).then(function () {
-                    var promises = [];
-                    var numCells = self.cells.length;
+            function success(cells) {
+                var promises = [];
+                var numCells = cells.length;
 
-                    // Load cell children that the user asked for.
+                // Load cell children that the user asked for.
+                for (var j = 0; j < numCells; ++j) {
+                    var cellIndex = volumeCells.getCellIndex(cells[j]);
+                    promises[j] = volumeCells.loadCellChildrenAt(cellIndex);
+                }
+
+                // Load all cell neighbors and locations
+                $q.all(promises).then(function () {
+                    promises = [];
+
                     for (var j = 0; j < numCells; ++j) {
-                        var cellIndex = volumeCells.getCellIndex(self.cells[j]);
-                        promises[j] = volumeCells.loadCellChildrenAt(cellIndex);
+                        var cellIndex = volumeCells.getCellIndex(cells[j]);
+                        promises.push(volumeCells.loadCellNeighborsAt(cellIndex));
+                        promises.push(volumeCells.loadCellLocationsAt(cellIndex));
                     }
 
-                    // Load all cell neighbors and locations
                     $q.all(promises).then(function () {
-                        promises = [];
-
-                        for (var j = 0; j < numCells; ++j) {
-                            var cellIndex = volumeCells.getCellIndex(self.cells[j]);
-                            promises.push(volumeCells.loadCellNeighborsAt(cellIndex));
-                            promises.push(volumeCells.loadCellLocationsAt(cellIndex));
+                        // Now we're finished loading cells from http.
+                        numCells = cells.length;
+                        $scope.model.masterCells.ids = [];
+                        $scope.model.masterCells.indexes = [];
+                        for (var i = 0; i < numCells; ++i) {
+                            var currId = cells[i];
+                            $scope.model.masterCells.ids.push(currId);
+                            $scope.model.masterCells.indexes.push(volumeCells.getCellIndex(currId));
                         }
 
-                        $q.all(promises).then(function () {
-                            // Now we're finished loading cells from http.
-                            numCells = self.cells.length;
-                            $scope.model.masterCells.ids = [];
-                            $scope.model.masterCells.indexes = [];
-                            for (var i = 0; i < numCells; ++i) {
-                                var currId = self.cells[i];
-                                $scope.model.masterCells.ids.push(currId);
-                                $scope.model.masterCells.indexes.push(volumeCells.getCellIndex(currId));
-                            }
+                        // Finished loading.
+                        $scope.model.cellsLoading = false;
+                        $scope.model.cellsLoaded = true;
 
-                            // Finished loading.
-                            $scope.model.cellsLoading = false;
-                            $scope.model.cellsLoaded = true;
-
-                            // All cells are selected by default.
-                            $scope.model.ui.selectedCells = angular.copy($scope.model.masterCells);
-                            $scope.model.cells = angular.copy($scope.model.masterCells);
-                            $scope.broadcastChange();
-                        });
+                        // All cells are selected by default.
+                        $scope.model.ui.selectedCells = angular.copy($scope.model.masterCells);
+                        $scope.model.cells = angular.copy($scope.model.masterCells);
+                        $scope.broadcastChange();
                     });
                 });
+            }
+
+            function failure(results) {
+                $scope.model.invalidIds = angular.copy(results.invalidIds);
+                success(results.validIds);
+            }
+
+            if ($scope.model.usingRemote) {
+                volumeCells.reset();
+                volumeCells.loadCellIds(cells).then(success, failure);
             } else {
                 // Finished loading.
                 self.cells = [];

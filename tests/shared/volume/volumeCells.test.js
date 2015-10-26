@@ -54,8 +54,8 @@ describe('VolumeStructures service test', function () {
 
         httpBackend.flush();
 
-        function failure(message) {
-            expect(message[0] == -1).toBeTruthy();
+        function failure(results) {
+            expect(results.invalidIds[0] == -1).toBeTruthy();
         }
 
         function success() {
