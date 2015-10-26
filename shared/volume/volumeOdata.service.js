@@ -21,7 +21,7 @@
 
         return service;
 
-        function request(uri) {
+        function request(uri, config) {
 
             var deferred = $q.defer();
 
@@ -33,7 +33,7 @@
                 throw err;
             };
 
-            $http.get(self.serviceUri + uri).then(success, error);
+            $http.get(self.serviceUri + uri, config).then(success, error);
 
             return deferred.promise;
         }

@@ -349,7 +349,7 @@
             var filter = '(';
             var promises = [];
             var numCellsInFilter = 0;
-
+            var requestIds = [];
             for (var i = 0; i < cellIds.length; ++i) {
 
                 // Is ID already loaded?
@@ -364,15 +364,18 @@
                 // Append to the monster filter.
                 if (i == 0 || filter == '(') {
                     filter = filter + 'ID eq ' + cellIds[i];
+                    requestIds.push(cellIds[i]);
                 } else {
                     filter = filter + ' or ID eq ' + cellIds[i];
+                    requestIds.push(cellIds[i]);
                 }
                 numCellsInFilter++;
 
                 // Start request and reset filter.
                 if (numCellsInFilter > self.maxCellsInFilter) {
                     filter = filter + ')';
-                    promises.push(loadCellIdsFromFilter(filter));
+                    promises.push(loadCellIdsFromFilter(filter, requestIds));
+                    requestIds = [];
                     filter = '(';
                     numCellsInFilter = 0;
                 }
@@ -381,7 +384,7 @@
             // Finished all cells, is there anything left in the filter?
             if (numCellsInFilter > 0) {
                 filter = filter + ')';
-                promises.push(loadCellIdsFromFilter(filter));
+                promises.push(loadCellIdsFromFilter(filter, requestIds));
             }
 
             return $q.all(promises);
@@ -578,16 +581,23 @@
             });
         }
 
-        function loadCellIdsFromFilter(filter) {
+        function loadCellIdsFromFilter(filter, requestIds) {
 
             return $q(function (resolve, reject) {
 
                 function success(data) {
-                    parseCellData(data);
-                    resolve();
+                    var requestIds = data.config.requestIds;
+                    parseCellData(data, requestIds, resolve, reject);
                 }
 
-                volumeOData.request(('Structures?$filter=' + filter)).then(success, failure);
+                // Stash the list of Ids that we're requesting. When the data comes back, parseCellData will check that
+                // all the cells we asked for came back from the server. If a cell doesn't come back then we need to
+                // tell the user that it doesn't exist!
+                var config = {
+                    requestIds: requestIds
+                };
+
+                volumeOData.request(('Structures?$filter=' + filter), config).then(success, failure);
 
             });
         }
@@ -618,11 +628,11 @@
                     for (i = 0; i < numChildren; ++i) {
                         var currChildren = values.cellChildren[i];
                         var children = [];
-                        for(j=0; j<currChildren.length; ++j) {
+                        for (j = 0; j < currChildren.length; ++j) {
                             var currChild = currChildren[j];
                             var child = new utils.CellChild(currChild.id, currChild.parentId, currChild.label,
                                 currChild.tags, currChild.notes, currChild.type, currChild.confidence);
-                                children.push(child);
+                            children.push(child);
                         }
                         self.cellChildren.push(children);
                     }
@@ -685,11 +695,16 @@
             });
         }
 
-        function parseCellData(cellData) {
+        function parseCellData(cellData, requestIds, resolve, reject) {
 
             var cells = cellData.data.value;
+            var requestIdFound = [];
 
-            for (var i = 0; i < cells.length; ++i) {
+            for (var i = 0; i < requestIds.length; ++i) {
+                requestIdFound.push(false);
+            }
+
+            for (i = 0; i < cells.length; ++i) {
 
                 var cell = cells[i];
 
@@ -698,6 +713,9 @@
                 if (index == -1) {
                     throw('Parsing cell that was not initiated!');
                 }
+
+                var requestIndex = requestIds.indexOf(cell.ID);
+                requestIdFound[requestIndex] = true;
 
                 // Clean up label.
                 if (cell.Label) {
@@ -709,6 +727,22 @@
                 // Copy to new cell.
                 var currCell = self.cells[index];
                 currCell.init(self.cellLocations.length, cell.Label, cell.Tags, cell.Notes);
+            }
+
+            var allCellsReturned = (requestIdFound.indexOf(false) == -1);
+            if (allCellsReturned) {
+                resolve(requestIds);
+            } else {
+
+                var invalidIds = [];
+
+                for (i = 0; i < requestIdFound.length; ++i) {
+                    if (!requestIdFound[i]) {
+                        invalidIds.push(requestIds[i]);
+                    }
+                }
+
+                reject(invalidIds);
             }
         }
 

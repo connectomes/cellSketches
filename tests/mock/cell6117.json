@@ -1,0 +1,19 @@
+{
+  "@odata.context": "http://webdev.connectomes.utah.edu/RC1Test/OData/$metadata#Structures(Locations(Radius,VolumeX,VolumeY,Z,ParentID,ID))",
+  "value": [
+    {
+      "ID": 6117,
+      "TypeID": 1,
+      "Notes": "previous label -> CBb4 [G+, :: Aii]\n\nX: 65399.92\tY: 57252.38\tZ: 247\nEnd Chasing NE\nX: 67118.49\tY: 55854.84\tZ: 242\nEnd Chasing East\nGJ at G 10540",
+      "Verified": false,
+      "Tags": "<Structure><Attrib Name=\"CNR\" Value=\"DONE\" /></Structure>",
+      "Confidence": 0.5,
+      "Version": "AAAAAAYbCMs=",
+      "ParentID": null,
+      "Created": "2009-08-24T20:49:25.84-06:00",
+      "Label": "CBb4w",
+      "Username": "BWJones         ",
+      "LastModified": "2015-08-10T20:04:11.59-06:00"
+    }
+  ]
+}

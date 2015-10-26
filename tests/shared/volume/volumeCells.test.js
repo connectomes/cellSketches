@@ -4,7 +4,7 @@ describe('VolumeStructures service test', function () {
     var childQuery = 'http://websvc1.connectomes.utah.edu/RC1/OData/Structures?$filter=(ParentID eq 6117)&$expand=Locations($select=Radius,VolumeX,VolumeY,Z,ParentID,ID)';
     var structureQuery = 'http://websvc1.connectomes.utah.edu/RC1/OData/Structures?$filter=(ID eq 6117)';
     var loadLocalQuery = '../tests/mock/volumeCells.startsWithCBb4w.json';
-
+    var invalidCellQuery = 'http://websvc1.connectomes.utah.edu/RC1/OData/Structures?$filter=(ID eq 6117 or ID eq -1)';
 
     beforeEach(function () {
         module('app.volumeModule');
@@ -15,7 +15,7 @@ describe('VolumeStructures service test', function () {
         httpBackend = $httpBackend;
 
         httpBackend.when('GET', structureQuery).respond(
-            readJSON('tests/mock/cell6117Locations.json')
+            readJSON('tests/mock/cell6117.json')
         );
 
         httpBackend.when('GET', childQuery).respond(
@@ -24,6 +24,9 @@ describe('VolumeStructures service test', function () {
 
         httpBackend.when('GET', loadLocalQuery).respond(
             readJSON('tests/mock/volumeCells.startsWithCBb4w.json'));
+
+        httpBackend.when('GET', invalidCellQuery).respond(
+            readJSON('tests/mock/cell6117.json'));
     }));
 
     afterEach(function () {
@@ -41,6 +44,24 @@ describe('VolumeStructures service test', function () {
         httpBackend.flush();
 
         expect(volumeCells.getLoadedCellIds().length == 1).toBeTruthy();
+    });
+
+    it('Load invalid cell id', function() {
+
+        var ids = [6117, -1];
+
+        volumeCells.loadCellIds(ids).then(success, failure);
+
+        httpBackend.flush();
+
+        function failure(message) {
+            expect(message[0] == -1).toBeTruthy();
+        }
+
+        function success() {
+            expect(false).toBeTruthy();
+        }
+
     });
 
     it('Get cell children by type', function() {
@@ -64,16 +85,6 @@ describe('VolumeStructures service test', function () {
 
         // There should be no children of 6117 with TypeID == 1.
         expect(childrenIndexes.length == 0).toBeTruthy();
-    });
-
-    it('Load local starts with and get children', function() {
-
-        volumeCells.loadFromFile(loadLocalQuery);
-
-        httpBackend.flush();
-
-        console.log(volumeCells);
-
     });
 
 });

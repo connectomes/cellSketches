@@ -4,17 +4,13 @@ describe('VolumeStructures service test', function () {
 
     beforeEach(function () {
         module('app.ioModule');
-
     });
 
     beforeEach(inject(function(_$controller_){
-        // The injector unwraps the underscores (_) from around the parameter names when matching
         $controller = _$controller_;
-
     }));
 
     it('Testing csv parsing', function() {
-
         // Compile a piece of HTML containing the directive
         var $scope = {};
         var controller = $controller('ioCsvInputController', { $scope: $scope });
