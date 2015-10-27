@@ -1,0 +1,329 @@
+{
+  "@odata.context": "http://websvc1.connectomes.utah.edu/RC1/OData/$metadata#Structures(SourceOfLinks(Target(ParentID)),TargetOfLinks(Source(ParentID)))",
+  "value": [
+    {
+      "ID": 16049,
+      "TypeID": 73,
+      "Notes": "",
+      "Verified": false,
+      "Tags": "",
+      "Confidence": 0.5,
+      "Version": "AAAAAAXwuKw=",
+      "ParentID": 6115,
+      "Created": "2010-12-28T23:21:48.593-08:00",
+      "Label": null,
+      "Username": "chrisrapp       ",
+      "LastModified": "2014-12-30T00:33:13.61-08:00",
+      "SourceOfLinks": [
+        {
+          "SourceID": 16049,
+          "TargetID": 69495,
+          "Bidirectional": false,
+          "Tags": null,
+          "Username": "NoahNelson      ",
+          "Created": "2014-05-27T21:01:28.903-07:00",
+          "LastModified": "2014-05-27T21:01:28.903-07:00",
+          "Target": {
+            "ParentID": 69493
+          }
+        },
+        {
+          "SourceID": 16049,
+          "TargetID": 86247,
+          "Bidirectional": false,
+          "Tags": null,
+          "Username": "chrisrapp       ",
+          "Created": "2014-12-30T00:32:06.087-08:00",
+          "LastModified": "2014-12-30T00:32:06.087-08:00",
+          "Target": {
+            "ParentID": 86246
+          }
+        }
+      ],
+      "TargetOfLinks": [
+      ]
+    },
+    {
+      "ID": 16050,
+      "TypeID": 35,
+      "Notes": "",
+      "Verified": false,
+      "Tags": "",
+      "Confidence": 0.5,
+      "Version": "AAAAAAMAuAE=",
+      "ParentID": 6115,
+      "Created": "2010-12-28T23:21:56.747-08:00",
+      "Label": null,
+      "Username": "NoahNelson      ",
+      "LastModified": "2014-05-27T21:05:04.163-07:00",
+      "SourceOfLinks": [
+      ],
+      "TargetOfLinks": [
+        {
+          "SourceID": 69494,
+          "TargetID": 16050,
+          "Bidirectional": false,
+          "Tags": null,
+          "Username": "NoahNelson      ",
+          "Created": "2014-05-27T21:01:06.823-07:00",
+          "LastModified": "2014-05-27T21:01:06.823-07:00",
+          "Source": {
+            "ParentID": 69493
+          }
+        }
+      ]
+    },
+    {
+      "ID": 16052,
+      "TypeID": 73,
+      "Notes": "",
+      "Verified": false,
+      "Tags": "",
+      "Confidence": 0.5,
+      "Version": "AAAAAAB6HrY=",
+      "ParentID": 6115,
+      "Created": "2010-12-28T23:22:28.503-08:00",
+      "Label": null,
+      "Username": "robertmarc      ",
+      "LastModified": "2010-12-28T23:22:28.503-08:00",
+      "SourceOfLinks": [
+        {
+          "SourceID": 16052,
+          "TargetID": 69499,
+          "Bidirectional": false,
+          "Tags": null,
+          "Username": "NoahNelson      ",
+          "Created": "2014-05-27T21:05:20.783-07:00",
+          "LastModified": "2014-05-27T21:05:20.783-07:00",
+          "Target": {
+            "ParentID": 69496
+          }
+        }
+      ],
+      "TargetOfLinks": [
+      ]
+    },
+    {
+      "ID": 16053,
+      "TypeID": 35,
+      "Notes": "",
+      "Verified": false,
+      "Tags": "",
+      "Confidence": 0.5,
+      "Version": "AAAAAAB6HsQ=",
+      "ParentID": 6115,
+      "Created": "2010-12-28T23:23:31.94-08:00",
+      "Label": null,
+      "Username": "robertmarc      ",
+      "LastModified": "2010-12-28T23:23:31.94-08:00",
+      "SourceOfLinks": [
+      ],
+      "TargetOfLinks": [
+        {
+          "SourceID": 69504,
+          "TargetID": 16053,
+          "Bidirectional": false,
+          "Tags": null,
+          "Username": "NoahNelson      ",
+          "Created": "2014-05-27T21:08:57.07-07:00",
+          "LastModified": "2014-05-27T21:08:57.07-07:00",
+          "Source": {
+            "ParentID": 69503
+          }
+        }
+      ]
+    },
+    {
+      "ID": 16054,
+      "TypeID": 35,
+      "Notes": "",
+      "Verified": false,
+      "Tags": "",
+      "Confidence": 0.5,
+      "Version": "AAAAAAB6Hsc=",
+      "ParentID": 6115,
+      "Created": "2010-12-28T23:23:38.467-08:00",
+      "Label": null,
+      "Username": "robertmarc      ",
+      "LastModified": "2010-12-28T23:23:38.467-08:00",
+      "SourceOfLinks": [
+      ],
+      "TargetOfLinks": [
+        {
+          "SourceID": 69502,
+          "TargetID": 16054,
+          "Bidirectional": false,
+          "Tags": null,
+          "Username": "chrisrapp       ",
+          "Created": "2014-07-28T16:55:15.047-07:00",
+          "LastModified": "2014-07-28T16:55:15.047-07:00",
+          "Source": {
+            "ParentID": 69500
+          }
+        }
+      ]
+    },
+    {
+      "ID": 16055,
+      "TypeID": 35,
+      "Notes": "",
+      "Verified": false,
+      "Tags": "",
+      "Confidence": 0.5,
+      "Version": "AAAAAAB6Htk=",
+      "ParentID": 6115,
+      "Created": "2010-12-28T23:24:49.823-08:00",
+      "Label": null,
+      "Username": "robertmarc      ",
+      "LastModified": "2010-12-28T23:24:49.823-08:00",
+      "SourceOfLinks": [
+      ],
+      "TargetOfLinks": [
+        {
+          "SourceID": 72452,
+          "TargetID": 16055,
+          "Bidirectional": false,
+          "Tags": null,
+          "Username": "chrisrapp       ",
+          "Created": "2014-07-29T22:11:36.22-07:00",
+          "LastModified": "2014-07-29T22:11:36.22-07:00",
+          "Source": {
+            "ParentID": 72451
+          }
+        }
+      ]
+    },
+    {
+      "ID": 16056,
+      "TypeID": 35,
+      "Notes": "",
+      "Verified": false,
+      "Tags": "",
+      "Confidence": 0.5,
+      "Version": "AAAAAAB6HuA=",
+      "ParentID": 6115,
+      "Created": "2010-12-28T23:25:01.1-08:00",
+      "Label": null,
+      "Username": "robertmarc      ",
+      "LastModified": "2010-12-28T23:25:01.1-08:00",
+      "SourceOfLinks": [
+      ],
+      "TargetOfLinks": [
+        {
+          "SourceID": 32974,
+          "TargetID": 16056,
+          "Bidirectional": false,
+          "Tags": null,
+          "Username": "robertmarc      ",
+          "Created": "2011-12-09T00:55:15.877-08:00",
+          "LastModified": "2011-12-09T00:55:15.877-08:00",
+          "Source": {
+            "ParentID": 32970
+          }
+        }
+      ]
+    },
+    {
+      "ID": 16058,
+      "TypeID": 73,
+      "Notes": "",
+      "Verified": false,
+      "Tags": "",
+      "Confidence": 0.5,
+      "Version": "AAAAAAR7mNI=",
+      "ParentID": 6115,
+      "Created": "2010-12-28T23:49:09.96-08:00",
+      "Label": null,
+      "Username": "chrisrapp       ",
+      "LastModified": "2014-09-05T00:52:02.027-07:00",
+      "SourceOfLinks": [
+        {
+          "SourceID": 16058,
+          "TargetID": 16048,
+          "Bidirectional": false,
+          "Tags": null,
+          "Username": "robertmarc      ",
+          "Created": "2010-12-28T23:49:12.493-08:00",
+          "LastModified": "2010-12-28T23:49:12.493-08:00",
+          "Target": {
+            "ParentID": 8577
+          }
+        },
+        {
+          "SourceID": 16058,
+          "TargetID": 75658,
+          "Bidirectional": false,
+          "Tags": null,
+          "Username": "chrisrapp       ",
+          "Created": "2014-09-05T00:17:38.233-07:00",
+          "LastModified": "2014-09-05T00:17:38.233-07:00",
+          "Target": {
+            "ParentID": 16087
+          }
+        }
+      ],
+      "TargetOfLinks": [
+      ]
+    },
+    {
+      "ID": 16059,
+      "TypeID": 35,
+      "Notes": "",
+      "Verified": false,
+      "Tags": "",
+      "Confidence": 0.5,
+      "Version": "AAAAAAJno+o=",
+      "ParentID": 6115,
+      "Created": "2010-12-28T23:50:15.803-08:00",
+      "Label": null,
+      "Username": "jscottlauritzen ",
+      "LastModified": "2014-04-18T02:24:29.883-07:00",
+      "SourceOfLinks": [
+      ],
+      "TargetOfLinks": [
+        {
+          "SourceID": 66749,
+          "TargetID": 16059,
+          "Bidirectional": false,
+          "Tags": null,
+          "Username": "jscottlauritzen ",
+          "Created": "2014-04-18T02:17:42.49-07:00",
+          "LastModified": "2014-04-18T02:17:42.49-07:00",
+          "Source": {
+            "ParentID": 66696
+          }
+        }
+      ]
+    },
+    {
+      "ID": 16063,
+      "TypeID": 28,
+      "Notes": "",
+      "Verified": false,
+      "Tags": null,
+      "Confidence": 0.9,
+      "Version": "AAAAAAZnYUc=",
+      "ParentID": 6115,
+      "Created": "2010-12-29T00:01:16.033-08:00",
+      "Label": "",
+      "Username": "chrisrapp       ",
+      "LastModified": "2015-10-15T20:56:18.017-07:00",
+      "SourceOfLinks": [
+        {
+          "SourceID": 16063,
+          "TargetID": 55784,
+          "Bidirectional": true,
+          "Tags": null,
+          "Username": "rpfeiffer       ",
+          "Created": "2013-04-17T20:05:01.227-07:00",
+          "LastModified": "2013-04-17T20:05:01.227-07:00",
+          "Target": {
+            "ParentID": 6115
+          }
+        }
+      ],
+      "TargetOfLinks": [
+      ]
+    }
+  ]
+}

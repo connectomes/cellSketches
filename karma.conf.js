@@ -14,7 +14,8 @@ module.exports = function (config) {
             'shared/io/io.module.js',
             'shared/io/*.js',
             'tests/**/**/*.js',
-            {pattern: 'tests/mock/*.json', served: true, included: false}
+            {pattern: 'tests/mock/*.json', served: true, included: false},
+            {pattern: 'tests/mock/childrenStitching/*.json', served: true, included: false}
         ],
 
         autoWatch: true,

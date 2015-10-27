@@ -1,0 +1,413 @@
+{
+  "@odata.context": "http://websvc1.connectomes.utah.edu/RC1/OData/$metadata#Structures(Locations(Radius,VolumeX,VolumeY,Z,ParentID,ID))",
+  "value": [
+    {
+      "ID": 16049,
+      "TypeID": 73,
+      "Notes": "",
+      "Verified": false,
+      "Tags": "",
+      "Confidence": 0.5,
+      "Version": "AAAAAAXwuKw=",
+      "ParentID": 6115,
+      "Created": "2010-12-28T23:21:48.593-08:00",
+      "Label": null,
+      "Username": "chrisrapp       ",
+      "LastModified": "2014-12-30T00:33:13.61-08:00",
+      "Locations": [
+        {
+          "Radius": 33.374592066298796,
+          "VolumeX": 74258.945,
+          "VolumeY": 54063.264999998413,
+          "Z": 250.0,
+          "ParentID": 16049,
+          "ID": 297269
+        },
+        {
+          "Radius": 62.551805883462947,
+          "VolumeX": 74233.150000000009,
+          "VolumeY": 54066.595000107613,
+          "Z": 251.0,
+          "ParentID": 16049,
+          "ID": 297270
+        },
+        {
+          "Radius": 37.211246353479382,
+          "VolumeX": 74236.87000000001,
+          "VolumeY": 54029.91,
+          "Z": 252.0,
+          "ParentID": 16049,
+          "ID": 753818
+        }
+      ]
+    },
+    {
+      "ID": 16050,
+      "TypeID": 35,
+      "Notes": "",
+      "Verified": false,
+      "Tags": "",
+      "Confidence": 0.5,
+      "Version": "AAAAAAMAuAE=",
+      "ParentID": 6115,
+      "Created": "2010-12-28T23:21:56.747-08:00",
+      "Label": null,
+      "Username": "NoahNelson      ",
+      "LastModified": "2014-05-27T21:05:04.163-07:00",
+      "Locations": [
+        {
+          "Radius": 96.501592606508709,
+          "VolumeX": 74161.805000000008,
+          "VolumeY": 54139.575000001591,
+          "Z": 251.0,
+          "ParentID": 16050,
+          "ID": 297272
+        },
+        {
+          "Radius": 108.45505630044288,
+          "VolumeX": 74135.095,
+          "VolumeY": 54118.065000001588,
+          "Z": 252.0,
+          "ParentID": 16050,
+          "ID": 297274
+        },
+        {
+          "Radius": 99.170549446127268,
+          "VolumeX": 74131.84,
+          "VolumeY": 54091.64,
+          "Z": 253.0,
+          "ParentID": 16050,
+          "ID": 897745
+        },
+        {
+          "Radius": 75.066445968654676,
+          "VolumeX": 74088.915000000008,
+          "VolumeY": 54062.144999998411,
+          "Z": 254.0,
+          "ParentID": 16050,
+          "ID": 897749
+        },
+        {
+          "Radius": 109.64257637666523,
+          "VolumeX": 74194.55,
+          "VolumeY": 54155.484999939283,
+          "Z": 250.0,
+          "ParentID": 16050,
+          "ID": 897923
+        }
+      ]
+    },
+    {
+      "ID": 16052,
+      "TypeID": 73,
+      "Notes": "",
+      "Verified": false,
+      "Tags": "",
+      "Confidence": 0.5,
+      "Version": "AAAAAAB6HrY=",
+      "ParentID": 6115,
+      "Created": "2010-12-28T23:22:28.503-08:00",
+      "Label": null,
+      "Username": "robertmarc      ",
+      "LastModified": "2010-12-28T23:22:28.503-08:00",
+      "Locations": [
+        {
+          "Radius": 39.521309811039721,
+          "VolumeX": 74674.24,
+          "VolumeY": 53511.439999999995,
+          "Z": 258.0,
+          "ParentID": 16052,
+          "ID": 297282
+        },
+        {
+          "Radius": 26.618140103121711,
+          "VolumeX": 74755.290000000008,
+          "VolumeY": 53579.130000000005,
+          "Z": 259.0,
+          "ParentID": 16052,
+          "ID": 297283
+        }
+      ]
+    },
+    {
+      "ID": 16053,
+      "TypeID": 35,
+      "Notes": "",
+      "Verified": false,
+      "Tags": "",
+      "Confidence": 0.5,
+      "Version": "AAAAAAB6HsQ=",
+      "ParentID": 6115,
+      "Created": "2010-12-28T23:23:31.94-08:00",
+      "Label": null,
+      "Username": "robertmarc      ",
+      "LastModified": "2010-12-28T23:23:31.94-08:00",
+      "Locations": [
+        {
+          "Radius": 69.946786502709713,
+          "VolumeX": 74783.680000000008,
+          "VolumeY": 54417.014999900748,
+          "Z": 266.0,
+          "ParentID": 16053,
+          "ID": 297294
+        },
+        {
+          "Radius": 90.726039898068848,
+          "VolumeX": 74796.595,
+          "VolumeY": 54374.82,
+          "Z": 267.0,
+          "ParentID": 16053,
+          "ID": 297297
+        },
+        {
+          "Radius": 45.947009222356876,
+          "VolumeX": 74834.17,
+          "VolumeY": 54371.75500015026,
+          "Z": 268.0,
+          "ParentID": 16053,
+          "ID": 297300
+        },
+        {
+          "Radius": 86.71929986658057,
+          "VolumeX": 74799.72,
+          "VolumeY": 54417.76,
+          "Z": 265.0,
+          "ParentID": 16053,
+          "ID": 897930
+        },
+        {
+          "Radius": 47.87198168649882,
+          "VolumeX": 74804.025,
+          "VolumeY": 54370.515000001586,
+          "Z": 269.0,
+          "ParentID": 16053,
+          "ID": 901381
+        }
+      ]
+    },
+    {
+      "ID": 16054,
+      "TypeID": 35,
+      "Notes": "",
+      "Verified": false,
+      "Tags": "",
+      "Confidence": 0.5,
+      "Version": "AAAAAAB6Hsc=",
+      "ParentID": 6115,
+      "Created": "2010-12-28T23:23:38.467-08:00",
+      "Label": null,
+      "Username": "robertmarc      ",
+      "LastModified": "2010-12-28T23:23:38.467-08:00",
+      "Locations": [
+        {
+          "Radius": 72.684722882698452,
+          "VolumeX": 74941.225,
+          "VolumeY": 54031.14500000159,
+          "Z": 266.0,
+          "ParentID": 16054,
+          "ID": 297295
+        },
+        {
+          "Radius": 67.71708918194679,
+          "VolumeX": 74918.51,
+          "VolumeY": 54031.815000102462,
+          "Z": 267.0,
+          "ParentID": 16054,
+          "ID": 297298
+        },
+        {
+          "Radius": 70.42460471078769,
+          "VolumeX": 74933.355,
+          "VolumeY": 53986.445000001593,
+          "Z": 265.0,
+          "ParentID": 16054,
+          "ID": 873450
+        }
+      ]
+    },
+    {
+      "ID": 16055,
+      "TypeID": 35,
+      "Notes": "",
+      "Verified": false,
+      "Tags": "",
+      "Confidence": 0.5,
+      "Version": "AAAAAAB6Htk=",
+      "ParentID": 6115,
+      "Created": "2010-12-28T23:24:49.823-08:00",
+      "Label": null,
+      "Username": "robertmarc      ",
+      "LastModified": "2010-12-28T23:24:49.823-08:00",
+      "Locations": [
+        {
+          "Radius": 63.271505711517221,
+          "VolumeX": 74577.145,
+          "VolumeY": 52223.98,
+          "Z": 266.0,
+          "ParentID": 16055,
+          "ID": 297311
+        },
+        {
+          "Radius": 92.555772899483316,
+          "VolumeX": 74605.125,
+          "VolumeY": 52236.96500000159,
+          "Z": 267.0,
+          "ParentID": 16055,
+          "ID": 297313
+        },
+        {
+          "Radius": 90.378291078475115,
+          "VolumeX": 74623.49,
+          "VolumeY": 52226.54,
+          "Z": 268.0,
+          "ParentID": 16055,
+          "ID": 297315
+        },
+        {
+          "Radius": 61.629800452362204,
+          "VolumeX": 74588.85,
+          "VolumeY": 52204.51,
+          "Z": 265.0,
+          "ParentID": 16055,
+          "ID": 898140
+        }
+      ]
+    },
+    {
+      "ID": 16056,
+      "TypeID": 35,
+      "Notes": "",
+      "Verified": false,
+      "Tags": "",
+      "Confidence": 0.5,
+      "Version": "AAAAAAB6HuA=",
+      "ParentID": 6115,
+      "Created": "2010-12-28T23:25:01.1-08:00",
+      "Label": null,
+      "Username": "robertmarc      ",
+      "LastModified": "2010-12-28T23:25:01.1-08:00",
+      "Locations": [
+        {
+          "Radius": 123.17567169273042,
+          "VolumeX": 74585.63,
+          "VolumeY": 52690.06,
+          "Z": 268.0,
+          "ParentID": 16056,
+          "ID": 297316
+        },
+        {
+          "Radius": 129.04122983052454,
+          "VolumeX": 74566.05,
+          "VolumeY": 52651.21,
+          "Z": 269.0,
+          "ParentID": 16056,
+          "ID": 297320
+        }
+      ]
+    },
+    {
+      "ID": 16058,
+      "TypeID": 73,
+      "Notes": "",
+      "Verified": false,
+      "Tags": "",
+      "Confidence": 0.5,
+      "Version": "AAAAAAR7mNI=",
+      "ParentID": 6115,
+      "Created": "2010-12-28T23:49:09.96-08:00",
+      "Label": null,
+      "Username": "chrisrapp       ",
+      "LastModified": "2014-09-05T00:52:02.027-07:00",
+      "Locations": [
+        {
+          "Radius": 42.771833517228664,
+          "VolumeX": 71564.23000000001,
+          "VolumeY": 51172.255000158111,
+          "Z": 262.0,
+          "ParentID": 16058,
+          "ID": 297372
+        }
+      ]
+    },
+    {
+      "ID": 16059,
+      "TypeID": 35,
+      "Notes": "",
+      "Verified": false,
+      "Tags": "",
+      "Confidence": 0.5,
+      "Version": "AAAAAAJno+o=",
+      "ParentID": 6115,
+      "Created": "2010-12-28T23:50:15.803-08:00",
+      "Label": null,
+      "Username": "jscottlauritzen ",
+      "LastModified": "2014-04-18T02:24:29.883-07:00",
+      "Locations": [
+        {
+          "Radius": 151.633940755433,
+          "VolumeX": 71931.96,
+          "VolumeY": 50912.625000043452,
+          "Z": 263.0,
+          "ParentID": 16059,
+          "ID": 297385
+        },
+        {
+          "Radius": 106.59682692992833,
+          "VolumeX": 71970.325000000012,
+          "VolumeY": 50944.9549999984,
+          "Z": 262.0,
+          "ParentID": 16059,
+          "ID": 850677
+        },
+        {
+          "Radius": 80.529282226218967,
+          "VolumeX": 71938.96,
+          "VolumeY": 50876.624999913583,
+          "Z": 265.0,
+          "ParentID": 16059,
+          "ID": 850682
+        }
+      ]
+    },
+    {
+      "ID": 16063,
+      "TypeID": 28,
+      "Notes": "",
+      "Verified": false,
+      "Tags": null,
+      "Confidence": 0.9,
+      "Version": "AAAAAAZnYUc=",
+      "ParentID": 6115,
+      "Created": "2010-12-29T00:01:16.033-08:00",
+      "Label": "",
+      "Username": "chrisrapp       ",
+      "LastModified": "2015-10-15T20:56:18.017-07:00",
+      "Locations": [
+        {
+          "Radius": 35.661664760457413,
+          "VolumeX": 76820.44,
+          "VolumeY": 47905.184999810044,
+          "Z": 272.0,
+          "ParentID": 16063,
+          "ID": 297469
+        },
+        {
+          "Radius": 32.39671182677418,
+          "VolumeX": 76822.205,
+          "VolumeY": 47925.244999998409,
+          "Z": 271.0,
+          "ParentID": 16063,
+          "ID": 297507
+        },
+        {
+          "Radius": 18.484304045667376,
+          "VolumeX": 76806.625,
+          "VolumeY": 47959.484999998414,
+          "Z": 270.0,
+          "ParentID": 16063,
+          "ID": 908866
+        }
+      ]
+    }
+  ]
+}

@@ -35,17 +35,20 @@
             getCellIndexesInLabel: getCellIndexesInLabel,
             getCellIndexesInLabelRegExp: getCellIndexesInLabelRegExp,
             getCellLocations: getCellLocations,
+            getCellNeighborIdsAt: getCellNeighborIdsAt,
             getCellNeighborIndexesByChildType: getCellNeighborIndexesByChildType,
             getCellNeighborLabelsByChildType: getCellNeighborLabelsByChildType,
             getLoadedCellIds: getLoadedCellIds,
             getNumCellChildrenAt: getNumCellChildrenAt,
             getNumCells: getNumCells,
+            hasLoadedNeighbors: hasLoadedNeighbors,
             loadCellChildrenAt: loadCellChildrenAt,
             loadCellId: loadCellId,
             loadCellIds: loadCellIds,
             loadCellLabel: loadCellLabel,
             loadCellLabels: loadCellLabels,
             loadCellLocationsAt: loadCellLocationsAt,
+            loadCellChildrenEdgesAt: loadCellChildrenEdgesAt,
             loadCellNeighborsAt: loadCellNeighborsAt,
             loadCellStartsWith: loadCellStartsWith,
             loadFromFile: loadFromFile,
@@ -145,6 +148,113 @@
             return radius;
         }
 
+        function loadCellChildrenEdgesAt(cellIndex) {
+
+            var cellId = getCellAt(cellIndex).id;
+
+            return $q(function (resolve, reject) {
+
+                var request = 'Structures(' + cellId + ')/Children?$expand=SourceOfLinks($expand=Target($select=ParentID)),TargetOfLinks($expand=Source($select=ParentID))';
+
+                function success(data) {
+
+                    var values = data.data.value;
+
+                    var orderedPartners = [];
+
+                    for (var i = 0; i < values.length; ++i) {
+
+                        var sources = values[i].SourceOfLinks;
+                        var targets = values[i].TargetOfLinks;
+
+                        var childIsSource = sources.length > 0;
+                        var childIsTarget = targets.length > 0;
+
+                        if (childIsTarget && childIsSource) {
+                            throw 'This child edge is fucked!';
+                        }
+
+                        if (values[i].ParentID != cellId) {
+                            throw 'Found child edge for wrong cell!';
+                        }
+
+                        if (values[i].ID != getCellChildAt(getCellIndex(cellId), i).id) {
+                            throw 'Children edges out-of-order!';
+                        }
+
+                        var currPartnerIds = [];
+                        var currPartnerIndexes = [];
+                        var currPartnersBidirectional = [];
+                        if (childIsSource) {
+
+                            for (var j = 0; j < sources.length; ++j) {
+
+                                var currSource = sources[j];
+
+                                if (currSource.hasOwnProperty('Source')) {
+
+                                    throw 'Cannot have source-to-source link.';
+
+                                } else if (currSource.hasOwnProperty('Target')) {
+
+                                    if (currSource.Target.ParentID == null) {
+                                        console.log('Warning - cell link with null parent. This shouldn\'t exist!');
+                                        console.log(currSource);
+                                    }
+
+                                    currPartnerIds.push(currSource.Target.ParentID);
+                                    currPartnerIndexes.push(currSource.TargetID);
+                                    currPartnersBidirectional.push(currSource.Bidirectional)
+
+                                } else {
+
+                                    throw 'Source with no target.';
+
+                                }
+                            }
+                        } else if (childIsTarget) {
+
+                            for (j = 0; j < targets.length; ++j) {
+
+                                var currTarget = targets[j];
+
+                                if (currTarget.hasOwnProperty('Source')) {
+
+                                    if (currTarget.Source.ParentID == null) {
+                                        console.log('Warning - cell link with null parent. This shouldn\'t exist!');
+                                        console.log(currTarget);
+                                    }
+
+                                    currPartnerIds.push(currTarget.Source.ParentID);
+                                    currPartnerIndexes.push(currTarget.SourceID);
+                                    currPartnersBidirectional.push(currTarget.Bidirectional);
+
+                                } else if (currTarget.hasOwnProperty('Target')) {
+
+                                    throw 'Cannot have target-to-target link. This is fucked.';
+
+                                } else {
+
+                                    throw 'Target with no source';
+
+                                }
+                            }
+                        }
+
+                        orderedPartners.push(new utils.CellPartner(currPartnerIds, currPartnerIndexes, currPartnersBidirectional));
+                        resolve();
+                    }
+
+                    var cellIndex = getCellIndex(cellId);
+
+                    self.cellChildrenPartners[cellIndex] = orderedPartners;
+
+                }
+
+                volumeOData.request(request).then(success, failure);
+            });
+        }
+
         function getCellConvexHullAt(cellIndex) {
             var locations = self.cellLocations[cellIndex];
             var vertices = [];
@@ -153,6 +263,26 @@
             }
             var hull = d3.geom.hull(vertices);
             return d3.geom.polygon(hull);
+        }
+
+        function getCellNeighborIdsAt(cellIndex) {
+            var partners = self.cellChildrenPartners[cellIndex];
+            var neighbors = [];
+
+            for (var i = 0; i < partners.length; ++i) {
+
+                var currNeighbors = partners[i].parentId;
+
+                for (var j = 0; j < currNeighbors.length; ++j) {
+
+                    if (neighbors.indexOf(currNeighbors[j]) == -1) {
+                        neighbors.push(currNeighbors[j]);
+                    }
+
+                }
+
+            }
+            return neighbors;
         }
 
         function getCellNeighborIndexesByChildType(cellIndex, childType) {
@@ -292,6 +422,20 @@
             return self.cells.length;
         }
 
+        function hasLoadedNeighbors(cellIndex) {
+
+            var neighbors = getCellNeighborIdsAt(cellIndex);
+
+            for (var i = 0; i < neighbors.length; ++i) {
+
+                if (getCellIndex(neighbors[i]) == -1) {
+                    return false;
+                }
+
+            }
+            return true;
+        }
+
         function loadCellChildrenAt(index) {
 
             var cellId = getCellAt(index).id;
@@ -311,7 +455,6 @@
                         if (currChild.Locations.length == 0) {
                             console.log('Warning - cell child with no locations, ignoring it');
                             console.log('StructureID: ' + currChild.ID);
-//                            continue;
                         }
 
                         var cellChild = new utils.CellChild(currChild.ID, currChild.ParentID, currChild.Label,
@@ -388,105 +531,6 @@
             }
 
             return $q.all(promises);
-        }
-
-        function loadCellNeighborsAt(index) {
-
-            var cellId = getCellAt(index).id;
-
-            return $q(function (resolve, reject) {
-
-                var request = 'Structures(' + cellId + ')/Children?$expand=SourceOfLinks($expand=Target($select=ParentID)),TargetOfLinks($expand=Source($select=ParentID))';
-
-                function success(data) {
-
-                    // build list of neighbor ids
-                    var values = data.data.value;
-                    var partnerIds = [];
-
-                    var orderedPartners = [];
-
-                    for (var i = 0; i < values.length; ++i) {
-
-                        var currPartnerIds = [];
-                        var child = -1;
-                        var parent = -1;
-                        if (values[i].SourceOfLinks.length > 0) {
-
-                            if (values[i].SourceOfLinks[0].hasOwnProperty('Source')) {
-
-                                throw 'Source-to-source link found! Wtf?';
-
-                            } else if (values[i].SourceOfLinks[0].hasOwnProperty('Target')) {
-
-                                parent = values[i].SourceOfLinks[0].Target.ParentID;
-                                child = values[i].SourceOfLinks[0].TargetID;
-
-                                if (parent == null || child == null) {
-                                    console.log('Warning - cell with id: ' + cellId + ' childid ' + self.cellChildren[index][i]);
-                                    console.log('has an invalid target. Removing and ignoring child');
-                                    self.cellChildren[index].splice(i, 1);
-                                    self.cellChildrenLocations[index].splice(i, 1);
-                                } else {
-                                    currPartnerIds.push(parent);
-                                    orderedPartners.push(new utils.CellPartner(parent, child));
-                                }
-
-                            } else {
-
-                                throw 'Source with no targets found! Wtf?';
-                            }
-
-                        } else if (values[i].TargetOfLinks.length > 0) {
-
-                            if (values[i].TargetOfLinks[0].hasOwnProperty('Source')) {
-
-                                parent = values[i].TargetOfLinks[0].Source.ParentID;
-                                child = values[i].TargetOfLinks[0].SourceID;
-                                if (parent == null || child == null) {
-                                    console.log('Warning - cell with id: ' + cellId + ' childid ' + self.cellChildren[index][i]);
-                                    console.log('has an invalid target. Removing and ignoring child');
-                                    self.cellChildren[index].splice(i, 1);
-                                    self.cellChildrenLocations[index].splice(i, 1);
-                                } else {
-                                    currPartnerIds.push(parent);
-                                    orderedPartners.push(new utils.CellPartner(parent, child));
-                                }
-
-                            } else if (values[i].TargetOfLinks[0].hasOwnProperty('Target')) {
-
-                                throw 'Target-to-target link found! Wtf?';
-
-                            } else {
-
-                                throw 'Target with no found found! Wtf?';
-                            }
-                        } else {
-
-                            // Child with no source or target.
-                            orderedPartners.push(new utils.CellPartner(-1, -1));
-
-                        }
-
-                        for (var j = 0; j < currPartnerIds.length; ++j) {
-                            if (partnerIds.indexOf(currPartnerIds[j]) == -1 && currPartnerIds[j] > -1) {
-                                partnerIds.push(currPartnerIds[j]);
-                            }
-                        }
-
-                    }
-
-                    var cellIndex = getCellIndex(cellId);
-
-                    self.cellChildrenPartners[cellIndex] = orderedPartners;
-
-                    loadCellIds(partnerIds).then(function () {
-                        resolve();
-                    }, failure);
-                }
-
-                volumeOData.request(request).then(success, failure);
-            });
         }
 
         function loadCellLabel(label) {
@@ -600,6 +644,21 @@
                 volumeOData.request(('Structures?$filter=' + filter), config).then(success, failure);
 
             });
+        }
+
+        function loadCellNeighborsAt(cellIndex) {
+
+            var neighbors = getCellNeighborIdsAt(cellIndex);
+            var needToLoad = [];
+
+            for (var i = 0; i < neighbors.length; ++i) {
+                var currNeighbor = neighbors[i];
+                if (getCellIndex(currNeighbor) == -1 && currNeighbor != null) {
+                    needToLoad.push(currNeighbor);
+                }
+            }
+
+            return loadCellIds(needToLoad);
         }
 
         function loadFromFile(filename) {
