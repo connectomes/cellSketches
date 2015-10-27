@@ -8,11 +8,8 @@ describe('VolumeStructures service test', function () {
     beforeEach(inject(function (_volumeStructures_, $httpBackend) {
         volumeStructures = _volumeStructures_;
         httpBackend = $httpBackend;
-    }));
 
-    it('', function () {
-
-        // Prepare fake http response for testing.
+        // TODO: Move this to an external json file.
         httpBackend.whenGET('http://websvc1.connectomes.utah.edu/RC1/OData/StructureTypes').respond({
             "@odata.context": "http://websvc1.connectomes.utah.edu/RC1/OData/$metadata#StructureTypes",
             "value": [
@@ -1124,6 +1121,14 @@ describe('VolumeStructures service test', function () {
             ]
         });
 
+        httpBackend.when('GET', 'shared/volume/labelGroups.json').respond(
+            readJSON('shared/volume/labelGroups.json')
+        );
+
+    }));
+
+    it('Initializing volume structures', function () {
+
         // Initialize the volumeStructure service -- this will call the fake http request above.
         volumeStructures.activate();
 
@@ -1132,5 +1137,26 @@ describe('VolumeStructures service test', function () {
 
         // We expect 32 child structures to be returned.
         expect(volumeStructures.getNumChildStructureTypes() == 32).toBeTruthy();
+    });
+
+    it('Initializing label groups', function () {
+
+        volumeStructures.activateCellLabelGroups();
+        httpBackend.flush();
+
+        expect(volumeStructures.getNumGroups() == 10).toBeTruthy();
+        expect(volumeStructures.getGroupAt(0) == 'CBb').toBeTruthy();
+    });
+
+    it('Accessing label groups', function () {
+
+        volumeStructures.activateCellLabelGroups();
+        httpBackend.flush();
+
+        expect(volumeStructures.getGroupOfLabel('CBb4iw') == 0).toBeTruthy();
+        expect(volumeStructures.getGroupOfLabel('Rod BC') == 4).toBeTruthy();
+
+        expect(volumeStructures.getLabelsInGroup(4)[0] == 'Rod BC').toBeTruthy();
+
     });
 });

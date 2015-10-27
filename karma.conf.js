@@ -15,6 +15,7 @@ module.exports = function (config) {
             'shared/io/*.js',
             'tests/**/**/*.js',
             {pattern: 'tests/mock/*.json', served: true, included: false},
+            {pattern: 'shared/volume/labelGroups.json', served: true, included: false},
             {pattern: 'tests/mock/childrenStitching/*.json', served: true, included: false}
         ],
 
