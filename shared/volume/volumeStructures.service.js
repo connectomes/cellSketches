@@ -99,9 +99,9 @@
         }
 
         function getGroupOfLabel(label) {
-            for(var i=0; i<self.labelGroups.length; ++i) {
+            for (var i = 0; i < self.labelGroups.length; ++i) {
                 var labels = self.labelGroups[i].labels;
-                if(labels.indexOf(label) != -1) {
+                if (labels.indexOf(label) != -1) {
                     return i;
                 }
             }

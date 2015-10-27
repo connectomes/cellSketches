@@ -1144,7 +1144,7 @@ describe('VolumeStructures service test', function () {
         volumeStructures.activateCellLabelGroups();
         httpBackend.flush();
 
-        expect(volumeStructures.getNumGroups() == 10).toBeTruthy();
+        expect(volumeStructures.getNumGroups() == 11).toBeTruthy();
         expect(volumeStructures.getGroupAt(0) == 'CBb').toBeTruthy();
     });
 

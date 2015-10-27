@@ -5,9 +5,9 @@
         .module('app.volumeModule')
         .factory('volumeCells', volumeCells);
 
-    volumeCells.$inject = ['$q', '$http', 'volumeOData'];
+    volumeCells.$inject = ['$q', '$http', 'volumeOData', 'volumeStructures'];
 
-    function volumeCells($q, $http, volumeOData) {
+    function volumeCells($q, $http, volumeOData, volumeStructures) {
 
         var self = this;
         // Places where data will be stored.
@@ -30,10 +30,12 @@
             getCellChildRadiusAt: getCellChildRadiusAt,
             getCellChildrenByTypeIndexes: getCellChildrenByTypeIndexes,
             getCellChildrenConnectedToIndexes: getCellChildrenConnectedToIndexes,
+            getCellChildrenConnectedToGroupIndex: getCellChildrenConnectedToGroupIndex,
             getCellConvexHullAt: getCellConvexHullAt,
             getCellIndex: getCellIndex,
             getCellIndexesInLabel: getCellIndexesInLabel,
             getCellIndexesInLabelRegExp: getCellIndexesInLabelRegExp,
+            getCellIndexesInGroup: getCellIndexesInGroup,
             getCellLocations: getCellLocations,
             getCellNeighborIdsAt: getCellNeighborIdsAt,
             getCellNeighborIndexesByChildType: getCellNeighborIndexesByChildType,
@@ -81,39 +83,61 @@
             var cellChildren = self.cellChildren[cellIndex];
 
             var currChildren = [];
-            var isChildTypeArray = (childType.length != undefined);
-            for (var i = 0; i < cellChildren.length; ++i) {
-                if (!isChildTypeArray && childType && cellChildren[i].type == childType) {
-                    currChildren.push(i);
-                } else if (childType == undefined) {
-                    currChildren.push(i);
-                } else if (isChildTypeArray && childType && childType.indexOf(cellChildren[i].type) > -1) {
+            var i;
+            if (childType) {
+
+                var isChildTypeArray = (childType.length != undefined);
+                for (i = 0; i < cellChildren.length; ++i) {
+                    if (!isChildTypeArray && childType && cellChildren[i].type == childType) {
+                        currChildren.push(i);
+                    } else if (childType == undefined) {
+                        currChildren.push(i);
+                    } else if (isChildTypeArray && childType && childType.indexOf(cellChildren[i].type) > -1) {
+                        currChildren.push(i);
+                    }
+                }
+
+
+            } else {
+
+                for (i = 0; i < cellChildren.length; ++i) {
                     currChildren.push(i);
                 }
             }
-
             return currChildren;
         }
 
         /**
          * @name getCellChildrenConnectedTo
-         * @returns Array of cell's child indexes that are connected to partnerIndexes and of the specified type.
+         * @returns Object of cell's child indexes that are connected to partnerIndexes and of the specified type.
          */
-        function getCellChildrenConnectedToIndexes(cellIndex, partnerIndexes, childType) {
+        function getCellChildrenConnectedToIndexes(cellIndex, targetIndexes, childType) {
 
             var indexes = [];
+            var partnerOffsets = [];
+
             var children = getCellChildrenByTypeIndexes(cellIndex, childType);
 
             for (var i = 0; i < children.length; ++i) {
                 var currIndex = children[i];
-                var partner = self.cellChildrenPartners[cellIndex][currIndex];
-                var partnerParentIndex = getCellIndex(partner.parentId);
-                if (partnerIndexes.indexOf(partnerParentIndex) != -1) {
-                    indexes.push(currIndex);
+
+                var partners = self.cellChildrenPartners[cellIndex][currIndex].parentId;
+                for (var j = 0; j < partners.length; ++j) {
+                    if (targetIndexes.indexOf(getCellIndex(partners[j])) != -1) {
+                        indexes.push(currIndex);
+                        partnerOffsets.push(j);
+                    }
                 }
             }
 
-            return indexes;
+            return {
+                indexes: indexes,
+                partners: partnerOffsets
+            };
+        }
+
+        function getCellChildrenConnectedToGroupIndex(cellIndex, groupIndex, childType) {
+            return [];
         }
 
         function getCellChildAt(cellIndex, childIndex) {
@@ -372,6 +396,25 @@
             }
 
             return -1;
+        }
+
+        /**
+         * @name getCellIndexesInGroup
+         * @desc Returns a list of the loaded cell indexes that are in the
+         * @param groupIndex -- see volumeStructure's groups.
+         */
+        function getCellIndexesInGroup(groupIndex) {
+            var indexes = [];
+            var labels = volumeStructures.getLabelsInGroup(groupIndex);
+
+            for (var i = 0; i < self.cells.length; ++i) {
+
+                if (labels.indexOf(self.cells[i].label) != -1) {
+                    indexes.push(i);
+                }
+            }
+
+            return indexes;
         }
 
         function getCellIndexesInLabel(label) {

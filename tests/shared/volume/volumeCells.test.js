@@ -13,8 +13,9 @@ describe('VolumeStructures service test', function () {
         module('app.volumeModule');
     });
 
-    beforeEach(inject(function (_volumeCells_, $httpBackend) {
+    beforeEach(inject(function (_volumeCells_, _volumeStructures_, $httpBackend) {
         volumeCells = _volumeCells_;
+        volumeStructures = _volumeStructures_;
         httpBackend = $httpBackend;
 
         httpBackend.when('GET', structureQuery).respond(
@@ -38,6 +39,10 @@ describe('VolumeStructures service test', function () {
 
         httpBackend.when('GET', loadCell6115Neighbors).respond(
             readJSON('tests/mock/childrenStitching/6115Neighbors.json'));
+
+        httpBackend.when('GET', 'shared/volume/labelGroups.json').respond(
+            readJSON('shared/volume/labelGroups.json')
+        );
     }));
 
     afterEach(function () {
@@ -57,7 +62,7 @@ describe('VolumeStructures service test', function () {
         expect(volumeCells.getLoadedCellIds().length == 1).toBeTruthy();
     });
 
-    it('Load invalid cell id', function() {
+    it('Load invalid cell id', function () {
 
         var ids = [6117, -1];
 
@@ -75,7 +80,7 @@ describe('VolumeStructures service test', function () {
 
     });
 
-    it('Get cell children by type', function() {
+    it('Get cell children by type', function () {
 
         var id = 6115;
 
@@ -91,12 +96,13 @@ describe('VolumeStructures service test', function () {
         expect(volumeCells.getCellChildrenByTypeIndexes(0, 73).length == 3).toBeTruthy();
         expect(volumeCells.getCellChildrenByTypeIndexes(0, 35).length == 6).toBeTruthy();
         expect(volumeCells.getCellChildrenByTypeIndexes(0, 28).length == 1).toBeTruthy();
+        expect(volumeCells.getCellChildrenByTypeIndexes(0).length == 10).toBeTruthy();
 
         volumeCells.loadCellChildrenEdgesAt(0);
         httpBackend.flush();
     });
 
-    it('Load cell children edges', function() {
+    it('Load cell children edges', function () {
 
         var id = 6115;
 
@@ -126,7 +132,7 @@ describe('VolumeStructures service test', function () {
         expect(volumeCells.getCellChildPartnerAt(0, 1).bidirectional[0] == false).toBeTruthy();
     });
 
-    it('Get cell neighbors', function() {
+    it('getCellNeighbors', function () {
 
         var id = 6115;
 
@@ -142,13 +148,13 @@ describe('VolumeStructures service test', function () {
         var expectedNeighborIds = [69493, 86246, 69493, 69496, 69503, 69500, 72451, 32970, 8577, 16087, 66696, 6115];
         var neighborIds = volumeCells.getCellNeighborIdsAt(0);
 
-        for(var i=0; i<expectedNeighborIds.length; ++i) {
+        for (var i = 0; i < expectedNeighborIds.length; ++i) {
             expect(neighborIds.indexOf(expectedNeighborIds[i]) != -1).toBeTruthy();
         }
 
     });
 
-    it('Has loaded neighbors', function() {
+    it('hasLoadedNeighbors', function () {
 
         var id = 6115;
 
@@ -167,6 +173,96 @@ describe('VolumeStructures service test', function () {
         httpBackend.flush();
 
         expect(volumeCells.hasLoadedNeighbors(0)).toBeTruthy();
+    });
+
+    it('getCellIndexesInGroup', function () {
+
+        var id = 6115;
+
+        volumeStructures.activateCellLabelGroups();
+        httpBackend.flush();
+
+        volumeCells.loadCellId(id);
+        httpBackend.flush();
+
+        volumeCells.loadCellChildrenAt(0);
+        httpBackend.flush();
+
+        volumeCells.loadCellChildrenEdgesAt(0);
+        httpBackend.flush();
+
+        volumeCells.loadCellNeighborsAt(0);
+        httpBackend.flush();
+
+        for (var i = 0; i < volumeStructures.getNumGroups(); ++i) {
+            var indexes = volumeCells.getCellIndexesInGroup(i);
+            var labels = volumeStructures.getLabelsInGroup(i);
+            for (var j = 0; j < indexes.length; ++j) {
+                expect(labels.indexOf(volumeCells.getCellAt(indexes[j]).label) != -1).toBeTruthy();
+            }
+        }
+    });
+
+    it('getCellChildrenConnectedToIndexes', function () {
+
+        var id = 6115;
+
+        volumeStructures.activateCellLabelGroups();
+        httpBackend.flush();
+
+        volumeCells.loadCellId(id);
+        httpBackend.flush();
+
+        volumeCells.loadCellChildrenAt(0);
+        httpBackend.flush();
+
+        volumeCells.loadCellChildrenEdgesAt(0);
+        httpBackend.flush();
+
+        volumeCells.loadCellNeighborsAt(0);
+        httpBackend.flush();
+
+        // What group does the label 'YAC Starburst' belong to?
+        var targetGroup = volumeStructures.getGroupOfLabel('YAC Starburst');
+        var targetLabels = volumeStructures.getLabelsInGroup(targetGroup);
+
+        // Get list of all loaded cells in that group.
+        var targetIndexes = volumeCells.getCellIndexesInGroup(targetGroup);
+
+        // Get list of all children from cell 0 connected to other cells in that group.
+        var childrenConnectedToTargetGroup = volumeCells.getCellChildrenConnectedToIndexes(0, targetIndexes, undefined);
+
+        var children = childrenConnectedToTargetGroup.indexes;
+        var partnerOffsets = childrenConnectedToTargetGroup.partners;
+
+        // Loop over the returned children. Check that they actually point to cells in the target group.
+        var partner, targetCellId, targetCell;
+        for (var i = 0; i < children.length; ++i) {
+            partner = volumeCells.getCellChildPartnerAt(0, children[i]);
+            targetCellId = partner.parentId[partnerOffsets[i]];
+            targetCell = volumeCells.getCell(targetCellId);
+            expect(targetLabels.indexOf(targetCell.label) != -1).toBeTruthy();
+        }
+
+        // Repeat for another group.
+        targetGroup = volumeStructures.getGroupOfLabel('null');
+        targetIndexes = volumeCells.getCellIndexesInGroup(targetGroup);
+        targetLabels = volumeStructures.getLabelsInGroup(targetGroup);
+
+        childrenConnectedToTargetGroup = volumeCells.getCellChildrenConnectedToIndexes(0, targetIndexes, undefined);
+        children = childrenConnectedToTargetGroup.indexes;
+        partnerOffsets = childrenConnectedToTargetGroup.partners;
+
+        for (i = 0; i < children.length; ++i) {
+            partner = volumeCells.getCellChildPartnerAt(0, children[i]);
+            targetCellId = partner.parentId[partnerOffsets[i]];
+            targetCell = volumeCells.getCell(targetCellId);
+            expect(targetLabels.indexOf(targetCell.label) != -1).toBeTruthy();
+        }
+    });
+
+    it('get children in group by type', function () {
+
     });
 
 });
