@@ -201,11 +201,48 @@ describe('VolumeStructures service test', function () {
         volumeCells.loadCellNeighborsAt(0);
         httpBackend.flush();
 
+        var cellIndex = volumeCells.getCellIndex(id);
+
+        // For each possible target group...
         for (var i = 0; i < volumeStructures.getNumGroups(); ++i) {
-            var indexes = volumeCells.getCellIndexesInGroup(i);
-            var labels = volumeStructures.getLabelsInGroup(i);
+
+            // Get the cell indexes present in that group.
+            var indexes = volumeCells.getCellIndexesInGroup(i, cellIndex);
+
+            var labels = [];
+
+            if (i == volumeStructures.getGroupIndexInClass()) {
+
+                // If the group is in class, then we expect all cells to have the same label as the input cell.
+                labels = [volumeCells.getCellAt(cellIndex).label];
+
+            } else if (i == volumeStructures.getGroupIndexSelf()) {
+
+                // If the group is self, then we expect there should only be one cell index returned.
+                expect(indexes.length == 1).toBeTruthy();
+                expect(indexes[0] == volumeCells.getCellIndex(id)).toBeTruthy();
+
+                continue;
+
+            } else {
+
+                // Otherwise use labels as normal.
+                labels = volumeStructures.getLabelsInGroup(i);
+
+            }
+
+            var returnedLabels = [];
+
+            // Check that all of the returned cell indexes have labels in the correct group.
             for (var j = 0; j < indexes.length; ++j) {
-                expect(labels.indexOf(volumeCells.getCellAt(indexes[j]).label) != -1).toBeTruthy();
+                var currLabel = volumeCells.getCellAt(indexes[j]).label;
+                expect(labels.indexOf(currLabel) != -1).toBeTruthy();
+                returnedLabels.push(currLabel);
+            }
+
+            // Check that the group of our target cell EXCLUDES its in-class label.
+            if (volumeStructures.getGroupAt(i) == 'CBb') {
+                expect(returnedLabels.indexOf('CBb5w') == -1);
             }
         }
     });
@@ -234,7 +271,7 @@ describe('VolumeStructures service test', function () {
         var targetLabels = volumeStructures.getLabelsInGroup(targetGroup);
 
         // Get list of all loaded cells in that group.
-        var targetIndexes = volumeCells.getCellIndexesInGroup(targetGroup);
+        var targetIndexes = volumeCells.getCellIndexesInGroup(targetGroup, 0);
 
         // Get list of all children from cell 0 connected to other cells in that group.
         var childrenConnectedToTargetGroup = volumeCells.getCellChildrenConnectedToIndexes(0, targetIndexes, undefined);
@@ -253,7 +290,7 @@ describe('VolumeStructures service test', function () {
 
         // Repeat for another group.
         targetGroup = volumeStructures.getGroupOfLabel('null');
-        targetIndexes = volumeCells.getCellIndexesInGroup(targetGroup);
+        targetIndexes = volumeCells.getCellIndexesInGroup(targetGroup, 0);
         targetLabels = volumeStructures.getLabelsInGroup(targetGroup);
 
         childrenConnectedToTargetGroup = volumeCells.getCellChildrenConnectedToIndexes(0, targetIndexes, undefined);
@@ -290,27 +327,63 @@ describe('VolumeStructures service test', function () {
         volumeCells.loadCellNeighborsAt(0);
         httpBackend.flush();
 
+        // For all of the child types possible...
         for (var i = 0; i < volumeStructures.getNumChildStructureTypes(); ++i) {
 
             var childType = volumeStructures.getChildStructureTypeAt(i);
 
-            for(var j=0; j<volumeStructures.getNumGroups(); ++j) {
+            // For all of the label grousp...
+            for (var j = 0; j < volumeStructures.getNumGroups(); ++j) {
 
+                // Get the children connected to the current label group.
                 var groupIndex = j;
                 var targetLabels = volumeStructures.getLabelsInGroup(groupIndex);
-
                 var childrenConnectedToTargetGroup = volumeCells.getCellChildrenConnectedToGroupIndex(0, groupIndex, childType);
                 var children = childrenConnectedToTargetGroup.indexes;
                 var partnerOffsets = childrenConnectedToTargetGroup.partners;
 
-                for (k = 0; k < children.length; ++k) {
+                // Check for sanity...
+                var partner, targetCellId, targetCell, k;
+                if (groupIndex == volumeStructures.getGroupIndexInClass()) {
 
-                    var partner = volumeCells.getCellChildPartnerAt(0, children[k]);
+                    // When looking at the in class group, we should only find children pointing to cells with the same
+                    // label AND that are NOT the starting cell.
+                    for (k = 0; k < children.length; ++k) {
+                        partner = volumeCells.getCellChildPartnerAt(0, children[k]);
+                        targetCellId = partner.parentId[partnerOffsets[k]];
+                        targetCell = volumeCells.getCell(targetCellId);
+                        expect(targetCell.label == 'CBb5w').toBeTruthy();
+                        expect(targetCellId != 6115).toBeTruthy();
+                    }
 
-                    var targetCellId = partner.parentId[partnerOffsets[k]];
-                    var targetCell = volumeCells.getCell(targetCellId);
+                } else if (groupIndex == volumeStructures.getGroupIndexSelf()) {
 
-                    expect(targetLabels.indexOf(targetCell.label) != -1).toBeTruthy();
+                    // The only children returned should point back to cell 6115.
+                    for (k = 0; k < children.length; ++k) {
+                        partner = volumeCells.getCellChildPartnerAt(0, children[k]);
+                        targetCellId = partner.parentId[partnerOffsets[k]];
+                        targetCell = volumeCells.getCell(targetCellId);
+                        expect(targetCellId == id).toBeTruthy();
+                    }
+
+                } else {
+
+                    // Children returned should be in the desired label. They should also not be in the same group
+                    // nor the starting cell.
+                    for (k = 0; k < children.length; ++k) {
+                        partner = volumeCells.getCellChildPartnerAt(0, children[k]);
+                        targetCellId = partner.parentId[partnerOffsets[k]];
+                        targetCell = volumeCells.getCell(targetCellId);
+
+                        // Check target label in correct group.
+                        expect(targetLabels.indexOf(targetCell.label) != -1).toBeTruthy();
+
+                        // Check target label not in same class. This should be caught above.
+                        expect(volumeCells.getCell(id).label != targetCell.label).toBeTruthy();
+
+                        // Check that target cell is not self. This should be caught by 'self'
+                        expect(targetCellId != id).toBeTruthy();
+                    }
                 }
             }
         }
@@ -367,6 +440,8 @@ describe('VolumeStructures service test', function () {
         expect(groups[1] == 3).toBeTruthy();
         expect(groups[2] == 5).toBeTruthy();
         expect(groups[3] == 10).toBeTruthy();
+        expect(groups[4] == 11).toBeTruthy();
+        expect(groups[5] == 12).toBeTruthy();
     });
 
 });

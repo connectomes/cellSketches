@@ -84,15 +84,23 @@
         }
 
         function getAllAvailableGroups() {
+
             var groups = [];
             for(var i=0; i<volumeStructures.getNumGroups(); ++i) {
+
+                if(i == volumeStructures.getGroupIndexInClass() || i == volumeStructures.getGroupIndexSelf()) {
+                    groups.push(i);
+                }
+
                 var labels = volumeStructures.getLabelsInGroup(i);
+
                 for(var j=0; j<self.cells.length; ++j) {
                     if (labels.indexOf(self.cells[j].label) != -1) {
                         groups.push(i);
                         break;
                     }
                 }
+
             }
             return groups;
         }
@@ -169,7 +177,7 @@
         }
 
         function getCellChildrenConnectedToGroupIndex(cellIndex, groupIndex, childType) {
-            var targetIndexes = getCellIndexesInGroup(groupIndex);
+            var targetIndexes = getCellIndexesInGroup(groupIndex, cellIndex);
             return getCellChildrenConnectedToIndexes(cellIndex, targetIndexes, childType);
         }
 
@@ -435,14 +443,30 @@
          * @name getCellIndexesInGroup
          * @desc Returns a list of the loaded cell indexes that are in the
          * @param groupIndex -- see volumeStructure's groups.
+         * @param cellIndex is needed b/c groups like 'in class' and 'self' are defined relative to a cell
          */
-        function getCellIndexesInGroup(groupIndex) {
+        function getCellIndexesInGroup(groupIndex, cellIndex) {
             var indexes = [];
-            var labels = volumeStructures.getLabelsInGroup(groupIndex);
+            var labels = [];
+
+            var cellLabel = self.cells[cellIndex].label;
+            if (groupIndex == volumeStructures.getGroupIndexSelf()) {
+                return [cellIndex];
+            }
+
+            if (groupIndex == volumeStructures.getGroupIndexInClass()) {
+                labels.push(self.cells[cellIndex].label);
+            } else {
+                labels = volumeStructures.getLabelsInGroup(groupIndex);
+
+                var indexInLabels = labels.indexOf(cellLabel);
+                if (indexInLabels != -1) {
+                    labels.splice(indexInLabels, 1);
+                }
+            }
 
             for (var i = 0; i < self.cells.length; ++i) {
-
-                if (labels.indexOf(self.cells[i].label) != -1) {
+                if (labels.indexOf(self.cells[i].label) != -1 && i != cellIndex) {
                     indexes.push(i);
                 }
             }

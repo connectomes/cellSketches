@@ -37,7 +37,7 @@ describe('VolumeStructures service test', function () {
         volumeStructures.activateCellLabelGroups();
         httpBackend.flush();
 
-        expect(volumeStructures.getNumGroups() == 11).toBeTruthy();
+        expect(volumeStructures.getNumGroups() == 13).toBeTruthy();
         expect(volumeStructures.getGroupAt(0) == 'CBb').toBeTruthy();
     });
 
@@ -50,6 +50,21 @@ describe('VolumeStructures service test', function () {
         expect(volumeStructures.getGroupOfLabel('Rod BC') == 4).toBeTruthy();
 
         expect(volumeStructures.getLabelsInGroup(4)[0] == 'Rod BC').toBeTruthy();
+
+    });
+
+    it('Accessing self and in label groups', function () {
+
+        volumeStructures.activateCellLabelGroups();
+        httpBackend.flush();
+
+        var groupIndex = volumeStructures.getGroupIndexInClass();
+        var groupName = volumeStructures.getGroupAt(groupIndex);
+        expect(groupName == 'In Class').toBeTruthy();
+
+        groupIndex = volumeStructures.getGroupIndexSelf();
+        groupName = volumeStructures.getGroupAt(groupIndex);
+        expect(groupName == 'Self').toBeTruthy();
 
     });
 });

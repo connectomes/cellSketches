@@ -20,11 +20,16 @@
             getChildStructureTypeAt: getChildStructureTypeAt,
             getChildStructureTypeCodeAt: getChildStructureTypeCodeAt,
             getChildStructureTypeNameAt: getChildStructureTypeNameAt,
+            getChildStructureTypeName: getChildStructureTypeName,
             getGroupAt: getGroupAt,
+            getGroupIndex: getGroupIndex,
             getGroupOfLabel: getGroupOfLabel,
+            getGroupIndexInClass: getGroupIndexInClass,
+            getGroupIndexSelf: getGroupIndexSelf,
             getLabelsInGroup: getLabelsInGroup,
             getNumChildStructureTypes: getNumChildStructureTypes,
-            getNumGroups: getNumGroups
+            getNumGroups: getNumGroups,
+            isLabelInGroup: isLabelInGroup
         };
 
         return service;
@@ -73,6 +78,16 @@
 
             function parseCellLabels(data) {
                 self.labelGroups = data.data.values;
+
+                self.labelGroups.push({
+                    "name":"In Class",
+                    "labels": []
+                });
+
+                self.labelGroups.push({
+                    "name": "Self",
+                    "labels": []
+                });
             }
 
             function failedCellLabels(data) {
@@ -87,7 +102,19 @@
         }
 
         function getChildStructureTypeNameAt(index) {
+            console.log(index);
             return self.structureTypes[self.childStructureTypeIndexes[index]].name;
+        }
+
+        function getChildStructureTypeName(id) {
+            for(var i=0; i<self.childStructureTypeIndexes.length; ++i) {
+                var structureIndex = self.childStructureTypeIndexes[i];
+                var currStructure = self.structureTypes[structureIndex];
+                if (currStructure.id == id) {
+                    return currStructure.name;
+                }
+            }
+            throw 'Asked for invalid structure type name';
         }
 
         function getChildStructureTypeCodeAt(index) {
@@ -96,6 +123,25 @@
 
         function getGroupAt(index) {
             return self.labelGroups[index].name;
+        }
+
+        function getGroupIndex(groupName) {
+
+            for(var i=0; i<self.labelGroups.length; ++i) {
+                if (self.labelGroups[i].name == groupName) {
+                    return i;
+                }
+            }
+
+            return -1;
+        }
+
+        function getGroupIndexInClass() {
+            return getGroupIndex("In Class");
+        }
+
+        function getGroupIndexSelf() {
+            return getGroupIndex("Self");
         }
 
         function getGroupOfLabel(label) {
@@ -108,7 +154,7 @@
         }
 
         function getLabelsInGroup(index) {
-            return self.labelGroups[index].labels;
+            return angular.copy(self.labelGroups[index].labels);
         }
 
         function getNumChildStructureTypes() {
@@ -117,6 +163,11 @@
 
         function getNumGroups() {
             return self.labelGroups.length;
+        }
+
+        function isLabelInGroup(label, groupIndex) {
+            var labels = self.labelGroups[groupIndex].labels;
+            return labels.indexOf(label) != -1;
         }
     }
 }());
