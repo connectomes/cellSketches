@@ -21,6 +21,8 @@
         self.maxCellsInFilter = 15;
 
         var service = {
+            getAllAvailableChildTypes: getAllAvailableChildTypes,
+            getAllAvailableGroups: getAllAvailableGroups,
             getCell: getCell,
             getCellAt: getCellAt,
             getCellChildAt: getCellChildAt,
@@ -63,6 +65,36 @@
 
         function failure(err) {
             throw err;
+        }
+
+        function getAllAvailableChildTypes() {
+            var childTypes = [];
+            for(var i=0; i<self.cells.length; ++i) {
+                var children = self.cellChildren[i];
+                if(children) {
+                    for (var j = 0; j < children.length; ++j) {
+                        var currType = children[j].type;
+                        if (childTypes.indexOf(currType) == -1) {
+                            childTypes.push(currType);
+                        }
+                    }
+                }
+            }
+            return childTypes;
+        }
+
+        function getAllAvailableGroups() {
+            var groups = [];
+            for(var i=0; i<volumeStructures.getNumGroups(); ++i) {
+                var labels = volumeStructures.getLabelsInGroup(i);
+                for(var j=0; j<self.cells.length; ++j) {
+                    if (labels.indexOf(self.cells[j].label) != -1) {
+                        groups.push(i);
+                        break;
+                    }
+                }
+            }
+            return groups;
         }
 
         function getCell(cellId) {
@@ -137,7 +169,8 @@
         }
 
         function getCellChildrenConnectedToGroupIndex(cellIndex, groupIndex, childType) {
-            return [];
+            var targetIndexes = getCellIndexesInGroup(groupIndex);
+            return getCellChildrenConnectedToIndexes(cellIndex, targetIndexes, childType);
         }
 
         function getCellChildAt(cellIndex, childIndex) {

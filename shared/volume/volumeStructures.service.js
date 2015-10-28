@@ -79,7 +79,7 @@
                 console.log('shit!');
             }
 
-            return $http.get('shared/volume/labelGroups.json').then(parseCellLabels, failedCellLabels)
+            return $http.get('../shared/volume/labelGroups.json').then(parseCellLabels, failedCellLabels)
         }
 
         function getChildStructureTypeAt(index) {

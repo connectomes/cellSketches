@@ -10,58 +10,99 @@
     function ExampleController($scope, $q, volumeOData, volumeBounds, volumeLayers, volumeCells, volumeStructures) {
 
         var self = this;
+        self.cells = [];
 
         function cellsLoaded(results) {
-            var cells = results[0].validIds;
-            var numCells = cells.length;
+            self.cells = results[0].validIds;
+            var numCells = self.cells.length;
             var promises = []; // Load cell children that the user asked for.
+
             for (var j = 0; j < numCells; ++j) {
-                var cellIndex = volumeCells.getCellIndex(cells[j]);
+                var cellIndex = volumeCells.getCellIndex(self.cells[j]);
                 promises[j] = volumeCells.loadCellChildrenAt(cellIndex);
             }
 
             // Load all cell neighbors and locations
-            $q.all(promises).then(function () {
-                promises = [];
+            $q.all(promises).then(childrenLoaded, cellsFailed);
 
-                for (var j = 0; j < numCells; ++j) {
-                    var cellIndex = volumeCells.getCellIndex(cells[j]);
-                    promises.push(volumeCells.loadCellChildrenEdgesAt(cellIndex));
-                    promises.push(volumeCells.loadCellLocationsAt(cellIndex));
-                }
-
-                $q.all(promises).then(function () {
-
-                    volumeCells.loadCellNeighborsAt(0).then(function () {
-                        // Now we're finished loading cells from http.
-                        var data = '';
-                        for (var i = 0; i < volumeStructures.getNumChildStructureTypes(); ++i) {
-                            var childTypeId = volumeStructures.getChildStructureTypeAt(i);
-                            var children = volumeCells.getCellChildrenByTypeIndexes(0, childTypeId);
-                            console.log(childTypeId + ', ' + children.length);
-                            var neighbors = [];
-                            for (j = 0; j < children.length; ++j) {
-                                var childIndex = children[j];
-                                var cellPartner = volumeCells.getCellChildPartnerAt(0, childIndex);
-                                for(var k=0; k<cellPartner.parentId.length; ++k) {
-                                    neighbors.push(cellPartner.parentId);
-                                    data = data + childTypeId + ', ' + volumeCells.getCellChildAt(0, childIndex).id + ', ' + cellPartner.parentId[k] + '\n';
-                                }
-
-                            }
-                        }
-
-
-                        var blob = new Blob([data], {type: "text"});
-                        saveAs(blob, 'test.csv');
-
-                    });
-                });
-            });
         }
 
         function cellsFailed(results) {
             console.log('shit');
+        }
+
+        function childrenLoaded() {
+
+            var promises = [];
+
+            for (var j = 0; j < self.cells.length; ++j) {
+                var cellIndex = volumeCells.getCellIndex(self.cells[j]);
+                promises.push(volumeCells.loadCellChildrenEdgesAt(cellIndex));
+                promises.push(volumeCells.loadCellLocationsAt(cellIndex));
+            }
+
+            $q.all(promises).then(edgesLoaded, cellsFailed);
+
+        }
+
+        function edgesLoaded() {
+
+            var promises = [];
+
+            for (var j = 0; j < self.cells.length; ++j) {
+                var cellIndex = volumeCells.getCellIndex(self.cells[j]);
+                promises.push(volumeCells.loadCellNeighborsAt(cellIndex));
+            }
+
+            $q.all(promises).then(neighborsLoaded, cellsFailed);
+
+        }
+
+        function neighborsLoaded() {
+
+            /*
+             var data = '';
+             for (var i = 0; i < volumeStructures.getNumChildStructureTypes(); ++i) {
+             var childTypeId = volumeStructures.getChildStructureTypeAt(i);
+             var children = volumeCells.getCellChildrenByTypeIndexes(0, childTypeId);
+             console.log(childTypeId + ', ' + children.length);
+             var neighbors = [];
+             for (var j = 0; j < children.length; ++j) {
+             var childIndex = children[j];
+             var cellPartner = volumeCells.getCellChildPartnerAt(0, childIndex);
+             for(var k=0; k<cellPartner.parentId.length; ++k) {
+             neighbors.push(cellPartner.parentId);
+             data = data + childTypeId + ', ' + volumeCells.getCellChildAt(0, childIndex).id + ', ' + cellPartner.parentId[k] + '\n';
+             }
+             }
+             }*/
+            var availableChildTypes = volumeCells.getAllAvailableChildTypes();
+            var availableGroups = volumeCells.getAllAvailableGroups();
+            var data = 'child type, ';
+
+            for (var j = 0; j < availableGroups.length; ++j) {
+                data = data + volumeStructures.getGroupAt(j) + ', ';
+            }
+
+            data += '\n';
+            console.log(self.cells);
+            for (var i = 0; i < self.cells.length; ++i) {
+                var cellIndex = volumeCells.getCellIndex(self.cells[i]);
+
+                for (var k = 0; k < availableChildTypes.length; ++k) {
+                    var currChildType = availableChildTypes[k];
+                    data += volumeStructures.getChildStructureTypeNameAt(k) + ', ';
+                    for (j = 0; j < availableGroups.length; ++j) {
+                        var currGroup = availableGroups[j];
+                        var childrenInGroup = volumeCells.getCellChildrenConnectedToGroupIndex(cellIndex, currGroup, currChildType).indexes;
+                        data += childrenInGroup.length + ', ';
+                    }
+                    data += '\n';
+                }
+            }
+
+            var blob = new Blob([data], {type: "text"});
+            saveAs(blob, 'test.csv');
         }
 
         function activate() {
@@ -72,10 +113,11 @@
 
             var cellId = 606;
             volumeStructures.activate().then(function () {
-                volumeCells.loadCellId(606).then(cellsLoaded, cellsFailed);
+                volumeStructures.activateCellLabelGroups().then(function() {
+                    volumeCells.loadCellIds([6117, 6115]).then(cellsLoaded, cellsFailed);
+                });
             });
         }
-
 
         activate();
     }

@@ -9,6 +9,7 @@ describe('VolumeStructures service test', function () {
     var loadCell6115Children = 'http://websvc1.connectomes.utah.edu/RC1/OData/Structures?$filter=(ParentID eq 6115)&$expand=Locations($select=Radius,VolumeX,VolumeY,Z,ParentID,ID)';
     var loadCell6115ChildrenEdges = 'http://websvc1.connectomes.utah.edu/RC1/OData/Structures(6115)/Children?$expand=SourceOfLinks($expand=Target($select=ParentID)),TargetOfLinks($expand=Source($select=ParentID))';
     var loadCell6115Neighbors = 'http://websvc1.connectomes.utah.edu/RC1/OData/Structures?$filter=(ID eq 69493 or ID eq 86246 or ID eq 69496 or ID eq 69503 or ID eq 69500 or ID eq 72451 or ID eq 32970 or ID eq 8577 or ID eq 16087 or ID eq 66696)';
+
     beforeEach(function () {
         module('app.volumeModule');
     });
@@ -18,10 +19,16 @@ describe('VolumeStructures service test', function () {
         volumeStructures = _volumeStructures_;
         httpBackend = $httpBackend;
 
+        // Prepare for volumeStructure queries.
         httpBackend.when('GET', structureQuery).respond(
             readJSON('tests/mock/cell6117.json')
         );
 
+        httpBackend.when('GET', 'http://websvc1.connectomes.utah.edu/RC1/OData/StructureTypes').respond(
+            readJSON('tests/mock/childrenStitching/childStructureTypes.json')
+        );
+
+        // Prepare for volumeCells queries.
         httpBackend.when('GET', loadLocalQuery).respond(
             readJSON('tests/mock/volumeCells.startsWithCBb4w.json'));
 
@@ -40,7 +47,7 @@ describe('VolumeStructures service test', function () {
         httpBackend.when('GET', loadCell6115Neighbors).respond(
             readJSON('tests/mock/childrenStitching/6115Neighbors.json'));
 
-        httpBackend.when('GET', 'shared/volume/labelGroups.json').respond(
+        httpBackend.when('GET', '../shared/volume/labelGroups.json').respond(
             readJSON('shared/volume/labelGroups.json')
         );
     }));
@@ -263,6 +270,103 @@ describe('VolumeStructures service test', function () {
 
     it('get children in group by type', function () {
 
+        var id = 6115;
+
+        volumeStructures.activate();
+        httpBackend.flush();
+
+        volumeStructures.activateCellLabelGroups();
+        httpBackend.flush();
+
+        volumeCells.loadCellId(id);
+        httpBackend.flush();
+
+        volumeCells.loadCellChildrenAt(0);
+        httpBackend.flush();
+
+        volumeCells.loadCellChildrenEdgesAt(0);
+        httpBackend.flush();
+
+        volumeCells.loadCellNeighborsAt(0);
+        httpBackend.flush();
+
+        for (var i = 0; i < volumeStructures.getNumChildStructureTypes(); ++i) {
+
+            var childType = volumeStructures.getChildStructureTypeAt(i);
+
+            for(var j=0; j<volumeStructures.getNumGroups(); ++j) {
+
+                var groupIndex = j;
+                var targetLabels = volumeStructures.getLabelsInGroup(groupIndex);
+
+                var childrenConnectedToTargetGroup = volumeCells.getCellChildrenConnectedToGroupIndex(0, groupIndex, childType);
+                var children = childrenConnectedToTargetGroup.indexes;
+                var partnerOffsets = childrenConnectedToTargetGroup.partners;
+
+                for (k = 0; k < children.length; ++k) {
+
+                    var partner = volumeCells.getCellChildPartnerAt(0, children[k]);
+
+                    var targetCellId = partner.parentId[partnerOffsets[k]];
+                    var targetCell = volumeCells.getCell(targetCellId);
+
+                    expect(targetLabels.indexOf(targetCell.label) != -1).toBeTruthy();
+                }
+            }
+        }
+    });
+
+    it('getAllAvailableChildTypes', function () {
+
+        var id = 6115;
+
+        volumeStructures.activate();
+        httpBackend.flush();
+
+        volumeStructures.activateCellLabelGroups();
+        httpBackend.flush();
+
+        volumeCells.loadCellId(id);
+        httpBackend.flush();
+
+        volumeCells.loadCellChildrenAt(0);
+        httpBackend.flush();
+
+        var availableChildren = volumeCells.getAllAvailableChildTypes();
+
+        expect(availableChildren[0] == 73).toBeTruthy();
+        expect(availableChildren[1] == 35).toBeTruthy();
+        expect(availableChildren[2] == 28).toBeTruthy();
+    });
+
+    it('getAllAvailableGroups', function () {
+
+        var id = 6115;
+
+        volumeStructures.activate();
+        httpBackend.flush();
+
+        volumeStructures.activateCellLabelGroups();
+        httpBackend.flush();
+
+        volumeCells.loadCellId(id);
+        httpBackend.flush();
+
+        volumeCells.loadCellChildrenAt(0);
+        httpBackend.flush();
+
+        volumeCells.loadCellChildrenEdgesAt(0);
+        httpBackend.flush();
+
+        volumeCells.loadCellNeighborsAt(0);
+        httpBackend.flush();
+
+        var groups = volumeCells.getAllAvailableGroups();
+
+        expect(groups[0] == 0).toBeTruthy();
+        expect(groups[1] == 3).toBeTruthy();
+        expect(groups[2] == 5).toBeTruthy();
+        expect(groups[3] == 10).toBeTruthy();
     });
 
 });
