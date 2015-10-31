@@ -16,7 +16,6 @@
 
         var service = {
             activate: activate,
-            activateCellLabelGroups: activateCellLabelGroups,
             getChildStructureTypeAt: getChildStructureTypeAt,
             getChildStructureTypeCodeAt: getChildStructureTypeCodeAt,
             getChildStructureTypeNameAt: getChildStructureTypeNameAt,
@@ -29,12 +28,21 @@
             getLabelsInGroup: getLabelsInGroup,
             getNumChildStructureTypes: getNumChildStructureTypes,
             getNumGroups: getNumGroups,
-            isLabelInGroup: isLabelInGroup
+            isLabelInGroup: isLabelInGroup,
+            loadStructureTypes: loadStructureTypes,
+            loadCellLabelGroups: loadCellLabelGroups
         };
 
         return service;
 
         function activate() {
+            var promises = [];
+            promises.push(loadCellLabelGroups());
+            promises.push(loadStructureTypes());
+            return $q.all(promises);
+        }
+
+        function loadStructureTypes() {
 
             var deferred = $q.defer();
 
@@ -74,7 +82,7 @@
             return deferred.promise;
         }
 
-        function activateCellLabelGroups() {
+        function loadCellLabelGroups() {
 
             function parseCellLabels(data) {
                 self.labelGroups = data.data.values;

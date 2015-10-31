@@ -1,15 +1,8 @@
 describe('VolumeStructures service test', function () {
 
     var volumeCells, httpBackend;
-    var structureQuery = 'http://websvc1.connectomes.utah.edu/RC1/OData/Structures?$filter=(ID eq 6117)';
-    var loadLocalQuery = '../tests/mock/volumeCells.startsWithCBb4w.json';
-    var invalidCellQuery = 'http://websvc1.connectomes.utah.edu/RC1/OData/Structures?$filter=(ID eq 6117 or ID eq -1)';
 
-    var loadCell6115 = 'http://websvc1.connectomes.utah.edu/RC1/OData/Structures?$filter=(ID eq 6115)';
-    var loadCell6115Children = 'http://websvc1.connectomes.utah.edu/RC1/OData/Structures?$filter=(ParentID eq 6115)&$expand=Locations($select=Radius,VolumeX,VolumeY,Z,ParentID,ID)';
-    var loadCell6115ChildrenEdges = 'http://websvc1.connectomes.utah.edu/RC1/OData/Structures(6115)/Children?$expand=SourceOfLinks($expand=Target($select=ParentID)),TargetOfLinks($expand=Source($select=ParentID))';
-    var loadCell6115Neighbors = 'http://websvc1.connectomes.utah.edu/RC1/OData/Structures?$filter=(ID eq 69493 or ID eq 86246 or ID eq 69496 or ID eq 69503 or ID eq 69500 or ID eq 72451 or ID eq 32970 or ID eq 8577 or ID eq 16087 or ID eq 66696)';
-
+    // Testing setup
     beforeEach(function () {
         module('app.volumeModule');
     });
@@ -19,48 +12,75 @@ describe('VolumeStructures service test', function () {
         volumeStructures = _volumeStructures_;
         httpBackend = $httpBackend;
 
-        // Prepare for volumeStructure queries.
-        httpBackend.when('GET', structureQuery).respond(
-            readJSON('tests/mock/cell6117.json')
+        // Requests that will be created by various tests.
+        var loadCell6115Invalid = 'http://websvc1.connectomes.utah.edu/RC1/OData/Structures?$filter=(ID eq 6115 or ID eq -1)';
+        var loadCell6115 = 'http://websvc1.connectomes.utah.edu/RC1/OData/Structures?$filter=(ID eq 6115)';
+        var loadCell6115Children = 'http://websvc1.connectomes.utah.edu/RC1/OData/Structures?$filter=(ParentID eq 6115)&$expand=Locations($select=Radius,VolumeX,VolumeY,Z,ParentID,ID)';
+        var loadCell6115ChildrenEdges = 'http://websvc1.connectomes.utah.edu/RC1/OData/Structures(6115)/Children?$expand=SourceOfLinks($expand=Target($select=ParentID)),TargetOfLinks($expand=Source($select=ParentID))';
+        var loadCell6115Neighbors = 'http://websvc1.connectomes.utah.edu/RC1/OData/Structures?$filter=(ID eq 69493 or ID eq 86246 or ID eq 69496 or ID eq 69503 or ID eq 69500 or ID eq 72451 or ID eq 32970 or ID eq 8577 or ID eq 16087 or ID eq 66696)';
+        var loadChildStructureTypes = 'http://websvc1.connectomes.utah.edu/RC1/OData/StructureTypes';
+
+        // Fake responses for tests that use only volume cells.
+        httpBackend.when('GET', loadCell6115Invalid).respond(
+            readJSON('tests/mock/cell6115.json')
         );
-
-        httpBackend.when('GET', 'http://websvc1.connectomes.utah.edu/RC1/OData/StructureTypes').respond(
-            readJSON('tests/mock/childrenStitching/childStructureTypes.json')
-        );
-
-        // Prepare for volumeCells queries.
-        httpBackend.when('GET', loadLocalQuery).respond(
-            readJSON('tests/mock/volumeCells.startsWithCBb4w.json'));
-
-        httpBackend.when('GET', invalidCellQuery).respond(
-            readJSON('tests/mock/cell6117.json'));
 
         httpBackend.when('GET', loadCell6115).respond(
-            readJSON('tests/mock/childrenStitching/6115.json'));
+            readJSON('tests/mock/cell6115.json')
+        );
 
         httpBackend.when('GET', loadCell6115Children).respond(
-            readJSON('tests/mock/childrenStitching/6115Children.json'));
+            readJSON('tests/mock/cell6115Children.json')
+        );
 
         httpBackend.when('GET', loadCell6115ChildrenEdges).respond(
-            readJSON('tests/mock/childrenStitching/6115ChildrenEdges.json'));
+            readJSON('tests/mock/cell6115ChildrenEdges.json')
+        );
 
         httpBackend.when('GET', loadCell6115Neighbors).respond(
-            readJSON('tests/mock/childrenStitching/6115Neighbors.json'));
+            readJSON('tests/mock/cell6115Neighbors.json')
+        );
+
+        // Fake responses for tests that use volumeStructures as well as volumeCells.
+        httpBackend.when('GET', loadChildStructureTypes).respond(
+            readJSON('tests/mock/childStructureTypes.json')
+        );
 
         httpBackend.when('GET', '../shared/volume/labelGroups.json').respond(
             readJSON('shared/volume/labelGroups.json')
         );
+
     }));
 
+    // Testing tear down
     afterEach(function () {
         httpBackend.verifyNoOutstandingExpectation();
         httpBackend.verifyNoOutstandingRequest();
         httpBackend.resetExpectations();
     });
 
-    it('Load cell', function () {
+    // Testing utilities
+    function loadCellAndNeighbors(id) {
 
-        var id = 6117;
+        volumeStructures.activate();
+        httpBackend.flush();
+
+        volumeCells.loadCellId(id);
+        httpBackend.flush();
+
+        volumeCells.loadCellChildrenAt(0);
+        httpBackend.flush();
+
+        volumeCells.loadCellChildrenEdgesAt(0);
+        httpBackend.flush();
+
+        volumeCells.loadCellNeighborsAt(0);
+        httpBackend.flush();
+    }
+
+    // Tests!
+    it('loadCellId', function () {
+        var id = 6115;
 
         volumeCells.loadCellId(id);
 
@@ -69,9 +89,9 @@ describe('VolumeStructures service test', function () {
         expect(volumeCells.getLoadedCellIds().length == 1).toBeTruthy();
     });
 
-    it('Load invalid cell id', function () {
+    it('loadCellId - invalid', function () {
 
-        var ids = [6117, -1];
+        var ids = [6115, -1];
 
         volumeCells.loadCellIds(ids).then(success, failure);
 
@@ -87,7 +107,7 @@ describe('VolumeStructures service test', function () {
 
     });
 
-    it('Get cell children by type', function () {
+    it('getCellChildrenByTypeIndexes', function () {
 
         var id = 6115;
 
@@ -109,7 +129,7 @@ describe('VolumeStructures service test', function () {
         httpBackend.flush();
     });
 
-    it('Load cell children edges', function () {
+    it('loadCellChildrenEdges and getCellChildPartner', function () {
 
         var id = 6115;
 
@@ -121,9 +141,6 @@ describe('VolumeStructures service test', function () {
 
         volumeCells.loadCellChildrenEdgesAt(0);
         httpBackend.flush();
-
-        var expectedNeighborIds = [69493, 86246, 69493, 69496, 69503, 69500, 72451, 32970, 8577, 16087, 66696, 6115];
-        var neighborIds = volumeCells.getCellNeighborIdsAt(0);
 
         // Check connections of first child.
         expect(volumeCells.getCellChildPartnerAt(0, 0).parentId[0] == 69493).toBeTruthy();
@@ -186,20 +203,7 @@ describe('VolumeStructures service test', function () {
 
         var id = 6115;
 
-        volumeStructures.activateCellLabelGroups();
-        httpBackend.flush();
-
-        volumeCells.loadCellId(id);
-        httpBackend.flush();
-
-        volumeCells.loadCellChildrenAt(0);
-        httpBackend.flush();
-
-        volumeCells.loadCellChildrenEdgesAt(0);
-        httpBackend.flush();
-
-        volumeCells.loadCellNeighborsAt(0);
-        httpBackend.flush();
+        loadCellAndNeighbors(id);
 
         var cellIndex = volumeCells.getCellIndex(id);
 
@@ -251,20 +255,9 @@ describe('VolumeStructures service test', function () {
 
         var id = 6115;
 
-        volumeStructures.activateCellLabelGroups();
-        httpBackend.flush();
+        loadCellAndNeighbors(id);
 
-        volumeCells.loadCellId(id);
-        httpBackend.flush();
-
-        volumeCells.loadCellChildrenAt(0);
-        httpBackend.flush();
-
-        volumeCells.loadCellChildrenEdgesAt(0);
-        httpBackend.flush();
-
-        volumeCells.loadCellNeighborsAt(0);
-        httpBackend.flush();
+        var cellIndex = volumeCells.getCellIndex(id);
 
         // What group does the label 'YAC Starburst' belong to?
         var targetGroup = volumeStructures.getGroupOfLabel('YAC Starburst');
@@ -305,27 +298,13 @@ describe('VolumeStructures service test', function () {
         }
     });
 
-    it('get children in group by type', function () {
+    it('getCellChildrenConnectedToGroupIndex', function () {
 
         var id = 6115;
 
-        volumeStructures.activate();
-        httpBackend.flush();
+        loadCellAndNeighbors(id);
 
-        volumeStructures.activateCellLabelGroups();
-        httpBackend.flush();
-
-        volumeCells.loadCellId(id);
-        httpBackend.flush();
-
-        volumeCells.loadCellChildrenAt(0);
-        httpBackend.flush();
-
-        volumeCells.loadCellChildrenEdgesAt(0);
-        httpBackend.flush();
-
-        volumeCells.loadCellNeighborsAt(0);
-        httpBackend.flush();
+        var cellIndex = volumeCells.getCellIndex(id);
 
         // For all of the child types possible...
         for (var i = 0; i < volumeStructures.getNumChildStructureTypes(); ++i) {
@@ -393,17 +372,7 @@ describe('VolumeStructures service test', function () {
 
         var id = 6115;
 
-        volumeStructures.activate();
-        httpBackend.flush();
-
-        volumeStructures.activateCellLabelGroups();
-        httpBackend.flush();
-
-        volumeCells.loadCellId(id);
-        httpBackend.flush();
-
-        volumeCells.loadCellChildrenAt(0);
-        httpBackend.flush();
+        loadCellAndNeighbors(id);
 
         var availableChildren = volumeCells.getAllAvailableChildTypes();
 
@@ -416,23 +385,7 @@ describe('VolumeStructures service test', function () {
 
         var id = 6115;
 
-        volumeStructures.activate();
-        httpBackend.flush();
-
-        volumeStructures.activateCellLabelGroups();
-        httpBackend.flush();
-
-        volumeCells.loadCellId(id);
-        httpBackend.flush();
-
-        volumeCells.loadCellChildrenAt(0);
-        httpBackend.flush();
-
-        volumeCells.loadCellChildrenEdgesAt(0);
-        httpBackend.flush();
-
-        volumeCells.loadCellNeighborsAt(0);
-        httpBackend.flush();
+        loadCellAndNeighbors(id);
 
         var groups = volumeCells.getAllAvailableGroups();
 

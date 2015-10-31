@@ -236,7 +236,8 @@
                         var childIsTarget = targets.length > 0;
 
                         if (childIsTarget && childIsSource) {
-                            throw 'This child edge is fucked!';
+                            console.log(values[i]);
+                            //throw 'This child edge is fucked!';
                         }
 
                         if (values[i].ParentID != cellId) {
