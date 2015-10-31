@@ -397,4 +397,68 @@ describe('VolumeStructures service test', function () {
         expect(groups[5] == 12).toBeTruthy();
     });
 
+    it('getCellNeighborIndexesByChildType', function() {
+
+        var id = 6115;
+
+        loadCellAndNeighbors(id);
+
+        var cellIndex = volumeCells.getCellIndex(id);
+
+        // Cell 6115 has only one gap junction. That gap junction is connected to itself.
+        var neighbors = volumeCells.getCellNeighborIndexesByChildType(cellIndex, 28);
+        console.log(neighbors);
+        expect(neighbors[0].neighborIndex == 0).toBeTruthy();
+        expect(neighbors[0].childIndex == 9).toBeTruthy();
+
+        // Cell 6115 has 5 neighbors from child type 73.
+        neighbors = volumeCells.getCellNeighborIndexesByChildType(cellIndex, 73);
+
+        for(var i=0; i<neighbors.length; ++i) {
+            expect(volumeCells.getCellChildAt(cellIndex, neighbors[i].childIndex).type == 73).toBeTruthy();
+        }
+
+        // The neighbors[0] refers to the first child of cell 6115 with type 73. We expect it to point to the index of
+        // the cell with id 69493.
+        expect(neighbors.length == 5).toBeTruthy();
+        expect(neighbors[0].neighborIndex == volumeCells.getCellIndex(69493)).toBeTruthy();
+        expect(neighbors[1].neighborIndex == volumeCells.getCellIndex(86246)).toBeTruthy();
+        expect(neighbors[2].neighborIndex == volumeCells.getCellIndex(69496)).toBeTruthy();
+        expect(neighbors[3].neighborIndex == volumeCells.getCellIndex(8577)).toBeTruthy();
+        expect(neighbors[4].neighborIndex == volumeCells.getCellIndex(16087)).toBeTruthy();
+    });
+
+    it('getCellNeighborLabelsByChildType', function() {
+
+        var id = 6115;
+
+        loadCellAndNeighbors(id);
+
+        var cellIndex = volumeCells.getCellIndex(id);
+
+        // Children of type 73:
+        // child -> parent of target (label)
+        // 16049 -> 69493 (null), 86246 (null)
+        // 16052 -> 69496 (CBb5w)
+        // 16058 -> 16087 (GC), 8577 (YAC Starburst)
+        var neighbors = volumeCells.getCellNeighborLabelsByChildType(cellIndex, 73);
+
+        expect(neighbors[0].label == 'null').toBeTruthy();
+        expect(neighbors[0].neighborIndexes.length == 2).toBeTruthy();
+        expect(neighbors[0].neighborIndexes.indexOf(volumeCells.getCellIndex(69493)) > -1).toBeTruthy();
+        expect(neighbors[0].neighborIndexes.indexOf(volumeCells.getCellIndex(86246)) > -1).toBeTruthy();
+
+        expect(neighbors[1].label == 'CBb5w').toBeTruthy();
+        expect(neighbors[1].neighborIndexes.length == 1).toBeTruthy();
+        expect(neighbors[1].neighborIndexes.indexOf(volumeCells.getCellIndex(69496)) > -1).toBeTruthy();
+
+        expect(neighbors[2].label == 'YAC Starburst').toBeTruthy();
+        expect(neighbors[2].neighborIndexes.length == 1).toBeTruthy();
+        expect(neighbors[2].neighborIndexes.indexOf(volumeCells.getCellIndex(8577)) > -1).toBeTruthy();
+
+        expect(neighbors[3].label == 'GC').toBeTruthy();
+        expect(neighbors[3].neighborIndexes.length == 1).toBeTruthy();
+        expect(neighbors[3].neighborIndexes.indexOf(volumeCells.getCellIndex(16087)) > -1).toBeTruthy();
+    });
+
 });

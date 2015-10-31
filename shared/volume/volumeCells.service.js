@@ -69,9 +69,9 @@
 
         function getAllAvailableChildTypes() {
             var childTypes = [];
-            for(var i=0; i<self.cells.length; ++i) {
+            for (var i = 0; i < self.cells.length; ++i) {
                 var children = self.cellChildren[i];
-                if(children) {
+                if (children) {
                     for (var j = 0; j < children.length; ++j) {
                         var currType = children[j].type;
                         if (childTypes.indexOf(currType) == -1) {
@@ -86,15 +86,15 @@
         function getAllAvailableGroups() {
 
             var groups = [];
-            for(var i=0; i<volumeStructures.getNumGroups(); ++i) {
+            for (var i = 0; i < volumeStructures.getNumGroups(); ++i) {
 
-                if(i == volumeStructures.getGroupIndexInClass() || i == volumeStructures.getGroupIndexSelf()) {
+                if (i == volumeStructures.getGroupIndexInClass() || i == volumeStructures.getGroupIndexSelf()) {
                     groups.push(i);
                 }
 
                 var labels = volumeStructures.getLabelsInGroup(i);
 
-                for(var j=0; j<self.cells.length; ++j) {
+                for (var j = 0; j < self.cells.length; ++j) {
                     if (labels.indexOf(self.cells[j].label) != -1) {
                         groups.push(i);
                         break;
@@ -308,10 +308,12 @@
                         }
 
                         orderedPartners.push(new utils.CellPartner(currPartnerIds, currPartnerIndexes, currPartnersBidirectional));
-                        resolve();
-                    }
 
-                    var cellIndex = getCellIndex(cellId);
+                        resolve({
+                            validIndexes: [cellIndex],
+                            invalidIndexes: []
+                        });
+                    }
 
                     self.cellChildrenPartners[cellIndex] = orderedPartners;
 
@@ -370,14 +372,17 @@
                     currChildIndex = children[i];
                 }
 
-                var parentId = partners[currChildIndex].parentId;
-
-                if (parentId != -1) {
-                    var partnerParentIndex = getCellIndex(parentId);
-                    neighbors.push({
-                        neighborIndex: partnerParentIndex,
-                        childIndex: currChildIndex
-                    });
+                var parentIds = partners[currChildIndex].parentId;
+                for(var j=0; j<parentIds.length; ++j) {
+                    var currParentId = parentIds[j];
+                    console.log(currParentId);
+                    if (currParentId != -1) {
+                        var parentIndex = getCellIndex(currParentId);
+                        neighbors.push({
+                            neighborIndex: parentIndex,
+                            childIndex: currChildIndex
+                        });
+                    }
                 }
 
             }
@@ -572,12 +577,16 @@
                         children.push(cellChild);
                         locations.push(currChildlocations);
                     }
+
                     self.cellChildren[index] = children;
                     self.cellChildrenLocations[index] = locations;
 
                     //TODO: assert(self.cellChildren[i].length == self.cellChildrenLocations[i].length)
 
-                    resolve();
+                    resolve({
+                        validIndexes: [index],
+                        invalidIndexes: []
+                    });
                 }
 
                 volumeOData.request(request).then(success, failure);
@@ -692,7 +701,11 @@
                         locations.push(location);
                     }
                     self.cellLocations[cellIndex] = locations;
-                    resolve();
+
+                    resolve({
+                        validIndexes: [cellIndex],
+                        invalidIndexes: []
+                    });
                 }
 
                 volumeOData.request(request).then(success, failure);

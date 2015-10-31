@@ -110,7 +110,6 @@
         }
 
         function getChildStructureTypeNameAt(index) {
-            console.log(index);
             return self.structureTypes[self.childStructureTypeIndexes[index]].name;
         }
 
