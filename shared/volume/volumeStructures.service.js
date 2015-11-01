@@ -14,6 +14,9 @@
         self.childStructureTypeIndexes = [];
         self.labelGroups = {};
 
+        self.groupNameInClass = 'In Class';
+        self.groupNameSelf = 'Self';
+
         var service = {
             activate: activate,
             getChildStructureTypeAt: getChildStructureTypeAt,
@@ -25,6 +28,8 @@
             getGroupOfLabel: getGroupOfLabel,
             getGroupIndexInClass: getGroupIndexInClass,
             getGroupIndexSelf: getGroupIndexSelf,
+            getGroupNameInClass: getGroupNameInClass,
+            getGroupNameSelf: getGroupNameSelf,
             getLabelsInGroup: getLabelsInGroup,
             getNumChildStructureTypes: getNumChildStructureTypes,
             getNumGroups: getNumGroups,
@@ -88,7 +93,7 @@
                 self.labelGroups = data.data.values;
 
                 self.labelGroups.push({
-                    "name":"In Class",
+                    "name": "In Class",
                     "labels": []
                 });
 
@@ -114,7 +119,7 @@
         }
 
         function getChildStructureTypeName(id) {
-            for(var i=0; i<self.childStructureTypeIndexes.length; ++i) {
+            for (var i = 0; i < self.childStructureTypeIndexes.length; ++i) {
                 var structureIndex = self.childStructureTypeIndexes[i];
                 var currStructure = self.structureTypes[structureIndex];
                 if (currStructure.id == id) {
@@ -134,7 +139,7 @@
 
         function getGroupIndex(groupName) {
 
-            for(var i=0; i<self.labelGroups.length; ++i) {
+            for (var i = 0; i < self.labelGroups.length; ++i) {
                 if (self.labelGroups[i].name == groupName) {
                     return i;
                 }
@@ -144,11 +149,19 @@
         }
 
         function getGroupIndexInClass() {
-            return getGroupIndex("In Class");
+            return getGroupIndex(self.groupNameInClass);
         }
 
         function getGroupIndexSelf() {
-            return getGroupIndex("Self");
+            return getGroupIndex(self.groupNameSelf);
+        }
+
+        function getGroupNameSelf() {
+            return self.groupNameSelf;
+        }
+
+        function getGroupNameInClass() {
+            return self.groupNameInClass;
         }
 
         function getGroupOfLabel(label) {

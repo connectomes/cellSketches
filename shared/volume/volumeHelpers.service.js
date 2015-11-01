@@ -25,7 +25,6 @@
 
         return service;
 
-
         /**
          * @name getCurrentUnits
          * @returns String equal to either 'nm' or 'px'
@@ -38,25 +37,63 @@
 
             var i, j;
             var targets = [];
+            var cellIndex, cellPartners, label, group;
+
             if (!self.useTargetLabelGroups) {
 
+                // If not using target label groups then return a list of all labels adjacent to cellIndexes.
+
                 for (i = 0; i < cellIndexes.length; ++i) {
-                    var cellIndex = cellIndexes[i];
-                    var cellPartners = volumeCells.getCellNeighborLabelsByChildType(cellIndex, childType);
+
+                    cellIndex = cellIndexes[i];
+                    cellPartners = volumeCells.getCellNeighborLabelsByChildType(cellIndex, childType);
+
                     for (j = 0; j < cellPartners.length; ++j) {
-                        var label = cellPartners[j].label;
+
+                        label = cellPartners[j].label;
                         if (targets.indexOf(label) == -1) {
                             targets.push(label);
                         }
+
                     }
+
                 }
 
             } else {
 
+                // Using target labels. Return a list of all label groups adjacent to cellIndexes.
+
+                var targetIndexes = [];
+
+                for (i = 0; i < cellIndexes.length; ++i) {
+
+                    cellIndex = cellIndexes[i];
+                    cellPartners = volumeCells.getCellNeighborLabelsByChildType(cellIndex, childType);
+
+                    for (j = 0; j < cellPartners.length; ++j) {
+
+                        label = cellPartners[j].label;
+                        group = volumeStructures.getGroupOfLabel(label);
+
+                        if (targetIndexes.indexOf(group) == -1) {
+                            targetIndexes.push(group);
+                        }
+
+                    }
+
+                }
+
+                // Convert indexes back into names.
+                targetIndexes.forEach(function(e, i) {
+                    targets.push(volumeStructures.getGroupAt(e));
+                });
+
+                // Add the self and in-class labels.
+                targets.push(volumeStructures.getGroupNameInClass());
+                targets.push(volumeStructures.getGroupNameSelf());
             }
 
             return targets;
-
         }
 
         function getPerChildAttrGroupedByTarget(cells, childType) {

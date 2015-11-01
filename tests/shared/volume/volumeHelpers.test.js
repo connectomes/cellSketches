@@ -16,7 +16,7 @@ describe('VolumeHelpers service test', function () {
         TestUtils.setup(httpBackend);
     }));
 
-    it('get and setCurrentUnits', function() {
+    it('get and setCurrentUnits', function () {
 
         expect(volumeHelpers.getCurrentUnits() == 'nm').toBeTruthy();
 
@@ -33,7 +33,7 @@ describe('VolumeHelpers service test', function () {
 
     });
 
-    it('get and setUseTargetLabelGroups', function() {
+    it('get and setUseTargetLabelGroups', function () {
 
         expect(volumeHelpers.isUsingTargetLabelGroups()).toBeTruthy();
 
@@ -44,7 +44,7 @@ describe('VolumeHelpers service test', function () {
         expect(volumeHelpers.isUsingTargetLabelGroups()).toBeTruthy();
     });
 
-    it('getPerChildTargetNames without groups', function() {
+    it('getPerChildTargetNames without groups', function () {
 
         var id = 6115;
         TestUtils.loadCellAndNeighbors(id, volumeCells, volumeStructures, httpBackend);
@@ -59,8 +59,30 @@ describe('VolumeHelpers service test', function () {
 
         // Check that we found all the targets!
         var actualTargets = ['YAC Starburst', 'GC', 'AC', 'null', 'CBb5w'];
-        for(var i=0; i<actualTargets.length; ++i) {
+        for (var i = 0; i < actualTargets.length; ++i) {
             expect(targets.indexOf(actualTargets[i]) != -1).toBeTruthy();
         }
     });
+
+    it('getPerChildTargetNames with groups', function () {
+
+        var id = 6115;
+        TestUtils.loadCellAndNeighbors(id, volumeCells, volumeStructures, httpBackend);
+        volumeHelpers.setUseTargetLabelGroups(true);
+
+        var cellIndexes = [0];
+        var targets = volumeHelpers.getPerChildTargetNames(cellIndexes);
+
+        // List of target groups from looking at cell 6115's neighbors.
+        var expectedTargets = ['null', 'CBb', 'YAC', 'GC', 'In Class', 'Self'];
+
+        targets.forEach(function (e, i) {
+            expect(e == expectedTargets[i]).toBeTruthy();
+        });
+
+    });
+
+    it('getPerChildTargetAttributes', function() {
+
+    })
 });
