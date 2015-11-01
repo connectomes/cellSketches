@@ -373,9 +373,8 @@
                 }
 
                 var parentIds = partners[currChildIndex].parentId;
-                for(var j=0; j<parentIds.length; ++j) {
+                for (var j = 0; j < parentIds.length; ++j) {
                     var currParentId = parentIds[j];
-                    console.log(currParentId);
                     if (currParentId != -1) {
                         var parentIndex = getCellIndex(currParentId);
                         neighbors.push({

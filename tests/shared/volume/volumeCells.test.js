@@ -1,4 +1,4 @@
-describe('VolumeStructures service test', function () {
+describe('VolumeCells service test', function () {
 
     var volumeCells, httpBackend;
 
@@ -12,71 +12,14 @@ describe('VolumeStructures service test', function () {
         volumeStructures = _volumeStructures_;
         httpBackend = $httpBackend;
 
-        // Requests that will be created by various tests.
-        var loadCell6115Invalid = 'http://websvc1.connectomes.utah.edu/RC1/OData/Structures?$filter=(ID eq 6115 or ID eq -1)';
-        var loadCell6115 = 'http://websvc1.connectomes.utah.edu/RC1/OData/Structures?$filter=(ID eq 6115)';
-        var loadCell6115Children = 'http://websvc1.connectomes.utah.edu/RC1/OData/Structures?$filter=(ParentID eq 6115)&$expand=Locations($select=Radius,VolumeX,VolumeY,Z,ParentID,ID)';
-        var loadCell6115ChildrenEdges = 'http://websvc1.connectomes.utah.edu/RC1/OData/Structures(6115)/Children?$expand=SourceOfLinks($expand=Target($select=ParentID)),TargetOfLinks($expand=Source($select=ParentID))';
-        var loadCell6115Neighbors = 'http://websvc1.connectomes.utah.edu/RC1/OData/Structures?$filter=(ID eq 69493 or ID eq 86246 or ID eq 69496 or ID eq 69503 or ID eq 69500 or ID eq 72451 or ID eq 32970 or ID eq 8577 or ID eq 16087 or ID eq 66696)';
-        var loadChildStructureTypes = 'http://websvc1.connectomes.utah.edu/RC1/OData/StructureTypes';
-
-        // Fake responses for tests that use only volume cells.
-        httpBackend.when('GET', loadCell6115Invalid).respond(
-            readJSON('tests/mock/cell6115.json')
-        );
-
-        httpBackend.when('GET', loadCell6115).respond(
-            readJSON('tests/mock/cell6115.json')
-        );
-
-        httpBackend.when('GET', loadCell6115Children).respond(
-            readJSON('tests/mock/cell6115Children.json')
-        );
-
-        httpBackend.when('GET', loadCell6115ChildrenEdges).respond(
-            readJSON('tests/mock/cell6115ChildrenEdges.json')
-        );
-
-        httpBackend.when('GET', loadCell6115Neighbors).respond(
-            readJSON('tests/mock/cell6115Neighbors.json')
-        );
-
-        // Fake responses for tests that use volumeStructures as well as volumeCells.
-        httpBackend.when('GET', loadChildStructureTypes).respond(
-            readJSON('tests/mock/childStructureTypes.json')
-        );
-
-        httpBackend.when('GET', '../shared/volume/labelGroups.json').respond(
-            readJSON('shared/volume/labelGroups.json')
-        );
+        TestUtils.setup(httpBackend);
 
     }));
 
     // Testing tear down
     afterEach(function () {
-        httpBackend.verifyNoOutstandingExpectation();
         httpBackend.verifyNoOutstandingRequest();
-        httpBackend.resetExpectations();
     });
-
-    // Testing utilities
-    function loadCellAndNeighbors(id) {
-
-        volumeStructures.activate();
-        httpBackend.flush();
-
-        volumeCells.loadCellId(id);
-        httpBackend.flush();
-
-        volumeCells.loadCellChildrenAt(0);
-        httpBackend.flush();
-
-        volumeCells.loadCellChildrenEdgesAt(0);
-        httpBackend.flush();
-
-        volumeCells.loadCellNeighborsAt(0);
-        httpBackend.flush();
-    }
 
     // Tests!
     it('loadCellId', function () {
@@ -203,7 +146,7 @@ describe('VolumeStructures service test', function () {
 
         var id = 6115;
 
-        loadCellAndNeighbors(id);
+        TestUtils.loadCellAndNeighbors(id, volumeCells, volumeStructures, httpBackend);
 
         var cellIndex = volumeCells.getCellIndex(id);
 
@@ -255,7 +198,7 @@ describe('VolumeStructures service test', function () {
 
         var id = 6115;
 
-        loadCellAndNeighbors(id);
+        TestUtils.loadCellAndNeighbors(id, volumeCells, volumeStructures, httpBackend);
 
         var cellIndex = volumeCells.getCellIndex(id);
 
@@ -302,7 +245,7 @@ describe('VolumeStructures service test', function () {
 
         var id = 6115;
 
-        loadCellAndNeighbors(id);
+        TestUtils.loadCellAndNeighbors(id, volumeCells, volumeStructures, httpBackend);
 
         var cellIndex = volumeCells.getCellIndex(id);
 
@@ -372,7 +315,7 @@ describe('VolumeStructures service test', function () {
 
         var id = 6115;
 
-        loadCellAndNeighbors(id);
+        TestUtils.loadCellAndNeighbors(id, volumeCells, volumeStructures, httpBackend);
 
         var availableChildren = volumeCells.getAllAvailableChildTypes();
 
@@ -385,7 +328,7 @@ describe('VolumeStructures service test', function () {
 
         var id = 6115;
 
-        loadCellAndNeighbors(id);
+        TestUtils.loadCellAndNeighbors(id, volumeCells, volumeStructures, httpBackend);
 
         var groups = volumeCells.getAllAvailableGroups();
 
@@ -401,13 +344,12 @@ describe('VolumeStructures service test', function () {
 
         var id = 6115;
 
-        loadCellAndNeighbors(id);
+        TestUtils.loadCellAndNeighbors(id, volumeCells, volumeStructures, httpBackend);
 
         var cellIndex = volumeCells.getCellIndex(id);
 
         // Cell 6115 has only one gap junction. That gap junction is connected to itself.
         var neighbors = volumeCells.getCellNeighborIndexesByChildType(cellIndex, 28);
-        console.log(neighbors);
         expect(neighbors[0].neighborIndex == 0).toBeTruthy();
         expect(neighbors[0].childIndex == 9).toBeTruthy();
 
@@ -432,7 +374,7 @@ describe('VolumeStructures service test', function () {
 
         var id = 6115;
 
-        loadCellAndNeighbors(id);
+        TestUtils.loadCellAndNeighbors(id, volumeCells, volumeStructures, httpBackend);
 
         var cellIndex = volumeCells.getCellIndex(id);
 
