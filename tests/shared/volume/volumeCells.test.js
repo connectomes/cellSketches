@@ -50,6 +50,20 @@ describe('VolumeCells service test', function () {
 
     });
 
+    it('loadCellLocations', function() {
+
+        var id = 6115;
+
+        volumeCells.loadCellId(id);
+        httpBackend.flush();
+
+        volumeCells.loadCellLocationsAt(0);
+        httpBackend.flush();
+
+        expect(volumeCells.getCellLocations(id).length == 4).toBeTruthy();
+
+    });
+
     it('getCellChildrenByTypeIndexes', function () {
 
         var id = 6115;
@@ -402,5 +416,44 @@ describe('VolumeCells service test', function () {
         expect(neighbors[3].neighborIndexes.length == 1).toBeTruthy();
         expect(neighbors[3].neighborIndexes.indexOf(volumeCells.getCellIndex(16087)) > -1).toBeTruthy();
     });
+
+    it('getCellCentroidAt', function() {
+
+        var id = 6115;
+
+        TestUtils.loadCellAndNeighbors(id, volumeCells, volumeStructures, httpBackend);
+
+        var centroid = volumeCells.getCellCentroidAt(0);
+
+        // Center of cell's convex hull is at (5, 5).
+        expect(centroid.x == 5.0).toBeTruthy();
+        expect(centroid.y == 5.0).toBeTruthy();
+    });
+
+    it('getCellChildCentroidAt', function() {
+
+        var id = 6115;
+
+        TestUtils.loadCellAndNeighbors(id, volumeCells, volumeStructures, httpBackend);
+
+        var centroid = volumeCells.getCellChildCentroidAt(0, 0);
+
+        // This is the centroid of the convex hull computed of child #0.
+        expect(centroid.x - 23.333333333333336).toBeCloseTo(0);
+        expect(centroid.y - 26.666666666666668).toBeCloseTo(0);
+    });
+
+    it('getCellChildRadiusAt', function() {
+
+        var id = 6115;
+
+        TestUtils.loadCellAndNeighbors(id, volumeCells, volumeStructures, httpBackend);
+
+        var radius = volumeCells.getCellChildRadiusAt(0, 0);
+
+        // Maximum radius of child #0's locations is 62.55...
+        expect(radius - 62.551805883462947).toBeCloseTo(0);
+    });
+
 
 });

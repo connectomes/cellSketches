@@ -1,0 +1,37 @@
+{
+  "@odata.context": "http://websvc1.connectomes.utah.edu/RC1/OData/$metadata#Locations(Radius,VolumeX,VolumeY,Z,ParentID,ID)",
+  "value": [
+    {
+      "Radius": 1.0,
+      "VolumeX": 0.0,
+      "VolumeY": 0.0,
+      "Z": 1.0,
+      "ParentID": 6115,
+      "ID": 88637
+    },
+    {
+      "Radius": 1.0,
+      "VolumeX": 10.0,
+      "VolumeY": 0.0,
+      "Z": 2.0,
+      "ParentID": 6115,
+      "ID": 88638
+    },
+    {
+      "Radius": 1452.8397322218163,
+      "VolumeX": 10.0,
+      "VolumeY": 10.0,
+      "Z": 3.0,
+      "ParentID": 6115,
+      "ID": 88639
+    },
+    {
+      "Radius": 1458.2841512974553,
+      "VolumeX": 0.0,
+      "VolumeY": 10.0,
+      "Z": 4.0,
+      "ParentID": 6115,
+      "ID": 88640
+    }
+  ]
+}

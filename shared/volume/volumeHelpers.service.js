@@ -16,30 +16,22 @@
         var service = {
             getPerChildTargetNames: getPerChildTargetNames,
             getPerChildAttrGroupedByTarget: getPerChildAttrGroupedByTarget,
-            getCurrentUnits: getCurrentUnits,
-            isUnitConversionNeeded: isUnitConversionNeeded,
-            isUsingTargetLabelGroups: isUsingTargetLabelGroups,
-            setCurrentUnits: setCurrentUnits,
-            setUseTargetLabelGroups: setUseTargetLabelGroups
+        };
+
+        service.PerChildAttributes = {
+            DIAMETER: 0,
+            DISTANCE: 1
         };
 
         return service;
 
-        /**
-         * @name getCurrentUnits
-         * @returns String equal to either 'nm' or 'px'
-         */
-        function getCurrentUnits() {
-            return self.currentUnits;
-        }
-
-        function getPerChildTargetNames(cellIndexes, childType) {
+        function getPerChildTargetNames(cellIndexes, childType, useTargetLabelGroups) {
 
             var i, j;
             var targets = [];
             var cellIndex, cellPartners, label, group;
 
-            if (!self.useTargetLabelGroups) {
+            if (!useTargetLabelGroups) {
 
                 // If not using target label groups then return a list of all labels adjacent to cellIndexes.
 
@@ -84,7 +76,7 @@
                 }
 
                 // Convert indexes back into names.
-                targetIndexes.forEach(function(e, i) {
+                targetIndexes.forEach(function (e, i) {
                     targets.push(volumeStructures.getGroupAt(e));
                 });
 
@@ -96,37 +88,10 @@
             return targets;
         }
 
-        function getPerChildAttrGroupedByTarget(cells, childType) {
+        function getPerChildAttrGroupedByTarget(cellIndexes, childType) {
 
         }
 
-        /**
-         * @name isUnitConversionNeeded
-         * @returns Boolean of whether the data reported back will be converted from px to nm.
-         */
-        function isUnitConversionNeeded() {
-            return self.currentUnits == 'nm';
-        }
-
-        function isUsingTargetLabelGroups() {
-            return self.useTargetLabelGroups;
-        }
-
-        /**
-         * @name setCurrentUnits
-         * @param units - string equal to 'px' or 'nm.' All other values will cause exception.
-         */
-        function setCurrentUnits(units) {
-            if (units == 'px' || units == 'nm') {
-                self.currentUnits = units;
-            } else {
-                throw 'Error - tried to set units to invalid value!';
-            }
-        }
-
-        function setUseTargetLabelGroups(useTargetLabelGroups) {
-            self.useTargetLabelGroups = useTargetLabelGroups;
-        }
     }
 
 }());

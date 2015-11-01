@@ -16,6 +16,7 @@
         self.cellChildren = [];
         self.cellChildrenLocations = [];
         self.cellChildrenPartners = [];
+        self.cellCentroids = [];
 
         // Constant configurable values
         self.maxCellsInFilter = 15;
@@ -25,8 +26,9 @@
             getAllAvailableGroups: getAllAvailableGroups,
             getCell: getCell,
             getCellAt: getCellAt,
+            getCellCentroidAt: getCellCentroidAt,
             getCellChildAt: getCellChildAt,
-            getCellChildCenterOfGravityAt: getCellChildCenterOfGravityAt,
+            getCellChildCentroidAt: getCellChildCentroidAt,
             getCellChildLocationsAt: getCellChildLocationsAt,
             getCellChildPartnerAt: getCellChildPartnerAt,
             getCellChildRadiusAt: getCellChildRadiusAt,
@@ -118,6 +120,40 @@
             return self.cells[index];
         }
 
+        function getCellCentroidAt(cellIndex) {
+            return self.cellCentroids[cellIndex];
+        }
+
+        function getCellChildAt(cellIndex, childIndex) {
+            return self.cellChildren[cellIndex][childIndex];
+        }
+
+        function getCellChildCentroidAt(cellIndex, childIndex) {
+            // Get locations, convert to convex hull, return centroid of the hull.
+            var locations = getCellChildLocationsAt(cellIndex, childIndex);
+            var hull = getConvexHullFromLocations(locations);
+            var centroid = hull.centroid();
+            return new utils.Point2D(centroid[0], centroid[1]);
+        }
+
+        function getCellChildLocationsAt(cellIndex, childIndex) {
+            return self.cellChildrenLocations[cellIndex][childIndex]
+        }
+
+        function getCellChildPartnerAt(cellIndex, childIndex) {
+            return self.cellChildrenPartners[cellIndex][childIndex];
+        }
+
+        function getCellChildRadiusAt(cellIndex, childIndex) {
+            var locations = getCellChildLocationsAt(cellIndex, childIndex);
+            var radius = 0;
+            for (var i = 0; i < locations.length; ++i) {
+                radius = Math.max(locations[i].radius, radius);
+            }
+
+            return radius;
+        }
+
         function getCellChildrenByTypeIndexes(cellIndex, childType) {
 
             var cellChildren = self.cellChildren[cellIndex];
@@ -145,6 +181,11 @@
                 }
             }
             return currChildren;
+        }
+
+        function getCellChildrenConnectedToGroupIndex(cellIndex, groupIndex, childType) {
+            var targetIndexes = getCellIndexesInGroup(groupIndex, cellIndex);
+            return getCellChildrenConnectedToIndexes(cellIndex, targetIndexes, childType);
         }
 
         /**
@@ -176,41 +217,277 @@
             };
         }
 
-        function getCellChildrenConnectedToGroupIndex(cellIndex, groupIndex, childType) {
-            var targetIndexes = getCellIndexesInGroup(groupIndex, cellIndex);
-            return getCellChildrenConnectedToIndexes(cellIndex, targetIndexes, childType);
+        function getCellConvexHullAt(cellIndex) {
+            var locations = self.cellLocations[cellIndex];
+            return getConvexHullFromLocations(locations);
         }
 
-        function getCellChildAt(cellIndex, childIndex) {
-            return self.cellChildren[cellIndex][childIndex];
-        }
+        function getCellIndex(cellId) {
 
-        function getCellChildCenterOfGravityAt(cellIndex, childIndex) {
-            var locations = getCellChildLocationsAt(cellIndex, childIndex);
-            var center = new utils.Point2D(0, 0);
-            for (var i = 0; i < locations.length; ++i) {
-                center = center.add(locations[i].position.getAs2D());
+            for (var i = 0; i < self.cells.length; ++i) {
+                if (self.cells[i].id == cellId) {
+                    return i;
+                }
             }
 
-            return center.multiply(1.0 / locations.length);
+            return -1;
         }
 
-        function getCellChildLocationsAt(cellIndex, childIndex) {
-            return self.cellChildrenLocations[cellIndex][childIndex]
-        }
+        /**
+         * @name getCellIndexesInGroup
+         * @desc Returns a list of the loaded cell indexes that are in the
+         * @param groupIndex -- see volumeStructure's groups.
+         * @param cellIndex is needed b/c groups like 'in class' and 'self' are defined relative to a cell
+         */
+        function getCellIndexesInGroup(groupIndex, cellIndex) {
+            var indexes = [];
+            var labels = [];
 
-        function getCellChildPartnerAt(cellIndex, childIndex) {
-            return self.cellChildrenPartners[cellIndex][childIndex];
-        }
-
-        function getCellChildRadiusAt(cellIndex, childIndex) {
-            var locations = getCellChildLocationsAt(cellIndex, childIndex);
-            var radius = 0;
-            for (var i = 0; i < locations.length; ++i) {
-                radius = Math.max(locations[i].radius, radius);
+            var cellLabel = self.cells[cellIndex].label;
+            if (groupIndex == volumeStructures.getGroupIndexSelf()) {
+                return [cellIndex];
             }
 
-            return radius;
+            if (groupIndex == volumeStructures.getGroupIndexInClass()) {
+                labels.push(self.cells[cellIndex].label);
+            } else {
+                labels = volumeStructures.getLabelsInGroup(groupIndex);
+
+                var indexInLabels = labels.indexOf(cellLabel);
+                if (indexInLabels != -1) {
+                    labels.splice(indexInLabels, 1);
+                }
+            }
+
+            for (var i = 0; i < self.cells.length; ++i) {
+                if (labels.indexOf(self.cells[i].label) != -1 && i != cellIndex) {
+                    indexes.push(i);
+                }
+            }
+
+            return indexes;
+        }
+
+        function getCellIndexesInLabel(label) {
+            var indexes = [];
+
+            for (var i = 0; i < self.cells.length; ++i) {
+                if (self.cells[i].label == label) {
+                    indexes.push(i);
+                }
+            }
+
+            return indexes;
+        }
+
+        function getCellIndexesInLabelRegExp(regexp) {
+            var indexes = [];
+            for (var i = 0; i < self.cells.length; ++i) {
+                var match = regexp.exec(self.cells[i].label);
+                if (match) {
+                    indexes.push(i);
+                }
+            }
+            return indexes;
+        }
+
+        function getCellLocations(id) {
+            for (var i = 0; i < self.cells.length; ++i) {
+                if (self.cells[i].id == id) {
+                    return self.cellLocations[i];
+                }
+            }
+            throw 'Error - tried to get locations of this cell ID, but they weren\'t loaded yet:' + id;
+        }
+
+        function getCellNeighborIdsAt(cellIndex) {
+            var partners = self.cellChildrenPartners[cellIndex];
+            var neighbors = [];
+
+            for (var i = 0; i < partners.length; ++i) {
+
+                var currNeighbors = partners[i].parentId;
+
+                for (var j = 0; j < currNeighbors.length; ++j) {
+
+                    if (neighbors.indexOf(currNeighbors[j]) == -1) {
+                        neighbors.push(currNeighbors[j]);
+                    }
+
+                }
+
+            }
+            return neighbors;
+        }
+
+        function getCellNeighborIndexesByChildType(cellIndex, childType) {
+
+            var childTypeSet = false;
+            var children = self.cellChildren[cellIndex];
+            var partners = self.cellChildrenPartners[cellIndex];
+            var neighbors = []; // to be returned
+
+            if (childType != undefined) {
+                childTypeSet = true;
+                children = getCellChildrenByTypeIndexes(cellIndex, childType);
+            }
+
+            for (var i = 0; i < children.length; ++i) {
+
+                var currChildIndex = i;
+                if (childTypeSet) {
+                    currChildIndex = children[i];
+                }
+
+                var parentIds = partners[currChildIndex].parentId;
+                for (var j = 0; j < parentIds.length; ++j) {
+                    var currParentId = parentIds[j];
+                    if (currParentId != -1) {
+                        var parentIndex = getCellIndex(currParentId);
+                        neighbors.push({
+                            neighborIndex: parentIndex,
+                            childIndex: currChildIndex
+                        });
+                    }
+                }
+
+            }
+
+            return neighbors;
+        }
+
+        /**
+         * @name getCellNeighborLabelsByChildType
+         * @desc Returns a cell's neighbors' labels reachable by a specific child type.
+         * @returns list of objects. each object contains a 'label' and 'indexes' field.
+         */
+        function getCellNeighborLabelsByChildType(cellIndex, childType) {
+
+            var neighbors = getCellNeighborIndexesByChildType(cellIndex, childType);
+            var labels = [];
+
+            for (var i = 0; i < neighbors.length; ++i) {
+
+                var currNeighbor = getCellAt(neighbors[i].neighborIndex);
+                var found = false;
+
+                // If currNeighbor's label is already in labels then add it to the per-label indexes. Else, create a new
+                // entry in labels for currNeighbor.
+                for (var j = 0; j < labels.length; ++j) {
+
+                    if (labels[j].label == currNeighbor.label) {
+
+                        found = true;
+
+                        if (labels[j].neighborIndexes.indexOf(neighbors[i].neighborIndex) == -1) {
+                            labels[j].neighborIndexes.push(neighbors[i].neighborIndex);
+                            labels[j].childIndexes.push(neighbors[i].childIndex);
+                        }
+
+                        break;
+                    }
+                }
+
+                if (!found) {
+                    labels.push({
+                        label: currNeighbor.label,
+                        neighborIndexes: [neighbors[i].neighborIndex],
+                        childIndexes: [neighbors[i].childIndex]
+                    });
+                }
+            }
+
+            return labels;
+        }
+
+        function getConvexHullFromLocations(locations) {
+            var vertices = [];
+            for (var i = 0; i < locations.length; ++i) {
+                vertices.push([locations[i].position.x, locations[i].position.y]);
+            }
+            var hull = d3.geom.hull(vertices);
+            return d3.geom.polygon(hull);
+        }
+
+        function getLoadedCellIds() {
+            var ids = [];
+            for (var i = 0; i < self.cells.length; ++i) {
+                ids.push(self.cells[i].id);
+            }
+            return ids;
+        }
+
+        function getNumCellChildrenAt(cellIndex) {
+            return self.cellChildren[cellIndex].length;
+        }
+
+        function getNumCells() {
+            return self.cells.length;
+        }
+
+        function hasLoadedNeighbors(cellIndex) {
+
+            var neighbors = getCellNeighborIdsAt(cellIndex);
+
+            for (var i = 0; i < neighbors.length; ++i) {
+
+                if (getCellIndex(neighbors[i]) == -1) {
+                    return false;
+                }
+
+            }
+            return true;
+        }
+
+        function loadCellChildrenAt(index) {
+
+            var cellId = getCellAt(index).id;
+
+            return $q(function (resolve, reject) {
+
+                var request = 'Structures?$filter=(ParentID eq ' + cellId + ')&$expand=Locations($select=Radius,VolumeX,VolumeY,Z,ParentID,ID)';
+
+                function success(data) {
+                    var cellChildren = data.data.value;
+                    var children = [];
+                    var locations = [];
+                    for (var i = 0; i < cellChildren.length; ++i) {
+
+                        var currChild = cellChildren[i];
+
+                        if (currChild.Locations.length == 0) {
+                            console.log('Warning - cell child with no locations, ignoring it');
+                            console.log('StructureID: ' + currChild.ID);
+                        }
+
+                        var cellChild = new utils.CellChild(currChild.ID, currChild.ParentID, currChild.Label,
+                            currChild.Notes, currChild.Tags, currChild.TypeID, currChild.Confidence);
+
+                        var currChildlocations = [];
+                        for (var j = 0; j < currChild.Locations.length; ++j) {
+
+                            var currLocation = currChild.Locations[j];
+                            var location = new utils.Location(currLocation.ID, currLocation.ParentID, currLocation.VolumeX, currLocation.VolumeY, currLocation.Z, currLocation.Radius);
+                            currChildlocations.push(location);
+                        }
+
+                        children.push(cellChild);
+                        locations.push(currChildlocations);
+                    }
+
+                    self.cellChildren[index] = children;
+                    self.cellChildrenLocations[index] = locations;
+
+                    //TODO: assert(self.cellChildren[i].length == self.cellChildrenLocations[i].length)
+
+                    resolve({
+                        validIndexes: [index],
+                        invalidIndexes: []
+                    });
+                }
+
+                volumeOData.request(request).then(success, failure);
+            });
         }
 
         function loadCellChildrenEdgesAt(cellIndex) {
@@ -323,275 +600,6 @@
             });
         }
 
-        function getCellConvexHullAt(cellIndex) {
-            var locations = self.cellLocations[cellIndex];
-            var vertices = [];
-            for (var i = 0; i < locations.length; ++i) {
-                vertices.push([locations[i].position.x, locations[i].position.y]);
-            }
-            var hull = d3.geom.hull(vertices);
-            return d3.geom.polygon(hull);
-        }
-
-        function getCellNeighborIdsAt(cellIndex) {
-            var partners = self.cellChildrenPartners[cellIndex];
-            var neighbors = [];
-
-            for (var i = 0; i < partners.length; ++i) {
-
-                var currNeighbors = partners[i].parentId;
-
-                for (var j = 0; j < currNeighbors.length; ++j) {
-
-                    if (neighbors.indexOf(currNeighbors[j]) == -1) {
-                        neighbors.push(currNeighbors[j]);
-                    }
-
-                }
-
-            }
-            return neighbors;
-        }
-
-        function getCellNeighborIndexesByChildType(cellIndex, childType) {
-
-            var childTypeSet = false;
-            var children = self.cellChildren[cellIndex];
-            var partners = self.cellChildrenPartners[cellIndex];
-            var neighbors = []; // to be returned
-
-            if (childType != undefined) {
-                childTypeSet = true;
-                children = getCellChildrenByTypeIndexes(cellIndex, childType);
-            }
-
-            for (var i = 0; i < children.length; ++i) {
-
-                var currChildIndex = i;
-                if (childTypeSet) {
-                    currChildIndex = children[i];
-                }
-
-                var parentIds = partners[currChildIndex].parentId;
-                for (var j = 0; j < parentIds.length; ++j) {
-                    var currParentId = parentIds[j];
-                    if (currParentId != -1) {
-                        var parentIndex = getCellIndex(currParentId);
-                        neighbors.push({
-                            neighborIndex: parentIndex,
-                            childIndex: currChildIndex
-                        });
-                    }
-                }
-
-            }
-
-            return neighbors;
-        }
-
-        /**
-         * @name getCellNeighborLabelsByChildType
-         * @desc Returns a cell's neighbors' labels reachable by a specific child type.
-         * @returns list of objects. each object contains a 'label' and 'indexes' field.
-         */
-        function getCellNeighborLabelsByChildType(cellIndex, childType) {
-
-            var neighbors = getCellNeighborIndexesByChildType(cellIndex, childType);
-            var labels = [];
-
-            for (var i = 0; i < neighbors.length; ++i) {
-
-                var currNeighbor = getCellAt(neighbors[i].neighborIndex);
-                var found = false;
-
-                // If currNeighbor's label is already in labels then add it to the per-label indexes. Else, create a new
-                // entry in labels for currNeighbor.
-                for (var j = 0; j < labels.length; ++j) {
-
-                    if (labels[j].label == currNeighbor.label) {
-
-                        found = true;
-
-                        if (labels[j].neighborIndexes.indexOf(neighbors[i].neighborIndex) == -1) {
-                            labels[j].neighborIndexes.push(neighbors[i].neighborIndex);
-                            labels[j].childIndexes.push(neighbors[i].childIndex);
-                        }
-
-                        break;
-                    }
-                }
-
-                if (!found) {
-                    labels.push({
-                        label: currNeighbor.label,
-                        neighborIndexes: [neighbors[i].neighborIndex],
-                        childIndexes: [neighbors[i].childIndex]
-                    });
-                }
-            }
-
-            return labels;
-        }
-
-        function getCellIndex(cellId) {
-
-            for (var i = 0; i < self.cells.length; ++i) {
-                if (self.cells[i].id == cellId) {
-                    return i;
-                }
-            }
-
-            return -1;
-        }
-
-        /**
-         * @name getCellIndexesInGroup
-         * @desc Returns a list of the loaded cell indexes that are in the
-         * @param groupIndex -- see volumeStructure's groups.
-         * @param cellIndex is needed b/c groups like 'in class' and 'self' are defined relative to a cell
-         */
-        function getCellIndexesInGroup(groupIndex, cellIndex) {
-            var indexes = [];
-            var labels = [];
-
-            var cellLabel = self.cells[cellIndex].label;
-            if (groupIndex == volumeStructures.getGroupIndexSelf()) {
-                return [cellIndex];
-            }
-
-            if (groupIndex == volumeStructures.getGroupIndexInClass()) {
-                labels.push(self.cells[cellIndex].label);
-            } else {
-                labels = volumeStructures.getLabelsInGroup(groupIndex);
-
-                var indexInLabels = labels.indexOf(cellLabel);
-                if (indexInLabels != -1) {
-                    labels.splice(indexInLabels, 1);
-                }
-            }
-
-            for (var i = 0; i < self.cells.length; ++i) {
-                if (labels.indexOf(self.cells[i].label) != -1 && i != cellIndex) {
-                    indexes.push(i);
-                }
-            }
-
-            return indexes;
-        }
-
-        function getCellIndexesInLabel(label) {
-            var indexes = [];
-
-            for (var i = 0; i < self.cells.length; ++i) {
-                if (self.cells[i].label == label) {
-                    indexes.push(i);
-                }
-            }
-
-            return indexes;
-        }
-
-        function getCellIndexesInLabelRegExp(regexp) {
-            var indexes = [];
-            for (var i = 0; i < self.cells.length; ++i) {
-                var match = regexp.exec(self.cells[i].label);
-                if (match) {
-                    indexes.push(i);
-                }
-            }
-            return indexes;
-        }
-
-        function getCellLocations(id) {
-            for (var i = 0; i < self.cells.length; ++i) {
-                if (self.cells[i].id == id) {
-                    return self.cellLocations[i];
-                }
-            }
-            throw 'Error - tried to get locations of this cell ID, but they weren\'t loaded yet:' + id;
-        }
-
-        function getLoadedCellIds() {
-            var ids = [];
-            for (var i = 0; i < self.cells.length; ++i) {
-                ids.push(self.cells[i].id);
-            }
-            return ids;
-        }
-
-        function getNumCellChildrenAt(cellIndex) {
-            return self.cellChildren[cellIndex].length;
-        }
-
-        function getNumCells() {
-            return self.cells.length;
-        }
-
-        function hasLoadedNeighbors(cellIndex) {
-
-            var neighbors = getCellNeighborIdsAt(cellIndex);
-
-            for (var i = 0; i < neighbors.length; ++i) {
-
-                if (getCellIndex(neighbors[i]) == -1) {
-                    return false;
-                }
-
-            }
-            return true;
-        }
-
-        function loadCellChildrenAt(index) {
-
-            var cellId = getCellAt(index).id;
-
-            return $q(function (resolve, reject) {
-
-                var request = 'Structures?$filter=(ParentID eq ' + cellId + ')&$expand=Locations($select=Radius,VolumeX,VolumeY,Z,ParentID,ID)';
-
-                function success(data) {
-                    var cellChildren = data.data.value;
-                    var children = [];
-                    var locations = [];
-                    for (var i = 0; i < cellChildren.length; ++i) {
-
-                        var currChild = cellChildren[i];
-
-                        if (currChild.Locations.length == 0) {
-                            console.log('Warning - cell child with no locations, ignoring it');
-                            console.log('StructureID: ' + currChild.ID);
-                        }
-
-                        var cellChild = new utils.CellChild(currChild.ID, currChild.ParentID, currChild.Label,
-                            currChild.Notes, currChild.Tags, currChild.TypeID, currChild.Confidence);
-
-                        var currChildlocations = [];
-                        for (var j = 0; j < currChild.Locations.length; ++j) {
-
-                            var currLocation = currChild.Locations[j];
-                            var location = new utils.Location(currLocation.ID, currLocation.ParentID, currLocation.VolumeX, currLocation.VolumeY, currLocation.Z, currLocation.Radius);
-                            currChildlocations.push(location);
-                        }
-
-                        children.push(cellChild);
-                        locations.push(currChildlocations);
-                    }
-
-                    self.cellChildren[index] = children;
-                    self.cellChildrenLocations[index] = locations;
-
-                    //TODO: assert(self.cellChildren[i].length == self.cellChildrenLocations[i].length)
-
-                    resolve({
-                        validIndexes: [index],
-                        invalidIndexes: []
-                    });
-                }
-
-                volumeOData.request(request).then(success, failure);
-            });
-        }
-
         function loadCellId(id) {
             return loadCellIds([id]);
         }
@@ -640,6 +648,27 @@
             }
 
             return $q.all(promises);
+        }
+
+        function loadCellIdsFromFilter(filter, requestIds) {
+
+            return $q(function (resolve, reject) {
+
+                function success(data) {
+                    var requestIds = data.config.requestIds;
+                    parseCellData(data, requestIds, resolve, reject);
+                }
+
+                // Stash the list of Ids that we're requesting. When the data comes back, parseCellData will check that
+                // all the cells we asked for came back from the server. If a cell doesn't come back then we need to
+                // tell the user that it doesn't exist!
+                var config = {
+                    requestIds: requestIds
+                };
+
+                volumeOData.request(('Structures?$filter=' + filter), config).then(success, failure);
+
+            });
         }
 
         function loadCellLabel(label) {
@@ -699,7 +728,11 @@
                         var location = new utils.Location(currLocation.ID, currLocation.ParentID, currLocation.VolumeX, currLocation.VolumeY, currLocation.Z, currLocation.Radius);
                         locations.push(location);
                     }
+
                     self.cellLocations[cellIndex] = locations;
+
+                    var hull = getCellConvexHullAt(cellIndex);
+                    self.cellCentroids[cellIndex] = new utils.Point2D(hull.centroid()[0], hull.centroid()[1]);
 
                     resolve({
                         validIndexes: [cellIndex],
@@ -735,27 +768,6 @@
                 }
 
                 volumeOData.request(request).then(success, failure);
-            });
-        }
-
-        function loadCellIdsFromFilter(filter, requestIds) {
-
-            return $q(function (resolve, reject) {
-
-                function success(data) {
-                    var requestIds = data.config.requestIds;
-                    parseCellData(data, requestIds, resolve, reject);
-                }
-
-                // Stash the list of Ids that we're requesting. When the data comes back, parseCellData will check that
-                // all the cells we asked for came back from the server. If a cell doesn't come back then we need to
-                // tell the user that it doesn't exist!
-                var config = {
-                    requestIds: requestIds
-                };
-
-                volumeOData.request(('Structures?$filter=' + filter), config).then(success, failure);
-
             });
         }
 

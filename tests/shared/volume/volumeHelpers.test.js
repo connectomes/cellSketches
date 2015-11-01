@@ -16,44 +16,16 @@ describe('VolumeHelpers service test', function () {
         TestUtils.setup(httpBackend);
     }));
 
-    it('get and setCurrentUnits', function () {
-
-        expect(volumeHelpers.getCurrentUnits() == 'nm').toBeTruthy();
-
-        volumeHelpers.setCurrentUnits('px');
-        expect(!volumeHelpers.isUnitConversionNeeded()).toBeTruthy();
-
-        expect(volumeHelpers.getCurrentUnits() == 'px').toBeTruthy();
-
-        volumeHelpers.setCurrentUnits('nm');
-
-        expect(volumeHelpers.isUnitConversionNeeded()).toBeTruthy();
-
-        expect(volumeHelpers.getCurrentUnits() == 'nm').toBeTruthy();
-
-    });
-
-    it('get and setUseTargetLabelGroups', function () {
-
-        expect(volumeHelpers.isUsingTargetLabelGroups()).toBeTruthy();
-
-        volumeHelpers.setUseTargetLabelGroups(false);
-        expect(!volumeHelpers.isUsingTargetLabelGroups()).toBeTruthy();
-
-        volumeHelpers.setUseTargetLabelGroups(true);
-        expect(volumeHelpers.isUsingTargetLabelGroups()).toBeTruthy();
-    });
-
     it('getPerChildTargetNames without groups', function () {
 
         var id = 6115;
         TestUtils.loadCellAndNeighbors(id, volumeCells, volumeStructures, httpBackend);
 
-        volumeHelpers.setUseTargetLabelGroups(false);
-
         // The neighbors of cell 6115 have the following labels: YAC Starburst, GC, AC, null, CBb5w
         var cellIndexes = [0];
-        var targets = volumeHelpers.getPerChildTargetNames(cellIndexes);
+        var childType = undefined;
+        var useTargetLabelGroups = false;
+        var targets = volumeHelpers.getPerChildTargetNames(cellIndexes, childType, useTargetLabelGroups);
 
         expect(targets.length == 5).toBeTruthy();
 
@@ -68,10 +40,11 @@ describe('VolumeHelpers service test', function () {
 
         var id = 6115;
         TestUtils.loadCellAndNeighbors(id, volumeCells, volumeStructures, httpBackend);
-        volumeHelpers.setUseTargetLabelGroups(true);
 
         var cellIndexes = [0];
-        var targets = volumeHelpers.getPerChildTargetNames(cellIndexes);
+        var childType = undefined;
+        var useTargetLabelGroups = true;
+        var targets = volumeHelpers.getPerChildTargetNames(cellIndexes, childType, useTargetLabelGroups);
 
         // List of target groups from looking at cell 6115's neighbors.
         var expectedTargets = ['null', 'CBb', 'YAC', 'GC', 'In Class', 'Self'];
@@ -84,5 +57,5 @@ describe('VolumeHelpers service test', function () {
 
     it('getPerChildTargetAttributes', function() {
 
-    })
+    });
 });
