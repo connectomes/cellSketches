@@ -455,5 +455,4 @@ describe('VolumeCells service test', function () {
         expect(radius - 62.551805883462947).toBeCloseTo(0);
     });
 
-
 });
