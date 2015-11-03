@@ -54,7 +54,7 @@
             loadCellLabel: loadCellLabel,
             loadCellLabels: loadCellLabels,
             loadCellLocationsAt: loadCellLocationsAt,
-            loadCellChildrenEdgesAt: loadCellChildrenEdgesAt,
+            loadCellChildPartnersAt: loadCellChildPartnersAt,
             loadCellNeighborsAt: loadCellNeighborsAt,
             loadCellStartsWith: loadCellStartsWith,
             loadFromFile: loadFromFile,
@@ -439,58 +439,7 @@
             return true;
         }
 
-        function loadCellChildrenAt(index) {
-
-            var cellId = getCellAt(index).id;
-
-            return $q(function (resolve, reject) {
-
-                var request = 'Structures?$filter=(ParentID eq ' + cellId + ')&$expand=Locations($select=Radius,VolumeX,VolumeY,Z,ParentID,ID)';
-
-                function success(data) {
-                    var cellChildren = data.data.value;
-                    var children = [];
-                    var locations = [];
-                    for (var i = 0; i < cellChildren.length; ++i) {
-
-                        var currChild = cellChildren[i];
-
-                        if (currChild.Locations.length == 0) {
-                            console.log('Warning - cell child with no locations, ignoring it');
-                            console.log('StructureID: ' + currChild.ID);
-                        }
-
-                        var cellChild = new utils.CellChild(currChild.ID, currChild.ParentID, currChild.Label,
-                            currChild.Notes, currChild.Tags, currChild.TypeID, currChild.Confidence);
-
-                        var currChildlocations = [];
-                        for (var j = 0; j < currChild.Locations.length; ++j) {
-
-                            var currLocation = currChild.Locations[j];
-                            var location = new utils.Location(currLocation.ID, currLocation.ParentID, currLocation.VolumeX, currLocation.VolumeY, currLocation.Z, currLocation.Radius);
-                            currChildlocations.push(location);
-                        }
-
-                        children.push(cellChild);
-                        locations.push(currChildlocations);
-                    }
-
-                    self.cellChildren[index] = children;
-                    self.cellChildrenLocations[index] = locations;
-
-                    //TODO: assert(self.cellChildren[i].length == self.cellChildrenLocations[i].length)
-
-                    resolve({
-                        validIndexes: [index],
-                        invalidIndexes: []
-                    });
-                }
-
-                volumeOData.request(request).then(success, failure);
-            });
-        }
-
-        function loadCellChildrenEdgesAt(cellIndex) {
+        function loadCellChildPartnersAt(cellIndex) {
 
             var cellId = getCellAt(cellIndex).id;
 
@@ -599,6 +548,57 @@
 
                     self.cellChildrenPartners[cellIndex] = orderedPartners;
 
+                }
+
+                volumeOData.request(request).then(success, failure);
+            });
+        }
+
+        function loadCellChildrenAt(index) {
+
+            var cellId = getCellAt(index).id;
+
+            return $q(function (resolve, reject) {
+
+                var request = 'Structures?$filter=(ParentID eq ' + cellId + ')&$expand=Locations($select=Radius,VolumeX,VolumeY,Z,ParentID,ID)';
+
+                function success(data) {
+                    var cellChildren = data.data.value;
+                    var children = [];
+                    var locations = [];
+                    for (var i = 0; i < cellChildren.length; ++i) {
+
+                        var currChild = cellChildren[i];
+
+                        if (currChild.Locations.length == 0) {
+                            console.log('Warning - cell child with no locations, ignoring it');
+                            console.log('StructureID: ' + currChild.ID);
+                        }
+
+                        var cellChild = new utils.CellChild(currChild.ID, currChild.ParentID, currChild.Label,
+                            currChild.Notes, currChild.Tags, currChild.TypeID, currChild.Confidence);
+
+                        var currChildlocations = [];
+                        for (var j = 0; j < currChild.Locations.length; ++j) {
+
+                            var currLocation = currChild.Locations[j];
+                            var location = new utils.Location(currLocation.ID, currLocation.ParentID, currLocation.VolumeX, currLocation.VolumeY, currLocation.Z, currLocation.Radius);
+                            currChildlocations.push(location);
+                        }
+
+                        children.push(cellChild);
+                        locations.push(currChildlocations);
+                    }
+
+                    self.cellChildren[index] = children;
+                    self.cellChildrenLocations[index] = locations;
+
+                    //TODO: assert(self.cellChildren[i].length == self.cellChildrenLocations[i].length)
+
+                    resolve({
+                        validIndexes: [index],
+                        invalidIndexes: []
+                    });
                 }
 
                 volumeOData.request(request).then(success, failure);

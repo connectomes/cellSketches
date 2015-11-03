@@ -66,7 +66,7 @@ var TestUtils = (function () {
         volumeCells.loadCellChildrenAt(0);
         httpBackend.flush();
 
-        volumeCells.loadCellChildrenEdgesAt(0);
+        volumeCells.loadCellChildPartnersAt(0);
         httpBackend.flush();
 
         volumeCells.loadCellNeighborsAt(0);

@@ -82,7 +82,7 @@ describe('VolumeCells service test', function () {
         expect(volumeCells.getCellChildrenByTypeIndexes(0, 28).length == 1).toBeTruthy();
         expect(volumeCells.getCellChildrenByTypeIndexes(0).length == 10).toBeTruthy();
 
-        volumeCells.loadCellChildrenEdgesAt(0);
+        volumeCells.loadCellChildPartnersAt(0);
         httpBackend.flush();
     });
 
@@ -96,7 +96,7 @@ describe('VolumeCells service test', function () {
         volumeCells.loadCellChildrenAt(0);
         httpBackend.flush();
 
-        volumeCells.loadCellChildrenEdgesAt(0);
+        volumeCells.loadCellChildPartnersAt(0);
         httpBackend.flush();
 
         // Check connections of first child.
@@ -123,7 +123,7 @@ describe('VolumeCells service test', function () {
         volumeCells.loadCellChildrenAt(0);
         httpBackend.flush();
 
-        volumeCells.loadCellChildrenEdgesAt(0);
+        volumeCells.loadCellChildPartnersAt(0);
         httpBackend.flush();
 
         var expectedNeighborIds = [69493, 86246, 69493, 69496, 69503, 69500, 72451, 32970, 8577, 16087, 66696, 6115];
@@ -145,7 +145,7 @@ describe('VolumeCells service test', function () {
         volumeCells.loadCellChildrenAt(0);
         httpBackend.flush();
 
-        volumeCells.loadCellChildrenEdgesAt(0);
+        volumeCells.loadCellChildPartnersAt(0);
         httpBackend.flush();
 
         expect(volumeCells.hasLoadedNeighbors(0) == false).toBeTruthy();
