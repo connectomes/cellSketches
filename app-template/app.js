@@ -37,7 +37,7 @@
 
             for (var j = 0; j < self.cells.length; ++j) {
                 var cellIndex = volumeCells.getCellIndex(self.cells[j]);
-                promises.push(volumeCells.loadCellChildrenEdgesAt(cellIndex));
+                promises.push(volumeCells.loadCellChildPartnersAt(cellIndex));
                 promises.push(volumeCells.loadCellLocationsAt(cellIndex));
             }
 
@@ -59,7 +59,6 @@
         }
 
         function neighborsLoaded() {
-
 
             var data = '';
             for (var i = 0; i < volumeStructures.getNumChildStructureTypes(); ++i) {
@@ -136,12 +135,11 @@
                 .append('div')
                 .html('Hello world');
 
-            var cellId = 606;
-            var cellIds = [170, 307, 324, 330, 5468, 5513, 5530, 5534, 5601, 5650, 5729, 6117, 7024, 48516, 25155]
+            //var cellId = 606;
+            //var cellIds = [170, 307, 324, 330, 5468, 5513, 5530, 5534, 5601, 5650, 5729, 6117, 7024, 48516, 25155]
+            var cellIds = [6115, 6117];
             volumeStructures.activate().then(function () {
-                volumeStructures.activateCellLabelGroups().then(function () {
-                    volumeCells.loadCellIds(cellIds).then(cellsLoaded, cellsFailed);
-                });
+                volumeCells.loadCellIds(cellIds).then(cellsLoaded, cellsFailed);
             });
         }
 

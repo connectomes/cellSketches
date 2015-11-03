@@ -9,6 +9,7 @@
 
     function ExampleController($scope, $q, volumeOData, volumeBounds, volumeLayers, volumeCells, volumeStructures) {
         var self = this;
+        self.verbose = true;
 
         // $scope.model is shared between different instances of this controller. It gets initialized when the
         // application starts. References to $scope.model are copied to other instances of the controller.
@@ -56,16 +57,12 @@
 
         $scope.activate = function () {
 
-            // Fence to stop multiple activations
+            // Allow only one activation
             if (!$scope.model.isActivated) {
                 $scope.model.isActivated = true;
 
+                // TODO: Error handling here.
                 volumeStructures.activate().then(parseMasterChildTypes);
-                if (!$scope.model.usingRemote) {
-                    volumeCells.loadFromFile('../tests/mock/Aiis.json').then(function () {
-                        $scope.cellIdsSelected([6117, 307]);
-                    });
-                }
             }
 
             function parseMasterChildTypes() {
@@ -86,79 +83,33 @@
             $scope.model.cellsLoading = true;
             $scope.model.cellsLoaded = false;
 
-            function success(cells) {
-                var promises = [];
-                var numCells = cells.length;
+            cells = [6115, 6117];
 
-                // Load cell children that the user asked for.
-                for (var j = 0; j < numCells; ++j) {
-                    var cellIndex = volumeCells.getCellIndex(cells[j]);
-                    promises[j] = volumeCells.loadCellChildrenAt(cellIndex);
-                }
+            volumeCells.reset();
+            volumeCells.loadCellIds(cells).then(cellsLoadedSuccess, cellsLoadedFailure);
 
-                // Load all cell neighbors and locations
-                $q.all(promises).then(function () {
-                    promises = [];
-
-                    for (var j = 0; j < numCells; ++j) {
-                        var cellIndex = volumeCells.getCellIndex(cells[j]);
-                        promises.push(volumeCells.loadCellNeighborsAt(cellIndex));
-                        promises.push(volumeCells.loadCellLocationsAt(cellIndex));
-                    }
-
-                    $q.all(promises).then(function () {
-                        // Now we're finished loading cells from http.
-                        numCells = cells.length;
-                        $scope.model.masterCells.ids = [];
-                        $scope.model.masterCells.indexes = [];
-                        for (var i = 0; i < numCells; ++i) {
-                            var currId = cells[i];
-                            $scope.model.masterCells.ids.push(currId);
-                            $scope.model.masterCells.indexes.push(volumeCells.getCellIndex(currId));
-                        }
-
-                        // Finished loading.
-                        $scope.model.cellsLoading = false;
-                        $scope.model.cellsLoaded = true;
-
-                        // All cells are selected by default.
-                        $scope.model.ui.selectedCells = angular.copy($scope.model.masterCells);
-                        $scope.model.cells = angular.copy($scope.model.masterCells);
-                        $scope.broadcastChange();
-                    });
-                });
-            }
-
-            function failure(results) {
-                $scope.model.invalidIds = angular.copy(results.invalidIds);
-                success(results.validIds);
-            }
-
-            if ($scope.model.usingRemote) {
-                volumeCells.reset();
-                volumeCells.loadCellIds(cells).then(success, failure);
-            } else {
-                // Finished loading.
-                self.cells = [];
-                for(i=0; i<4; ++i) {
-                    self.cells.push(volumeCells.getCellAt(i).id);
-                }
-                $scope.model.cellsLoading = false;
-                $scope.model.cellsLoaded = true;
-                var numCells = self.cells.length;
-                $scope.model.masterCells.ids = [];
-                $scope.model.masterCells.indexes = [];
-                for (var i = 0; i < numCells; ++i) {
-                    var currId = self.cells[i];
-                    $scope.model.masterCells.ids.push(currId);
-                    $scope.model.masterCells.indexes.push(volumeCells.getCellIndex(currId));
-                }
-                // All cells are selected by default.
-                $scope.model.ui.selectedCells = angular.copy($scope.model.masterCells);
-                $scope.model.cells = angular.copy($scope.model.masterCells);
-                $scope.broadcastChange();
-            }
-
+            /*
+             // Example of how to hack response from the server.
+             // Finished loading.
+             self.cells = [];
+             for(i=0; i<4; ++i) {
+             self.cells.push(volumeCells.getCellAt(i).id);
+             }
+             $scope.model.cellsLoading = false;
+             $scope.model.cellsLoaded = true;
+             var numCells = self.cells.length;
+             $scope.model.masterCells.ids = [];
+             $scope.model.masterCells.indexes = [];
+             for (var i = 0; i < numCells; ++i) {
+             var currId = self.cells[i];
+             $scope.model.masterCells.ids.push(currId);
+             $scope.model.masterCells.indexes.push(volumeCells.getCellIndex(currId));
+             }
+             // All cells are selected by default.
+             $scope.model.ui.selectedCells = angular.copy($scope.model.masterCells);
+             $scope.model.cells = angular.copy($scope.model.masterCells);
+             $scope.broadcastChange();
+             */
         };
 
         $scope.childTypesChanged = function () {
@@ -197,7 +148,7 @@
                 }
 
                 childCenter = childCenter.multiply(1.0 / locations.length);
-                if(locations.length > 1) {
+                if (locations.length > 1) {
                     var distancePx = childCenter.distance(centroid);
                     var distanceNm = childCenter.distance(centroid) * utils.nmPerPixel;
                     var diameterPx = volumeCells.getCellChildRadiusAt(index, children[i]) * 2;
@@ -208,7 +159,7 @@
                     diameterPx = 'null';
                     diameterNm = 'null';
                 }
-                    var partner = volumeCells.getCellChildPartnerAt(index, children[i]);
+                var partner = volumeCells.getCellChildPartnerAt(index, children[i]);
 
                 if (partner.parentId != -1) {
                     var partnerCell = volumeCells.getCell(partner.parentId);
@@ -254,6 +205,144 @@
         };
 
         $scope.activate();
+
+        // These functions are chained together for async callbacks. The order they get called in:
+        // 1. cellsLoadedSuccess -- this updates the scope's masterCells
+        // 2. cellChildrenSuccess
+        // 3. cellLocationsSuccess
+        // 4. cellChildrenEdgesSuccess
+        // 5. cellNeighborsSuccess
+        // 6. cellsFinished -- this tells the scope to broadcast changes
+        // If any of the http requests fail, then alert the user and give up.
+        function cellChildrenFailure(results) {
+            alert('cellChildrenFailure' + results);
+        }
+
+        function cellChildrenSuccess(results) {
+
+            if (self.verbose) {
+                console.log('Cell children loaded successfully: ');
+                console.log(results);
+            }
+
+            var cellIndexes = getIndexesFromResults(results);
+            var promises = [];
+
+            for (var i = 0; i < cellIndexes.length; ++i) {
+                var cellIndex = cellIndexes[i];
+                promises.push(volumeCells.loadCellLocationsAt(cellIndex));
+            }
+
+            $q.all(promises).then(cellLocationsSuccess, cellLocationsFailure);
+        }
+
+        function cellChildrenEdgesFailure(results) {
+            alert('cellChildrenEdgesFailure' + results);
+
+        }
+
+        function cellChildrenEdgesSuccess(results) {
+            if (self.verbose) {
+                console.log('Cell children edges loaded successfully: ');
+                console.log(results);
+            }
+
+            var cellIndexes = getIndexesFromResults(results);
+            var promises = [];
+
+            for (var i = 0; i < cellIndexes.length; ++i) {
+                var cellIndex = cellIndexes[i];
+                promises.push(volumeCells.loadCellNeighborsAt(cellIndex));
+            }
+
+            $q.all(promises).then(cellNeighborsSuccess, cellNeighborsFailure);
+        }
+
+        function cellsLoadedFailure(results) {
+            $scope.model.invalidIds = angular.copy(results.invalidIds);
+            cellsLoadedSuccess([results]);
+        }
+
+        function cellsLoadedSuccess(results) {
+
+            if (self.verbose) {
+                console.log('Cells loaded successfully: ');
+                console.log(results);
+            }
+
+            var promises = [];
+            var cells = results[0].validIds;
+            var numCells = cells.length;
+
+            // Load cell children that the user asked for.
+            for (var j = 0; j < numCells; ++j) {
+                var cellIndex = volumeCells.getCellIndex(cells[j]);
+                promises[j] = volumeCells.loadCellChildrenAt(cellIndex);
+                $scope.model.masterCells.ids.push(cells[j]);
+                $scope.model.masterCells.indexes.push(volumeCells.getCellIndex(cells[j]));
+            }
+
+            $q.all(promises).then(cellChildrenSuccess, cellChildrenFailure);
+
+        }
+
+        function cellLocationsSuccess(results) {
+
+            if (self.verbose) {
+                console.log('Cell locations loaded successfully: ');
+                console.log(results);
+            }
+
+            var cellIndexes = getIndexesFromResults(results);
+            var promises = [];
+
+            console.log(cellIndexes);
+            // Load cell children that the user asked for.
+            for (var i = 0; i < cellIndexes.length; ++i) {
+                promises.push(volumeCells.loadCellChildPartnersAt(cellIndexes[i]));
+            }
+
+            $q.all(promises).then(cellChildrenEdgesSuccess, cellChildrenEdgesFailure);
+        }
+
+        function cellLocationsFailure(results) {
+            alert('cellLocationsFailures' + results);
+        }
+
+        function cellNeighborsFailure(results) {
+            alert('cellNeighborsFailure' + results);
+        }
+
+        function cellNeighborsSuccess(results) {
+            if (self.verbose) {
+                console.log('Cell neighbors loaded successfully:');
+                console.log(results);
+            }
+
+            cellsFinished();
+        }
+
+        function cellsFinished() {
+            // Finished loading.
+            $scope.model.cellsLoading = false;
+            $scope.model.cellsLoaded = true;
+
+            // All cells are selected by default.
+            $scope.model.ui.selectedCells = angular.copy($scope.model.masterCells);
+            $scope.model.cells = angular.copy($scope.model.masterCells);
+            $scope.broadcastChange();
+        }
+
+        function getIndexesFromResults(results) {
+            var indexes = [];
+            for (var i = 0; i < results.length; ++i) {
+                for (var j = 0; j < results[i].validIndexes.length; ++j) {
+                    indexes.push(results[i].validIndexes[j]);
+                }
+            }
+            return indexes;
+        }
+
     }
 
 })();
