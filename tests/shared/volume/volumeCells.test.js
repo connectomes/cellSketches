@@ -104,12 +104,12 @@ describe('VolumeCells service test', function () {
         expect(volumeCells.getCellChildPartnerAt(0, 0).neighborIds[1] == 86246).toBeTruthy();
         expect(volumeCells.getCellChildPartnerAt(0, 0).bidirectional[0] == false).toBeTruthy();
         expect(volumeCells.getCellChildPartnerAt(0, 0).bidirectional[1] == false).toBeTruthy();
-        expect(volumeCells.getCellChildPartnerAt(0, 0).partnerIndex[0] == 69495).toBeTruthy();
-        expect(volumeCells.getCellChildPartnerAt(0, 0).partnerIndex[1] == 86247).toBeTruthy();
+        expect(volumeCells.getCellChildPartnerAt(0, 0).childIds[0] == 69495).toBeTruthy();
+        expect(volumeCells.getCellChildPartnerAt(0, 0).childIds[1] == 86247).toBeTruthy();
 
         // Check connections of second child.
         expect(volumeCells.getCellChildPartnerAt(0, 1).neighborIds[0] == 69493).toBeTruthy();
-        expect(volumeCells.getCellChildPartnerAt(0, 1).partnerIndex[0] == 69494).toBeTruthy();
+        expect(volumeCells.getCellChildPartnerAt(0, 1).childIds[0] == 69494).toBeTruthy();
         expect(volumeCells.getCellChildPartnerAt(0, 1).bidirectional[0] == false).toBeTruthy();
     });
 
