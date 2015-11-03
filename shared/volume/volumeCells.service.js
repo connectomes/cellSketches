@@ -514,20 +514,21 @@
 
                         if (childIsTarget && childIsSource) {
                             console.log(values[i]);
-                            //throw 'This child edge is fucked!';
+                            throw 'Error - found child that is both source and target?!'
                         }
 
                         if (values[i].ParentID != cellId) {
-                            throw 'Found child edge for wrong cell!';
+                            throw 'Error - found child edge for wrong cell!';
                         }
 
                         if (values[i].ID != getCellChildAt(getCellIndex(cellId), i).id) {
-                            throw 'Children edges out-of-order!';
+                            throw 'Error - children edges out-of-order!';
                         }
 
-                        var currPartnerIds = [];
-                        var currPartnerIndexes = [];
-                        var currPartnersBidirectional = [];
+                        var neighborIds = [];
+                        var childIds = [];
+                        var linksBidirectional = [];
+
                         if (childIsSource) {
 
                             for (var j = 0; j < sources.length; ++j) {
@@ -536,7 +537,8 @@
 
                                 if (currSource.hasOwnProperty('Source')) {
 
-                                    throw 'Cannot have source-to-source link.';
+                                    console.log(values[i]);
+                                    throw 'Error - found source-to-source link.';
 
                                 } else if (currSource.hasOwnProperty('Target')) {
 
@@ -545,13 +547,14 @@
                                         console.log(currSource);
                                     }
 
-                                    currPartnerIds.push(currSource.Target.ParentID);
-                                    currPartnerIndexes.push(currSource.TargetID);
-                                    currPartnersBidirectional.push(currSource.Bidirectional)
+                                    neighborIds.push(currSource.Target.ParentID);
+                                    childIds.push(currSource.TargetID);
+                                    linksBidirectional.push(currSource.Bidirectional)
 
                                 } else {
 
-                                    throw 'Source with no target.';
+                                    console.log(values[i]);
+                                    throw 'Error - source with no target.';
 
                                 }
                             }
@@ -568,23 +571,25 @@
                                         console.log(currTarget);
                                     }
 
-                                    currPartnerIds.push(currTarget.Source.ParentID);
-                                    currPartnerIndexes.push(currTarget.SourceID);
-                                    currPartnersBidirectional.push(currTarget.Bidirectional);
+                                    neighborIds.push(currTarget.Source.ParentID);
+                                    childIds.push(currTarget.SourceID);
+                                    linksBidirectional.push(currTarget.Bidirectional);
 
                                 } else if (currTarget.hasOwnProperty('Target')) {
 
-                                    throw 'Cannot have target-to-target link. This is fucked.';
+                                    console.log(values[i]);
+                                    throw 'Error - target-to-target link.';
 
                                 } else {
 
-                                    throw 'Target with no source';
+                                    console.log(values[i]);
+                                    throw 'Error - target with no source';
 
                                 }
                             }
                         }
 
-                        orderedPartners.push(new utils.CellPartner(currPartnerIds, currPartnerIndexes, currPartnersBidirectional));
+                        orderedPartners.push(new utils.CellPartner(neighborIds, childIds, linksBidirectional));
 
                         resolve({
                             validIndexes: [cellIndex],
