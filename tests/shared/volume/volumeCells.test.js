@@ -100,15 +100,15 @@ describe('VolumeCells service test', function () {
         httpBackend.flush();
 
         // Check connections of first child.
-        expect(volumeCells.getCellChildPartnerAt(0, 0).parentId[0] == 69493).toBeTruthy();
-        expect(volumeCells.getCellChildPartnerAt(0, 0).parentId[1] == 86246).toBeTruthy();
+        expect(volumeCells.getCellChildPartnerAt(0, 0).neighborIds[0] == 69493).toBeTruthy();
+        expect(volumeCells.getCellChildPartnerAt(0, 0).neighborIds[1] == 86246).toBeTruthy();
         expect(volumeCells.getCellChildPartnerAt(0, 0).bidirectional[0] == false).toBeTruthy();
         expect(volumeCells.getCellChildPartnerAt(0, 0).bidirectional[1] == false).toBeTruthy();
         expect(volumeCells.getCellChildPartnerAt(0, 0).partnerIndex[0] == 69495).toBeTruthy();
         expect(volumeCells.getCellChildPartnerAt(0, 0).partnerIndex[1] == 86247).toBeTruthy();
 
         // Check connections of second child.
-        expect(volumeCells.getCellChildPartnerAt(0, 1).parentId[0] == 69493).toBeTruthy();
+        expect(volumeCells.getCellChildPartnerAt(0, 1).neighborIds[0] == 69493).toBeTruthy();
         expect(volumeCells.getCellChildPartnerAt(0, 1).partnerIndex[0] == 69494).toBeTruthy();
         expect(volumeCells.getCellChildPartnerAt(0, 1).bidirectional[0] == false).toBeTruthy();
     });
@@ -233,7 +233,7 @@ describe('VolumeCells service test', function () {
         var partner, targetCellId, targetCell;
         for (var i = 0; i < children.length; ++i) {
             partner = volumeCells.getCellChildPartnerAt(0, children[i]);
-            targetCellId = partner.parentId[partnerOffsets[i]];
+            targetCellId = partner.neighborIds[partnerOffsets[i]];
             targetCell = volumeCells.getCell(targetCellId);
             expect(targetLabels.indexOf(targetCell.label) != -1).toBeTruthy();
         }
@@ -249,7 +249,7 @@ describe('VolumeCells service test', function () {
 
         for (i = 0; i < children.length; ++i) {
             partner = volumeCells.getCellChildPartnerAt(0, children[i]);
-            targetCellId = partner.parentId[partnerOffsets[i]];
+            targetCellId = partner.neighborIds[partnerOffsets[i]];
             targetCell = volumeCells.getCell(targetCellId);
             expect(targetLabels.indexOf(targetCell.label) != -1).toBeTruthy();
         }
@@ -286,7 +286,7 @@ describe('VolumeCells service test', function () {
                     // label AND that are NOT the starting cell.
                     for (k = 0; k < children.length; ++k) {
                         partner = volumeCells.getCellChildPartnerAt(0, children[k]);
-                        targetCellId = partner.parentId[partnerOffsets[k]];
+                        targetCellId = partner.neighborIds[partnerOffsets[k]];
                         targetCell = volumeCells.getCell(targetCellId);
                         expect(targetCell.label == 'CBb5w').toBeTruthy();
                         expect(targetCellId != 6115).toBeTruthy();
@@ -297,7 +297,7 @@ describe('VolumeCells service test', function () {
                     // The only children returned should point back to cell 6115.
                     for (k = 0; k < children.length; ++k) {
                         partner = volumeCells.getCellChildPartnerAt(0, children[k]);
-                        targetCellId = partner.parentId[partnerOffsets[k]];
+                        targetCellId = partner.neighborIds[partnerOffsets[k]];
                         targetCell = volumeCells.getCell(targetCellId);
                         expect(targetCellId == id).toBeTruthy();
                     }
@@ -308,7 +308,7 @@ describe('VolumeCells service test', function () {
                     // nor the starting cell.
                     for (k = 0; k < children.length; ++k) {
                         partner = volumeCells.getCellChildPartnerAt(0, children[k]);
-                        targetCellId = partner.parentId[partnerOffsets[k]];
+                        targetCellId = partner.neighborIds[partnerOffsets[k]];
                         targetCell = volumeCells.getCell(targetCellId);
 
                         // Check target label in correct group.

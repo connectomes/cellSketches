@@ -202,7 +202,7 @@
             for (var i = 0; i < children.length; ++i) {
                 var currIndex = children[i];
 
-                var partners = self.cellChildrenPartners[cellIndex][currIndex].parentId;
+                var partners = self.cellChildrenPartners[cellIndex][currIndex].neighborIds;
                 for (var j = 0; j < partners.length; ++j) {
                     if (targetIndexes.indexOf(getCellIndex(partners[j])) != -1) {
                         indexes.push(currIndex);
@@ -306,7 +306,7 @@
 
             for (var i = 0; i < partners.length; ++i) {
 
-                var currNeighbors = partners[i].parentId;
+                var currNeighbors = partners[i].neighborIds;
 
                 for (var j = 0; j < currNeighbors.length; ++j) {
 
@@ -339,7 +339,7 @@
                     currChildIndex = children[i];
                 }
 
-                var parentIds = partners[currChildIndex].parentId;
+                var parentIds = partners[currChildIndex].neighborIds;
                 for (var j = 0; j < parentIds.length; ++j) {
                     var currParentId = parentIds[j];
                     if (currParentId != -1) {
