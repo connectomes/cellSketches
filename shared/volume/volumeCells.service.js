@@ -447,7 +447,7 @@
 
                 var request = 'Structures(' + cellId + ')/Children?$expand=SourceOfLinks($expand=Target($select=ParentID)),TargetOfLinks($expand=Source($select=ParentID))';
 
-                function success(data) {
+                function parseChildPartners(data) {
 
                     var values = data.data.value;
 
@@ -506,7 +506,9 @@
                                     console.log('Error - source with no target.');
 
                                 }
+
                             }
+
                         } else if (childIsTarget) {
 
                             for (j = 0; j < targets.length; ++j) {
@@ -535,7 +537,9 @@
                                     console.log('Error - target with no source');
 
                                 }
+
                             }
+
                         }
 
                         orderedPartners.push(new utils.CellPartner(neighborIds, childIds, linksBidirectional));
@@ -544,13 +548,14 @@
                             validIndexes: [cellIndex],
                             invalidIndexes: []
                         });
+
                     }
 
                     self.cellChildrenPartners[cellIndex] = orderedPartners;
 
                 }
 
-                volumeOData.request(request).then(success, failure);
+                volumeOData.request(request).then(parseChildPartners, failure);
             });
         }
 
