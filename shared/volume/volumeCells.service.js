@@ -463,7 +463,7 @@
 
                         if (childIsTarget && childIsSource) {
                             console.log(values[i]);
-                            throw 'Error - found child that is both source and target?!'
+                            console.log('Error - found child that is both source and target?!')
                         }
 
                         if (values[i].ParentID != cellId) {
@@ -487,7 +487,7 @@
                                 if (currSource.hasOwnProperty('Source')) {
 
                                     console.log(values[i]);
-                                    throw 'Error - found source-to-source link.';
+                                    console.log('Error - found source-to-source link.');
 
                                 } else if (currSource.hasOwnProperty('Target')) {
 
@@ -503,7 +503,7 @@
                                 } else {
 
                                     console.log(values[i]);
-                                    throw 'Error - source with no target.';
+                                    console.log('Error - source with no target.');
 
                                 }
                             }
@@ -527,12 +527,12 @@
                                 } else if (currTarget.hasOwnProperty('Target')) {
 
                                     console.log(values[i]);
-                                    throw 'Error - target-to-target link.';
+                                    console.log('Error - target-to-target link.');
 
                                 } else {
 
                                     console.log(values[i]);
-                                    throw 'Error - target with no source';
+                                    console.log('Error - target with no source');
 
                                 }
                             }

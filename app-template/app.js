@@ -60,38 +60,50 @@
 
         function neighborsLoaded() {
 
-            var data = '';
-            for (var i = 0; i < volumeStructures.getNumChildStructureTypes(); ++i) {
+
+            var data, blob, i, j, k;
+
+            data = '';
+
+            d3.select('body')
+                .append('div')
+                .html('<h5> Children of cell ' + volumeCells.getCellAt(0).id + '</h4>');
+
+            for (i = 0; i < volumeStructures.getNumChildStructureTypes(); ++i) {
                 var childTypeId = volumeStructures.getChildStructureTypeAt(i);
                 var children = volumeCells.getCellChildrenByTypeIndexes(0, childTypeId);
                 console.log(childTypeId + ', ' + children.length);
+                d3.select('body').append('div').html(childTypeId + ': ' + children.length + '<br>');
                 var neighbors = [];
-                for (var j = 0; j < children.length; ++j) {
+                for ( j = 0; j < children.length; ++j) {
                     var childIndex = children[j];
                     var cellPartner = volumeCells.getCellChildPartnerAt(0, childIndex);
-                    for (var k = 0; k < cellPartner.parentId.length; ++k) {
-                        neighbors.push(cellPartner.parentId);
-                        data = data + childTypeId + ', ' + volumeCells.getCellChildAt(0, childIndex).id + ', ' + cellPartner.parentId[k] + '\n';
+                    for ( k = 0; k < cellPartner.neighborIds.length; ++k) {
+                        neighbors.push(cellPartner.neighborIds);
+                        data = data + childTypeId + ', ' + volumeCells.getCellChildAt(0, childIndex).id + ', ' + cellPartner.neighborIds[k] + '\n';
                     }
                 }
             }
-            var blob = new Blob([data], {type: "text"});
+
+            blob = new Blob([data], {type: "text"});
             saveAs(blob, 'jsResults1.csv');
 
+            /*
+            // Saving neighbors to csv grouped by super-labels.
             var availableChildTypes = volumeCells.getAllAvailableChildTypes();
             var availableGroups = volumeCells.getAllAvailableGroups();
-            var data = 'child type, ';
+            data = 'child type, ';
 
-            for (var j = 0; j < availableGroups.length; ++j) {
+            for (j = 0; j < availableGroups.length; ++j) {
                 data = data + volumeStructures.getGroupAt(availableGroups[j]) + ', ';
             }
 
             data += '\n';
             console.log(self.cells);
-            for (var i = 0; i < self.cells.length; ++i) {
+            for (i = 0; i < self.cells.length; ++i) {
                 var cellIndex = volumeCells.getCellIndex(self.cells[i]);
 
-                for (var k = 0; k < availableChildTypes.length; ++k) {
+                for (k = 0; k < availableChildTypes.length; ++k) {
                     var currChildType = availableChildTypes[k];
                     data += volumeStructures.getChildStructureTypeName(currChildType) + ', ';
                     for (j = 0; j < availableGroups.length; ++j) {
@@ -100,11 +112,11 @@
                         var childrenInGroup = results.indexes;
                         var offsetsInGroup = results.partners;
 
-                        for (var n=0; n<childrenInGroup.length; ++n) {
+                        for (var n = 0; n < childrenInGroup.length; ++n) {
                             var currChild = volumeCells.getCellChildAt(cellIndex, childrenInGroup[n]);
                             assert(currChild.type == currChildType, "Wrong child type found!");
                             var currPartner = volumeCells.getCellChildPartnerAt(cellIndex, childrenInGroup[n]);
-                            var otherCell = volumeCells.getCell(currPartner.parentId[offsetsInGroup[n]]);
+                            var otherCell = volumeCells.getCell(currPartner.neighborIds[offsetsInGroup[n]]);
                             if (currGroup != volumeStructures.getGroupIndexInClass() && currGroup != volumeStructures.getGroupIndexSelf()) {
 
                                 assert(volumeStructures.isLabelInGroup(otherCell.label, currGroup), "Found cell in wrong label!");
@@ -119,12 +131,13 @@
                 data += '\n';
             }
 
-            var blob = new Blob([data], {type: "text"});
+            blob = new Blob([data], {type: "text"});
             saveAs(blob, 'test.csv');
+            */
         }
 
         function assert(condition, message) {
-            if(!condition) {
+            if (!condition) {
                 throw message;
             }
         }
@@ -135,9 +148,21 @@
                 .append('div')
                 .html('Hello world');
 
-            //var cellId = 606;
+
+            // Returns a link with child 47822 connected directly to a cell 88413
+            // http://websvc1.connectomes.utah.edu/RC1/OData/StructureLinks?$filter=(SourceID%20eq%2047822%20or%20TargetID%20eq%2047822)
+            //var cellIds = [606];
+
+            // Returns a link with child that is both a source and a target.
+            // http://websvc1.connectomes.utah.edu/RC1/OData/StructureLinks?$filter=(SourceID%20eq%205047%20or%20TargetID%20eq%205047)
+            // var cellIds = [514];
+
+            // Returns a link with child that is both source and a target
+            // Returns a cell child with no locations 37656
+            var cellIds = [3679];
+
             //var cellIds = [170, 307, 324, 330, 5468, 5513, 5530, 5534, 5601, 5650, 5729, 6117, 7024, 48516, 25155]
-            var cellIds = [6115, 6117];
+            //var cellIds = [6115, 6117];
             volumeStructures.activate().then(function () {
                 volumeCells.loadCellIds(cellIds).then(cellsLoaded, cellsFailed);
             });
