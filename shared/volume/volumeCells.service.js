@@ -462,16 +462,22 @@
                         var childIsTarget = targets.length > 0;
 
                         if (childIsTarget && childIsSource) {
+
                             console.log(values[i]);
-                            console.log('Error - found child that is both source and target?!')
+                            console.log('Error - found child that is both source and target?!');
+
                         }
 
                         if (values[i].ParentID != cellId) {
+
                             throw 'Error - found child edge for wrong cell!';
+
                         }
 
                         if (values[i].ID != getCellChildAt(getCellIndex(cellId), i).id) {
+
                             throw 'Error - children edges out-of-order!';
+
                         }
 
                         var neighborIds = [];
@@ -492,8 +498,10 @@
                                 } else if (currSource.hasOwnProperty('Target')) {
 
                                     if (currSource.Target.ParentID == null) {
-                                        console.log('Warning - cell link with null parent. This shouldn\'t exist!');
+
                                         console.log(currSource);
+                                        console.log('Warning - cell link with null parent. This shouldn\'t exist!');
+
                                     }
 
                                     neighborIds.push(currSource.Target.ParentID);
@@ -518,8 +526,10 @@
                                 if (currTarget.hasOwnProperty('Source')) {
 
                                     if (currTarget.Source.ParentID == null) {
-                                        console.log('Warning - cell link with null parent. This shouldn\'t exist!');
+
                                         console.log(currTarget);
+                                        console.log('Warning - cell link with null parent. This shouldn\'t exist!');
+
                                     }
 
                                     neighborIds.push(currTarget.Source.ParentID);
