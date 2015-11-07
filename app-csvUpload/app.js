@@ -206,6 +206,10 @@
 
         $scope.activate();
 
+        $scope.hello = function(){
+            console.log('hello');
+        };
+
         // These functions are chained together for async callbacks. The order they get called in:
         // 1. cellsLoadedSuccess -- this updates the scope's masterCells
         // 2. cellChildrenSuccess
