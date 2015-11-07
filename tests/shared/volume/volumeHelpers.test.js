@@ -149,8 +149,7 @@ describe('VolumeHelpers service test', function () {
 
             valuesList.forEach(function (values) {
 
-                var childPartners = volumeCells.getCellChildPartnerAt(values.parentIndex, values.childIndex);
-                var neighborId = childPartners.neighborIds[values.partnerIndex];
+                var neighborId = volumeCells.getCellNeighborIdFromChildAndPartner(values.parentIndex, values.childIndex, values.partnerIndex);
                 var neighborIndex = volumeCells.getCellIndex(neighborId);
                 var neighborLabel = volumeCells.getCellAt(neighborIndex).label;
                 var neighborGroupIndex = volumeStructures.getGroupOfLabel(neighborLabel);

@@ -112,6 +112,27 @@
             return targets;
         }
 
+        /**
+         * @name getPerChildAttrGroupedByTarget
+         * @desc Returns an object {
+         *      labels: contains a list of the targets that the children are grouped by
+         *      maxValue: computed for all children of all cellIndexes
+         *      minValue: same as above
+         *      valuesList: [] array of arrays
+         *      valuesList[0] - array of Objects representing children that are targeting labels[0]
+         *          Objects of valuesList are {
+         *             childIndex:
+         *             parentIndex:
+         *             partnerIndex:
+         *          }
+         *      These can be converted into neighborIds using: volumeCells.getCellNeighborIdFromChildAndPartner
+         * }
+         * @param cellIndexes - a list of cells whose children will be aggregated
+         * @param childType - int of child type, list of ints, or undefined for all child types
+         * @param useTargetLabelGroups - if true then use the groups defined by volume structures, else use labels
+         * @param attribute - desired attribute to aggregate, see self.PerChildAttributes
+         * @param units - see self.units
+         */
         function getPerChildAttrGroupedByTarget(cellIndexes, childType, useTargetLabelGroups, attribute, units) {
 
             var results = {};

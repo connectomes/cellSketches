@@ -41,6 +41,7 @@
             getCellIndexesInLabelRegExp: getCellIndexesInLabelRegExp,
             getCellIndexesInGroup: getCellIndexesInGroup,
             getCellLocations: getCellLocations,
+            getCellNeighborIdFromChildAndPartner: getCellNeighborIdFromChildAndPartner,
             getCellNeighborIdsAt: getCellNeighborIdsAt,
             getCellNeighborIndexesByChildType: getCellNeighborIndexesByChildType,
             getCellNeighborLabelsByChildType: getCellNeighborLabelsByChildType,
@@ -298,6 +299,11 @@
                 }
             }
             throw 'Error - tried to get locations of this cell ID, but they weren\'t loaded yet:' + id;
+        }
+
+        function getCellNeighborIdFromChildAndPartner(cellIndex, childIndex, partnerIndex) {
+            var childPartners = getCellChildPartnerAt(cellIndex, childIndex);
+            return childPartners.neighborIds[partnerIndex];
         }
 
         function getCellNeighborIdsAt(cellIndex) {
