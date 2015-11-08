@@ -27,12 +27,13 @@ describe('VolumeHelpers service test', function () {
         var useTargetLabelGroups = false;
         var targets = volumeHelpers.getAggregateChildTargetNames(cellIndexes, childType, useTargetLabelGroups);
 
-        expect(targets.length == 5).toBeTruthy();
-
         // Check that we found all the targets!
-        var actualTargets = ['YAC Starburst', 'GC', 'AC', 'null', 'CBb5w'];
-        for (var i = 0; i < actualTargets.length; ++i) {
-            expect(targets.indexOf(actualTargets[i]) != -1).toBeTruthy();
+        var expectedTargets = ['In Class', 'Self', 'YAC Starburst', 'GC', 'AC', 'null'];
+
+        expect(targets.length == expectedTargets.length).toBeTruthy();
+
+        for (var i = 0; i < expectedTargets.length; ++i) {
+            expect(targets.indexOf(expectedTargets[i]) != -1).toBeTruthy();
         }
     });
 
@@ -192,7 +193,7 @@ describe('VolumeHelpers service test', function () {
         expect(results.valuesLists.length == 1).toBeTruthy();
         expect(results.valuesLists[0].length == 1).toBeTruthy();
         expect(results.labels.length == 1).toBeTruthy();
-        expect(results.labels[0] == 'CBb5w').toBeTruthy();
+        expect(results.labels[0] == 'Self').toBeTruthy();
 
     });
 
@@ -213,41 +214,21 @@ describe('VolumeHelpers service test', function () {
         expect(results.maxValue - 303.267).toBeCloseTo(0);
 
         results.valuesLists.forEach(function(valuesList, i) {
-
             valuesList.forEach(function (values) {
-
                 var childPartners = volumeCells.getCellChildPartnerAt(values.cellIndex, values.childIndex);
                 var neighborId = childPartners.neighborIds[values.partnerIndex];
                 var neighborIndex = volumeCells.getCellIndex(neighborId);
                 var neighborLabel = volumeCells.getCellAt(neighborIndex).label;
-
-                expect(neighborLabel == results.labels[i]).toBeTruthy();
+                if(results.labels[i] == 'In Class') {
+                    expect(neighborLabel == 'CBb5w').toBeTruthy();
+                } else if(results.labels[i] == 'Self') {
+                    expect(neighborIndex == 0).toBeTruthy();
+                } else {
+                    expect(neighborLabel == results.labels[i]).toBeTruthy();
+                }
             });
 
         });
-
-    });
-
-    it('getCellPerChildAttrGroupedByTarget - simple', function() {
-
-        var id = 6115;
-        TestUtils.loadCellAndNeighbors(id, volumeCells, volumeStructures, httpBackend);
-
-        var cellIndexes = [0];
-        var childType = 28;
-        var useTargetLabelGroups = false;
-        var attribute = volumeHelpers.PerChildAttributes.DIAMETER;
-        var units = volumeHelpers.Units.PIXELS;
-        var results = volumeHelpers.getAggregateChildAttrGroupedByTarget(cellIndexes, childType, useTargetLabelGroups, attribute, units);
-
-        // There is only one child type 28. Its diameter is 70.
-        expect(results.minValue - 70.00).toBeCloseTo(0);
-        expect(results.maxValue - 70.00).toBeCloseTo(0);
-        expect(results.valuesLists.length == 1).toBeTruthy();
-        expect(results.valuesLists.length == 1).toBeTruthy();
-        expect(results.valuesLists[0].length == 1).toBeTruthy();
-        expect(results.labels.length == 1).toBeTruthy();
-        expect(results.labels[0] == 'CBb5w').toBeTruthy();
 
     });
 });

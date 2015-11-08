@@ -189,10 +189,10 @@
                 targets.forEach(function (target) {
 
                     var resultsList = [];
-                    var cellsInLabel = volumeCells.getCellIndexesInLabel(target);
 
                     cellIndexes.forEach(function (cellIndex) {
 
+                        var cellsInLabel = volumeCells.getCellIndexesInLabel(target, cellIndex);
                         var cellChildren = volumeCells.getCellChildrenConnectedToIndexes(cellIndex, cellsInLabel, childType);
 
                         cellChildren.indexes.forEach(function (childIndex, i) {

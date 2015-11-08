@@ -269,13 +269,27 @@
             return indexes;
         }
 
-        function getCellIndexesInLabel(label) {
-            var indexes = [];
+        function getCellIndexesInLabel(label, cellIndex) {
 
-            for (var i = 0; i < self.cells.length; ++i) {
-                if (self.cells[i].label == label) {
-                    indexes.push(i);
+            var indexes = [];
+            var i;
+
+            if (label != 'Self') {
+                for (i = 0; i < self.cells.length; ++i) {
+                    if (i != cellIndex) {
+                        if (label == 'In Class') {
+                            if (self.cells[i].label == self.cells[cellIndex].label) {
+                                indexes.push(i);
+                            }
+                        } else {
+                            if (self.cells[i].label == label) {
+                                indexes.push(i);
+                            }
+                        }
+                    }
                 }
+            } else if (label == 'Self') {
+                indexes.push(cellIndex);
             }
 
             return indexes;
@@ -376,12 +390,21 @@
 
                 var currNeighbor = getCellAt(neighbors[i].neighborIndex);
                 var found = false;
+                var currLabel;
+
+                if (neighbors[i].neighborIndex == cellIndex) {
+                    currLabel = 'Self';
+                } else if (currNeighbor.label == getCellAt(cellIndex).label) {
+                    currLabel = 'In Class';
+                } else {
+                    currLabel = currNeighbor.label;
+                }
 
                 // If currNeighbor's label is already in labels then add it to the per-label indexes. Else, create a new
                 // entry in labels for currNeighbor.
                 for (var j = 0; j < labels.length; ++j) {
 
-                    if (labels[j].label == currNeighbor.label) {
+                    if (labels[j].label == currLabel) {
 
                         found = true;
 
@@ -396,7 +419,7 @@
 
                 if (!found) {
                     labels.push({
-                        label: currNeighbor.label,
+                        label: currLabel,
                         neighborIndexes: [neighbors[i].neighborIndex],
                         childIndexes: [neighbors[i].childIndex]
                     });

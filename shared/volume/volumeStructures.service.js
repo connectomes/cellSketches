@@ -19,6 +19,7 @@
 
         var service = {
             activate: activate,
+            getChildStructureIdsFromNames: getChildStructureIdsFromNames,
             getChildStructureTypeAt: getChildStructureTypeAt,
             getChildStructureTypeCodeAt: getChildStructureTypeCodeAt,
             getChildStructureTypeNameAt: getChildStructureTypeNameAt,
@@ -108,6 +109,18 @@
             }
 
             return $http.get('../shared/volume/labelGroups.json').then(parseCellLabels, failedCellLabels)
+        }
+
+        function getChildStructureIdsFromNames(names) {
+            var ids = [];
+            names.forEach(function(name) {
+                for(var i=0; i<getNumChildStructureTypes(); ++i) {
+                    if(getChildStructureTypeNameAt(i) == name) {
+                        ids.push(getChildStructureTypeAt(i));
+                    }
+                }
+            });
+            return ids;
         }
 
         function getChildStructureTypeAt(index) {
