@@ -455,4 +455,20 @@ describe('VolumeCells service test', function () {
         expect(radius - 62.551805883462947).toBeCloseTo(0);
     });
 
+    it('load from file', function() {
+        volumeCells.loadFromFile('tests/mock/volumeCells.6115.json');
+        httpBackend.flush();
+
+        // Check loaded cells ids
+        expect(volumeCells.getCellAt(0).id == 6115).toBeTruthy();
+        expect(volumeCells.getNumCells() == 629).toBeTruthy();
+
+        // Check children and partners
+        expect(volumeCells.getCellNeighborIdsAt(0).length == 629).toBeTruthy();
+
+        // Check cell convex hull
+        var centroid = volumeCells.getCellCentroidAt(0);
+        expect(centroid.x - 79921.187025).toBeCloseTo(0);
+        expect(centroid.y - 49134.106224).toBeCloseTo(0);
+    });
 });

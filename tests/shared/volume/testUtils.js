@@ -50,6 +50,9 @@ var TestUtils = (function () {
             readJSON('shared/volume/labelGroups.json')
         );
 
+        httpBackend.when('GET', 'tests/mock/volumeCells.6115.json').respond(
+            readJSON('tests/mock/volumeCells.6115.json')
+        );
     }
 
     function loadCellAndNeighbors(id, volumeCells, volumeStructures, httpBackend) {

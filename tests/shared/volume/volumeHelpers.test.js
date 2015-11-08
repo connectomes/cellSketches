@@ -16,7 +16,7 @@ describe('VolumeHelpers service test', function () {
         TestUtils.setup(httpBackend);
     }));
 
-    it('getPerChildTargetNames without groups', function () {
+    it('getAggregatePerChildTargetNames without groups', function () {
 
         var id = 6115;
         TestUtils.loadCellAndNeighbors(id, volumeCells, volumeStructures, httpBackend);
@@ -25,7 +25,7 @@ describe('VolumeHelpers service test', function () {
         var cellIndexes = [0];
         var childType = undefined;
         var useTargetLabelGroups = false;
-        var targets = volumeHelpers.getPerChildTargetNames(cellIndexes, childType, useTargetLabelGroups);
+        var targets = volumeHelpers.getAggregateChildTargetNames(cellIndexes, childType, useTargetLabelGroups);
 
         expect(targets.length == 5).toBeTruthy();
 
@@ -46,13 +46,13 @@ describe('VolumeHelpers service test', function () {
         var useTargetLabelGroups = true;
         var childType = 28;
 
-        var targets = volumeHelpers.getPerChildTargetNames(cellIndexes, childType, useTargetLabelGroups);
+        var targets = volumeHelpers.getAggregateChildTargetNames(cellIndexes, childType, useTargetLabelGroups);
         expect(targets.length == 1).toBeTruthy();
         expect(targets[0] == 'Self');
 
         // List of target groups from all child types.
         childType = undefined;
-        targets = volumeHelpers.getPerChildTargetNames(cellIndexes, childType, useTargetLabelGroups);
+        targets = volumeHelpers.getAggregateChildTargetNames(cellIndexes, childType, useTargetLabelGroups);
 
         var expectedTargets = ['null', 'YAC', 'GC', 'In Class', 'Self'];
         expect(targets.length == 5).toBeTruthy();
@@ -89,6 +89,10 @@ describe('VolumeHelpers service test', function () {
         units = volumeHelpers.Units.NM;
         value = volumeHelpers.getChildAttr(0, 0, attribute, units);
         expect(value - (28.3823 * utils.nmPerPixel)).toBeCloseTo(0);
+
+        attribute = volumeHelpers.PerChildAttributes.CONFIDENCE;
+        value = volumeHelpers.getChildAttr(0, 0, attribute, units);
+        expect(value == 0.5).toBeTruthy();
     });
 
     it('getPerChildTargetAttributes groups - simple', function () {
@@ -101,7 +105,7 @@ describe('VolumeHelpers service test', function () {
         var useTargetLabelGroups = true;
         var attribute = volumeHelpers.PerChildAttributes.DIAMETER;
         var units = volumeHelpers.Units.PIXELS;
-        var results = volumeHelpers.getPerChildAttrGroupedByTarget(cellIndexes, childType, useTargetLabelGroups, attribute, units);
+        var results = volumeHelpers.getAggregateChildAttrGroupedByTarget(cellIndexes, childType, useTargetLabelGroups, attribute, units);
 
         // There is only one child type 28. Its diameter is 70.
         expect(results.minValue - 70.00).toBeCloseTo(0);
@@ -115,7 +119,7 @@ describe('VolumeHelpers service test', function () {
         expect(childId == 16063).toBeTruthy();
 
         // Parent of this child must be 6115.
-        expect(results.valuesLists[0][0].parentIndex == 0).toBeTruthy();
+        expect(results.valuesLists[0][0].cellIndex == 0).toBeTruthy();
 
         // The target of this child is the 0th partner.
         expect(results.valuesLists[0][0].partnerIndex == 0).toBeTruthy();
@@ -131,7 +135,7 @@ describe('VolumeHelpers service test', function () {
         var useTargetLabelGroups = true;
         var attribute = volumeHelpers.PerChildAttributes.DIAMETER;
         var units = volumeHelpers.Units.PIXELS;
-        var results = volumeHelpers.getPerChildAttrGroupedByTarget(cellIndexes, childType, useTargetLabelGroups, attribute, units);
+        var results = volumeHelpers.getAggregateChildAttrGroupedByTarget(cellIndexes, childType, useTargetLabelGroups, attribute, units);
 
         expect(results.labels.length == 5).toBeTruthy();
 
@@ -149,7 +153,7 @@ describe('VolumeHelpers service test', function () {
 
             valuesList.forEach(function (values) {
 
-                var neighborId = volumeCells.getCellNeighborIdFromChildAndPartner(values.parentIndex, values.childIndex, values.partnerIndex);
+                var neighborId = volumeCells.getCellNeighborIdFromChildAndPartner(values.cellIndex, values.childIndex, values.partnerIndex);
                 var neighborIndex = volumeCells.getCellIndex(neighborId);
                 var neighborLabel = volumeCells.getCellAt(neighborIndex).label;
                 var neighborGroupIndex = volumeStructures.getGroupOfLabel(neighborLabel);
@@ -179,7 +183,7 @@ describe('VolumeHelpers service test', function () {
         var useTargetLabelGroups = false;
         var attribute = volumeHelpers.PerChildAttributes.DIAMETER;
         var units = volumeHelpers.Units.PIXELS;
-        var results = volumeHelpers.getPerChildAttrGroupedByTarget(cellIndexes, childType, useTargetLabelGroups, attribute, units);
+        var results = volumeHelpers.getAggregateChildAttrGroupedByTarget(cellIndexes, childType, useTargetLabelGroups, attribute, units);
 
         // There is only one child type 28. Its diameter is 70.
         expect(results.minValue - 70.00).toBeCloseTo(0);
@@ -202,7 +206,7 @@ describe('VolumeHelpers service test', function () {
         var useTargetLabelGroups = false;
         var attribute = volumeHelpers.PerChildAttributes.DIAMETER;
         var units = volumeHelpers.Units.PIXELS;
-        var results = volumeHelpers.getPerChildAttrGroupedByTarget(cellIndexes, childType, useTargetLabelGroups, attribute, units);
+        var results = volumeHelpers.getAggregateChildAttrGroupedByTarget(cellIndexes, childType, useTargetLabelGroups, attribute, units);
 
         // Smallest diameter is 70, largest is 303.267.
         expect(results.minValue - 70.00).toBeCloseTo(0);
@@ -212,7 +216,7 @@ describe('VolumeHelpers service test', function () {
 
             valuesList.forEach(function (values) {
 
-                var childPartners = volumeCells.getCellChildPartnerAt(values.parentIndex, values.childIndex);
+                var childPartners = volumeCells.getCellChildPartnerAt(values.cellIndex, values.childIndex);
                 var neighborId = childPartners.neighborIds[values.partnerIndex];
                 var neighborIndex = volumeCells.getCellIndex(neighborId);
                 var neighborLabel = volumeCells.getCellAt(neighborIndex).label;
@@ -221,6 +225,29 @@ describe('VolumeHelpers service test', function () {
             });
 
         });
+
+    });
+
+    it('getCellPerChildAttrGroupedByTarget - simple', function() {
+
+        var id = 6115;
+        TestUtils.loadCellAndNeighbors(id, volumeCells, volumeStructures, httpBackend);
+
+        var cellIndexes = [0];
+        var childType = 28;
+        var useTargetLabelGroups = false;
+        var attribute = volumeHelpers.PerChildAttributes.DIAMETER;
+        var units = volumeHelpers.Units.PIXELS;
+        var results = volumeHelpers.getAggregateChildAttrGroupedByTarget(cellIndexes, childType, useTargetLabelGroups, attribute, units);
+
+        // There is only one child type 28. Its diameter is 70.
+        expect(results.minValue - 70.00).toBeCloseTo(0);
+        expect(results.maxValue - 70.00).toBeCloseTo(0);
+        expect(results.valuesLists.length == 1).toBeTruthy();
+        expect(results.valuesLists.length == 1).toBeTruthy();
+        expect(results.valuesLists[0].length == 1).toBeTruthy();
+        expect(results.labels.length == 1).toBeTruthy();
+        expect(results.labels[0] == 'CBb5w').toBeTruthy();
 
     });
 });

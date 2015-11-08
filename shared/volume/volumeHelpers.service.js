@@ -13,7 +13,8 @@
 
         self.PerChildAttributes = {
             DIAMETER: 0,
-            DISTANCE: 1
+            DISTANCE: 1,
+            CONFIDENCE: 2
         };
 
         self.Units = {
@@ -23,8 +24,8 @@
 
         var service = {
             getChildAttr: getChildAttr,
-            getPerChildTargetNames: getPerChildTargetNames,
-            getPerChildAttrGroupedByTarget: getPerChildAttrGroupedByTarget
+            getAggregateChildTargetNames: getAggregateChildTargetNames,
+            getAggregateChildAttrGroupedByTarget: getChildAttrGroupedByTarget
         };
 
         service.PerChildAttributes = self.PerChildAttributes;
@@ -40,6 +41,8 @@
                 var cellCentroid = volumeCells.getCellCentroidAt(cellIndex);
                 var childCentroid = volumeCells.getCellChildCentroidAt(cellIndex, childIndex);
                 value = cellCentroid.distance(childCentroid);
+            } else if (attribute == self.PerChildAttributes.CONFIDENCE) {
+                return volumeCells.getCellChildAt(cellIndex, childIndex).confidence;
             }
             if (units == self.Units.PIXELS) {
                 return value;
@@ -48,7 +51,7 @@
             }
         }
 
-        function getPerChildTargetNames(cellIndexes, childType, useTargetLabelGroups) {
+        function getAggregateChildTargetNames(cellIndexes, childType, useTargetLabelGroups) {
 
             var i, j;
             var targets = [];
@@ -131,9 +134,10 @@
          * @param childType - int of child type, list of ints, or undefined for all child types
          * @param useTargetLabelGroups - if true then use the groups defined by volume structures, else use labels
          * @param attribute - desired attribute to aggregate, see self.PerChildAttributes
+         * @param otherIndexes - list of all cells who will be displayed - this will make sure the targets are uniformly ordered for all cells.
          * @param units - see self.units
          */
-        function getPerChildAttrGroupedByTarget(cellIndexes, childType, useTargetLabelGroups, attribute, units) {
+        function getChildAttrGroupedByTarget(cellIndexes, childType, useTargetLabelGroups, attribute, units, otherIndexes) {
 
             var results = {};
             results.minValue = Number.MAX_SAFE_INTEGER;
@@ -141,10 +145,15 @@
             results.valuesLists = [];
             results.labels = [];
 
-            var targets;
-            if (useTargetLabelGroups) {
+            var targets = [];
+            if(otherIndexes) {
+                var allIndexes = otherIndexes.push(cellIndexes);
+                targets = getAggregateChildTargetNames(allIndexes, childType, useTargetLabelGroups);
+            } else {
+                targets = getAggregateChildTargetNames(cellIndexes, childType, useTargetLabelGroups);
+            }
 
-                targets = getPerChildTargetNames(cellIndexes, childType, useTargetLabelGroups);
+            if (useTargetLabelGroups) {
 
                 // For each target label...
                 targets.forEach(function (target) {
@@ -163,12 +172,7 @@
                             results.minValue = Math.min(childValue, results.minValue);
                             results.maxValue = Math.max(childValue, results.maxValue);
 
-                            resultsList.push({
-                                value: childValue,
-                                parentIndex: cellIndex,
-                                childIndex: childIndex,
-                                partnerIndex: cellChildren.partners[i]
-                            });
+                            resultsList.push(new utils.CellChildValue(cellIndex, childIndex, cellChildren.partners[i], childValue));
 
                         });
 
@@ -181,8 +185,6 @@
 
             }
             else {
-
-                targets = getPerChildTargetNames(cellIndexes, childType, useTargetLabelGroups);
 
                 targets.forEach(function (target) {
 
@@ -200,12 +202,7 @@
                             results.minValue = Math.min(childValue, results.minValue);
                             results.maxValue = Math.max(childValue, results.maxValue);
 
-                            resultsList.push({
-                                value: childValue,
-                                parentIndex: cellIndex,
-                                childIndex: childIndex,
-                                partnerIndex: cellChildren.partners[i]
-                            });
+                            resultsList.push(new utils.CellChildValue(cellIndex, childIndex, cellChildren.partners[i], childValue));
 
                         });
 
@@ -216,8 +213,10 @@
 
                 });
             }
+
             return results;
         }
+
     }
 
 }());

@@ -876,7 +876,7 @@
                         var partners = [];
                         for (j = 0; j < numPartners; ++j) {
                             var currPartner = values.cellChildrenPartners[i][j];
-                            partners.push(new utils.CellPartner(currPartner.parentId, currPartner.partnerIndex));
+                            partners.push(new utils.CellPartner(currPartner.neighborIds, currPartner.childIds, currPartner.bidirectional));
                         }
                         self.cellChildrenPartners.push(partners);
                     }
@@ -892,6 +892,9 @@
                                 currLocation.position.y, currLocation.position.z, currLocation.radius));
                         }
                         self.cellLocations.push(locations);
+                        var centroid = getConvexHullFromLocations(locations).centroid();
+                        centroid = new utils.Point2D(centroid[0], centroid[1]);
+                        self.cellCentroids.push(centroid);
                     }
 
                     resolve();
