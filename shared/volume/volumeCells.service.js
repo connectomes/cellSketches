@@ -156,9 +156,7 @@
         }
 
         function getCellChildrenByTypeIndexes(cellIndex, childType) {
-
             var cellChildren = self.cellChildren[cellIndex];
-
             var currChildren = [];
             var i;
             if (childType) {
@@ -379,11 +377,12 @@
         /**
          * @name getCellNeighborLabelsByChildType
          * @desc Returns a cell's neighbors' labels reachable by a specific child type.
-         * @returns list of objects. each object contains a 'label' and 'indexes' field.
+         * @returns Array of objects. each object contains a 'label' and 'indexes' field.
          */
         function getCellNeighborLabelsByChildType(cellIndex, childType) {
 
             var neighbors = getCellNeighborIndexesByChildType(cellIndex, childType);
+
             var labels = [];
 
             for (var i = 0; i < neighbors.length; ++i) {

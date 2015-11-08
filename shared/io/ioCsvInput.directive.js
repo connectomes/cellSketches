@@ -56,7 +56,7 @@
             var cells = self.parseCsv(input);
 
             // Tell scope we're done.
-            $scope.cellIdsSelected(cells);
+            $scope.loadCells(cells);
         };
 
         self.parseCsv = function (input) {

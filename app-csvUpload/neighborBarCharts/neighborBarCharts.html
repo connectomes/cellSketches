@@ -1,5 +1,6 @@
 <h2>Cell child distance</h2>
 
+
 <div id="sidebar">
 
     <label>All cells:
@@ -8,7 +9,7 @@
 
     <label ng-show="!model.ui.allCellsChecked">Cells:
         <ui-select multiple ng-model="model.ui.selectedCells" theme="select2" style="width: 220px;"
-                   ng-change="selectionChanged()">
+                   ng-change="selectedCellsChanged()">
             <ui-select-match placeholder="Click to select">{{$item}}</ui-select-match>
             <ui-select-choices repeat="id in model.masterCells.ids | filter:$select.search">{{id}}</ui-select-choices>
         </ui-select>
@@ -21,6 +22,19 @@
             <ui-select-match placeholder="Click to select">{{$item}}</ui-select-match>
             <ui-select-choices repeat="name in model.masterChildTypes.names | filter:$select.search">{{name}}
             </ui-select-choices>
+        </ui-select>
+    </label>
+
+    <hr>
+    <label>All neighbor labels:
+        <input type="checkbox" ng-model="model.ui.allNeighborLabelsChecked" ng-change="selectedNeighborLabelsChanged()">
+    </label><br/>
+
+    <label ng-show="!model.ui.allNeighborLabelsChecked">Labels:
+        <ui-select multiple ng-model="model.ui.selectedNeighborLabels" theme="select2" style="width: 220px;"
+                   ng-change="selectedNeighborLabelsChanged()">
+            <ui-select-match placeholder="Click to select">{{$item}}</ui-select-match>
+            <ui-select-choices repeat="label in model.ui.neighborLabels | filter:$select.search">{{label}}</ui-select-choices>
         </ui-select>
     </label>
 
@@ -41,7 +55,7 @@
 
 <div id="content">
 
-    <children-distance></children-distance>
+    <neighbor-bar-chart></neighbor-bar-chart>
     <br/>
 
     {{details}}

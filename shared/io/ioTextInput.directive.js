@@ -18,7 +18,7 @@
         function link(scope, element, attrs) {
 
             // This is an ugly hack. cellIdsSelected should be passed in to this directives local scope...
-            scope.notifyParent = scope.cellIdsSelected;
+            scope.notifyParent = scope.loadCells;
 
             scope.submit = function(input) {
 

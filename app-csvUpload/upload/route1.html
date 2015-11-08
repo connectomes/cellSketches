@@ -13,4 +13,7 @@
 <div id="content">
     <h4>Enter cell IDs</h4>
     <io-text-input></io-text-input>
+    <div ng-show="model.cellsLoading"><h5>Loading cells</h5></div>
+    <div ng-show="model.cellsLoaded"><h5>Cells loaded!</h5></div>
+    <div ng-show="model.cellsLoadError"><h5>Error: {{model.cellsLoadErrorMessage}}</h5></div>
 </div>

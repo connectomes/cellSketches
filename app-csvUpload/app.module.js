@@ -21,5 +21,10 @@
                 templateUrl: "vis/route2.html",
                 controller: 'ExampleController'
             })
+            .state('neighborBarCharts', {
+                url: "/neighborBarCharts",
+                templateUrl: "neighborBarCharts/neighborBarCharts.html",
+                controller: 'ExampleController'
+            })
     });
 })();

@@ -5,9 +5,9 @@
         .controller('ExampleController', ExampleController);
 
     // Order here has to match the parameters of the ExampleController function.
-    ExampleController.$inject = ['$scope', '$q', 'volumeOData', 'volumeBounds', 'volumeLayers', 'volumeCells', 'volumeStructures'];
+    ExampleController.$inject = ['$scope', '$q', '$log', 'volumeOData', 'volumeBounds', 'volumeLayers', 'volumeCells', 'volumeStructures'];
 
-    function ExampleController($scope, $q, volumeOData, volumeBounds, volumeLayers, volumeCells, volumeStructures) {
+    function ExampleController($scope, $q, $log, volumeOData, volumeBounds, volumeLayers, volumeCells, volumeStructures) {
         var self = this;
         self.verbose = true;
 
@@ -20,7 +20,13 @@
                     units: 'nm',
                     selectedCells: [],
                     selectedChildTypes: ["Gap Junction", "Unknown"],
-                    selectedChildAttribute: 'Distance from center'
+                    selectedChildAttribute: 'Distance from center',
+                    allNeighborLabelsChecked: true,
+                    neighborLabels: [],
+                    selectedNeighborLabels: [],
+                    neighborGroups: [],
+                    selectedNeighborGroups: [],
+                    useNeighborGroups: false
                 },
 
                 // all available cells to be displayed
@@ -51,9 +57,14 @@
                 // current state of loading cells
                 cellsLoading: false,
                 cellsLoaded: false,
+                cellsLoadError: false,
+                cellsLoadErrorMessage: '',
                 isActivated: false,
                 usingRemote: true
             };
+
+        // Set this to false for loading local json of cell data.
+        $scope.model.usingRemote = true;
 
         $scope.activate = function () {
 
@@ -66,67 +77,103 @@
             }
 
             function parseMasterChildTypes() {
+
                 var numChildStructureTypes = volumeStructures.getNumChildStructureTypes();
+
                 for (var i = 0; i < numChildStructureTypes; ++i) {
                     $scope.model.masterChildTypes.ids.push(volumeStructures.getChildStructureTypeAt(i));
                     $scope.model.masterChildTypes.names.push(volumeStructures.getChildStructureTypeNameAt(i));
+                }
+
+                if (!$scope.model.usingRemote) {
+                    $scope.loadCells([6115]);
                 }
             }
 
         };
 
+        /**
+         * @name $scope.broadcastChange
+         * @desc tell all of the views listening for 'cellsChanged' that the ui has changed in some way.
+         */
         $scope.broadcastChange = function () {
-            $scope.$broadcast('cellsChanged', $scope.model.cells, $scope.model.childType, $scope.useSecondaryCells, $scope.secondaryCells, $scope.model.ui.units == 'nm', $scope.model.ui.selectedChildAttribute == 'Diameter');
+
+            $log.debug('scope - broadcast change');
+
+            var selectedTargets;
+            var useOnlySelectedTargets;
+
+            // TODO: Fix this when we add support for all neighbor groups
+            if ($scope.model.ui.useNeighborGroups) {
+                selectedTargets = $scope.model.ui.selectedNeighborGroups;
+                //useOnlySelectedTargets = $scope.model.ui.allNeighborGroupsChecked;
+            } else {
+                selectedTargets = $scope.model.ui.selectedNeighborLabels;
+                useOnlySelectedTargets = $scope.model.ui.allNeighborLabelsChecked;
+            }
+
+            $scope.$broadcast('cellsChanged',
+                $scope.model.cells,
+                $scope.model.childType,
+                $scope.model.ui.useNeighborGroups,
+                useOnlySelectedTargets,
+                selectedTargets,
+                $scope.model.ui.units == 'nm',
+                $scope.model.ui.selectedChildAttribute == 'Diameter');
         };
 
-        $scope.cellIdsSelected = function (cells) {
+        /**
+         * @name $scope.getCurrentlySelectedCellIndexes
+         * @returns List of cellIndexes that the user has selected accounting for the allCellsChecked option.
+         */
+        $scope.getCurrentlySelectedCellIndexes = function () {
+
+            $log.debug('scope - getCurrentlySelectedCellIndexes');
+
+            if ($scope.model.ui.allCellsChecked) {
+
+                return $scope.model.masterCells.indexes;
+
+            } else {
+
+                var selectedIndexes = [];
+                $scope.model.ui.selectedCells.forEach(function (cellId) {
+                    selectedIndexes.push(volumeCells.getCellIndex(cellId));
+                });
+
+                return selectedIndexes;
+
+            }
+        };
+
+        /**
+         * @name $scope.loadCells
+         * @desc Starts a sequence of callbacks for loading cells.
+         * @param cells - list of positive integers (cell ids) that will be requested.
+         */
+        $scope.loadCells = function (cells) {
+
             $scope.model.cellsLoading = true;
             $scope.model.cellsLoaded = false;
 
-            cells = [6115, 6117];
+            if ($scope.model.usingRemote) {
 
-            volumeCells.reset();
-            volumeCells.loadCellIds(cells).then(cellsLoadedSuccess, cellsLoadedFailure);
+                volumeCells.reset();
+                volumeCells.loadCellIds(cells).then(cellsLoadedSuccess, cellsLoadedFailure);
 
-            /*
-             // Example of how to hack response from the server.
-             // Finished loading.
-             self.cells = [];
-             for(i=0; i<4; ++i) {
-             self.cells.push(volumeCells.getCellAt(i).id);
-             }
-             $scope.model.cellsLoading = false;
-             $scope.model.cellsLoaded = true;
-             var numCells = self.cells.length;
-             $scope.model.masterCells.ids = [];
-             $scope.model.masterCells.indexes = [];
-             for (var i = 0; i < numCells; ++i) {
-             var currId = self.cells[i];
-             $scope.model.masterCells.ids.push(currId);
-             $scope.model.masterCells.indexes.push(volumeCells.getCellIndex(currId));
-             }
-             // All cells are selected by default.
-             $scope.model.ui.selectedCells = angular.copy($scope.model.masterCells);
-             $scope.model.cells = angular.copy($scope.model.masterCells);
-             $scope.broadcastChange();
-             */
-        };
+            } else {
 
-        $scope.childTypesChanged = function () {
-            var childTypes = [];
+                volumeCells.loadFromFile('../tests/mock/volumeCells.6115.json').then(cellsFinished);
+                $scope.model.masterCells.indexes.push(0);
+                $scope.model.masterCells.ids.push(6115);
 
-            for (var i = 0; i < $scope.model.ui.selectedChildTypes.length; ++i) {
-                var name = $scope.model.ui.selectedChildTypes[i];
-                var index = $scope.model.masterChildTypes.names.indexOf(name);
-                var childType = $scope.model.masterChildTypes.ids[index];
-
-                childTypes.push(childType);
             }
-
-            $scope.model.childType = childTypes;
-            $scope.broadcastChange();
         };
 
+        /**
+         * @name $scope.saveCellNeighborsAsCsv
+         * @desc XXX - untested
+         */
         $scope.saveCellNeighborsAsCsv = function (cellId) {
             var index = volumeCells.getCellIndex(cellId);
             var children = volumeCells.getCellChildrenByTypeIndexes(index, $scope.model.childType);
@@ -171,6 +218,10 @@
             return str;
         };
 
+        /**
+         * @name $scope.saveCurrentCellChildrenData
+         * @desc XXX - untested
+         */
         $scope.saveCurrentCellChildrenData = function () {
             var indexes = $scope.model.cells.indexes;
             var data = "parent id, child id, child type, child confidence, distance (px), distance (nm), child target id, child target label, max diameter (px), max diameter (nm)\n";
@@ -184,7 +235,38 @@
             saveAs(blob, 'data.csv');
         };
 
-        $scope.selectionChanged = function () {
+        /**
+         * @name $scope.selectedChildTypesChanged
+         * @desc called when user changes the child types they'd like to view. This will change the available
+         *      neighbor labels, selected neighbor labels (removing those no longer reachable) then broadcast
+         *      the change.
+         */
+        $scope.selectedChildTypesChanged = function () {
+            var childTypes = [];
+
+            for (var i = 0; i < $scope.model.ui.selectedChildTypes.length; ++i) {
+
+                var name = $scope.model.ui.selectedChildTypes[i];
+                var index = $scope.model.masterChildTypes.names.indexOf(name);
+                var childType = $scope.model.masterChildTypes.ids[index];
+
+                childTypes.push(childType);
+            }
+
+            $scope.model.childType = childTypes;
+
+            var cellIndexes = $scope.getCurrentlySelectedCellIndexes();
+
+            $scope.updateAvailableNeighborLabels(cellIndexes, $scope.model.childType);
+
+            $scope.broadcastChange();
+        };
+
+        /**
+         * @name $scope.selectedCellsChanged
+         * @desc Updates $scope.model.cells.* to use what the user has selected. Then broadcasts the change.
+         */
+        $scope.selectedCellsChanged = function () {
             $scope.model.cells.ids = [];
             $scope.model.cells.indexes = [];
 
@@ -200,15 +282,92 @@
             $scope.broadcastChange();
         };
 
+        /**
+         * @name $scope.selectedNeighborLabelsChanged
+         * @desc broadcasts change of selection to all views.
+         */
+        $scope.selectedNeighborLabelsChanged = function () {
+            $scope.broadcastChange();
+        };
+
+        /**
+         * @name $scope.unitsChanged
+         * @desc Broadcasts selected units to all views.
+         */
         $scope.unitsChanged = function () {
             $scope.broadcastChange();
         };
 
-        $scope.activate();
+        /**
+         * @name $scope.updateAvailableNeighborLabelsFromNames
+         * @param cellIndexes List of currently selected cell indexes
+         * @param childTypeNames List of currently selected child types in string form
+         * @desc converts childTypeNames to List of codes then calls updateAvailableNeighborLabels. This does NOT
+         *      broadcast changes to views.
+         */
+        $scope.updateAvailableNeighborLabelsFromNames = function (cellIndexes, childTypeNames) {
 
-        $scope.hello = function(){
-            console.log('hello');
+            $log.debug('scope - updateAvailableNeighborLabelsFromNames', cellIndexes, childTypeNames);
+
+            var childTypes = volumeStructures.getChildStructureIdsFromNames(childTypeNames);
+
+            return $scope.updateAvailableNeighborLabels(cellIndexes, childTypes);
+
         };
+
+        /**
+         * @name $scope.updateAvailableNeighborLabelsFromNames
+         * @param cellIndexes List of currently selected cell indexes
+         * @param childTypes List of currently selected child types as integers
+         * @desc updates $scope.model.ui.neighborLabels to show the labels that are reachable from cellIndexes
+         *      by childType. When user removes a childType, this will update the selected labels to show only the
+         *      labels currently reachable.
+         */
+        $scope.updateAvailableNeighborLabels = function (cellIndexes, childTypes) {
+
+            $log.debug('scope - updateAvailableNeighborLabels', cellIndexes, childTypes);
+
+            var allLabels = [];
+
+            cellIndexes.forEach(function (cellIndex) {
+
+                var results = volumeCells.getCellNeighborLabelsByChildType(cellIndex, childTypes);
+
+                results.forEach(function (result) {
+
+                    var label = result.label;
+
+                    if (allLabels.indexOf(label) == -1) {
+                        allLabels.push(label);
+                    }
+
+                });
+
+            });
+
+            if (allLabels.length == 0) {
+
+                $scope.model.ui.selectedNeighborLabels = [];
+
+            } else {
+
+                $scope.model.ui.selectedNeighborLabels.forEach(function (selectedLabel, i) {
+
+                    if (allLabels.indexOf(selectedLabel) == -1) {
+
+                        $scope.model.ui.selectedNeighborLabels.splice(i, 1);
+
+                    }
+
+                });
+
+            }
+
+            $log.debug(' setting all neighbor labels to: ', allLabels);
+            $scope.model.ui.neighborLabels = allLabels;
+        };
+
+        $scope.activate();
 
         // These functions are chained together for async callbacks. The order they get called in:
         // 1. cellsLoadedSuccess -- this updates the scope's masterCells
@@ -264,7 +423,8 @@
 
         function cellsLoadedFailure(results) {
             $scope.model.invalidIds = angular.copy(results.invalidIds);
-            cellsLoadedSuccess([results]);
+            $scope.model.cellsLoadErrorMessage = "The following cells could not be loaded:" + $scope.model.invalidIds;
+            $scope.model.cellsLoadError = true;
         }
 
         function cellsLoadedSuccess(results) {
@@ -334,6 +494,9 @@
             // All cells are selected by default.
             $scope.model.ui.selectedCells = angular.copy($scope.model.masterCells);
             $scope.model.cells = angular.copy($scope.model.masterCells);
+
+            $scope.updateAvailableNeighborLabelsFromNames($scope.model.masterCells.indexes, $scope.model.ui.selectedChildTypes);
+
             $scope.broadcastChange();
         }
 

@@ -17,12 +17,14 @@
     <script src="app.module.js"></script>
     <script src="app.js"></script>
     <script src="vis/childrenDistance.directive.js"></script>
+    <script src="neighborBarCharts/neighborBarCharts.directive.js"></script>
 
     <!-- Shared modules. Order matters here. Module must be included before services. -->
     <script src="../shared/io/io.module.js"></script>
     <script src="../shared/io/ioCsvInput.directive.js"></script>
     <script src="../shared/io/ioTextInput.directive.js"></script>
     <script src="../shared/io/ioTextParser.service.js"></script>
+
     <script src="../shared/volume/volume.module.js"></script>
     <script src="../shared/volume/volumeOdata.service.js"></script>
     <script src="../shared/volume/volumeBounds.service.js"></script>
@@ -60,6 +62,7 @@
         <div class="container">
             <ul class="nav">
                 <li ui-sref-active="active"><a ui-sref="route1">Cells</a></li>
+                <li ui-sref-active="active"><a ui-sref="neighborBarCharts">Neighbors</a></li>
                 <li ui-sref-active="active"><a ui-sref="route2">Children</a></li>
             </ul>
         </div>
