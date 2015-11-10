@@ -275,14 +275,8 @@
             if (label != 'Self') {
                 for (i = 0; i < self.cells.length; ++i) {
                     if (i != cellIndex) {
-                        if (label == 'In Class') {
-                            if (self.cells[i].label == self.cells[cellIndex].label) {
-                                indexes.push(i);
-                            }
-                        } else {
-                            if (self.cells[i].label == label) {
-                                indexes.push(i);
-                            }
+                        if (self.cells[i].label == label) {
+                            indexes.push(i);
                         }
                     }
                 }
@@ -393,8 +387,6 @@
 
                 if (neighbors[i].neighborIndex == cellIndex) {
                     currLabel = 'Self';
-                } else if (currNeighbor.label == getCellAt(cellIndex).label) {
-                    currLabel = 'In Class';
                 } else {
                     currLabel = currNeighbor.label;
                 }

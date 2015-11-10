@@ -404,7 +404,7 @@ describe('VolumeCells service test', function () {
         expect(neighbors[0].neighborIndexes.indexOf(volumeCells.getCellIndex(69493)) > -1).toBeTruthy();
         expect(neighbors[0].neighborIndexes.indexOf(volumeCells.getCellIndex(86246)) > -1).toBeTruthy();
 
-        expect(neighbors[1].label == 'In Class').toBeTruthy();
+        expect(neighbors[1].label == 'CBb5w').toBeTruthy();
         expect(neighbors[1].neighborIndexes.length == 1).toBeTruthy();
         expect(neighbors[1].neighborIndexes.indexOf(volumeCells.getCellIndex(69496)) > -1).toBeTruthy();
 

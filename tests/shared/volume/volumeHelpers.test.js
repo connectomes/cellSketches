@@ -28,7 +28,7 @@ describe('VolumeHelpers service test', function () {
         var targets = volumeHelpers.getAggregateChildTargetNames(cellIndexes, childType, useTargetLabelGroups);
 
         // Check that we found all the targets!
-        var expectedTargets = ['In Class', 'Self', 'YAC Starburst', 'GC', 'AC', 'null'];
+        var expectedTargets = ['CBb5w', 'Self', 'YAC Starburst', 'GC', 'AC', 'null'];
 
         expect(targets.length == expectedTargets.length).toBeTruthy();
 
