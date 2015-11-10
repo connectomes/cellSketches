@@ -147,7 +147,8 @@
 
             var targets = [];
             if(otherIndexes) {
-                var allIndexes = otherIndexes.push(cellIndexes);
+                var allIndexes = angular.copy(otherIndexes);
+                allIndexes.push(cellIndexes);
                 targets = getAggregateChildTargetNames(allIndexes, childType, useTargetLabelGroups);
             } else {
                 targets = getAggregateChildTargetNames(cellIndexes, childType, useTargetLabelGroups);

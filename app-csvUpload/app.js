@@ -10,6 +10,7 @@
     function ExampleController($scope, $q, $log, volumeOData, volumeBounds, volumeLayers, volumeCells, volumeStructures) {
         var self = this;
         self.verbose = true;
+        self.dumpVolumeCells = false;
 
         // $scope.model is shared between different instances of this controller. It gets initialized when the
         // application starts. References to $scope.model are copied to other instances of the controller.
@@ -64,7 +65,7 @@
             };
 
         // Set this to false for loading local json of cell data.
-        $scope.model.usingRemote = true;
+        $scope.model.usingRemote = false;
 
         $scope.activate = function () {
 
@@ -163,9 +164,13 @@
 
             } else {
 
-                volumeCells.loadFromFile('../tests/mock/volumeCells.6115.json').then(cellsFinished);
+                volumeCells.loadFromFile('../tests/mock/volumeCells.three.json').then(cellsFinished);
                 $scope.model.masterCells.indexes.push(0);
+                $scope.model.masterCells.indexes.push(1);
+                $scope.model.masterCells.indexes.push(2);
+                $scope.model.masterCells.ids.push(307);
                 $scope.model.masterCells.ids.push(6115);
+                $scope.model.masterCells.ids.push(6117);
 
             }
         };
@@ -496,6 +501,10 @@
             $scope.model.cells = angular.copy($scope.model.masterCells);
 
             $scope.updateAvailableNeighborLabelsFromNames($scope.model.masterCells.indexes, $scope.model.ui.selectedChildTypes);
+
+            if(self.dumpVolumeCells) {
+                volumeCells.saveAsFile('volumeCells.json');
+            }
 
             $scope.broadcastChange();
         }

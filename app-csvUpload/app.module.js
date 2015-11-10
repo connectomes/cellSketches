@@ -1,7 +1,7 @@
 (function() {
     'use strict';
 
-    var app = angular.module('app.csvUpload', ['app.volumeModule', 'ui.router', 'ui.select', 'ngSanitize', 'app.ioModule']);
+    var app = angular.module('app.csvUpload', ['app.volumeModule', 'ui.router', 'ui.select', 'ngSanitize', 'app.ioModule', 'app.visModule']);
 
     app.config(function($stateProvider, $urlRouterProvider){
 

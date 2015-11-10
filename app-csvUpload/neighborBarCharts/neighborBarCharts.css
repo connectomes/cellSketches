@@ -1,0 +1,19 @@
+.header rect{
+    fill: #F8F8F8;
+}
+
+.header text{
+    fill: #333;
+    font: 10px sans-serif;
+    text-anchor: middle;
+}
+
+.cell rect{
+    fill: none;
+}
+
+.cell text{
+    fill: black;
+    font: 10px sans-serif;
+    text-anchor: middle;
+}
