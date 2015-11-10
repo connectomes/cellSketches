@@ -115,8 +115,6 @@
                             }
                         });
 
-                    $log.debug('minValue', minValue);
-                    $log.debug('maxValue', maxValue);
                     var cellFillScale = d3.scale.linear()
                         .domain([minValue, maxValue])
                         .range([0, self.fieldWidth - 1]);
@@ -137,13 +135,50 @@
                             $log.debug(Number(d.length));
                             return cellFillScale(Number(d.length));
                         })
+                        .attr('x', 0.5)
                         .attr('height', self.fieldHeight)
                         .style({
                             fill: '#606060'
                         });
 
+                    otherColumns.append('text')
+                        .attr("x", self.fieldWidth / 2)
+                        .attr("y", self.fieldHeight / 2)
+                        .attr("dy", ".35em")
+                        .text(function (d, i) {
+                            return d.length;
+                        }
+                    ).style('fill', '#D36000')
+                        .style('display', 'none');
+
+                    otherColumns.append('rect')
+                        .attr('width', self.fieldWidth - 1)
+                        .attr('height', self.fieldHeight)
+                        .style('fill', 'transparent')
+                        .on('mouseover', function () {
+
+                            // show text
+                            d3.select(this.parentNode)
+                                .select('text')
+                                .style('display', 'block');
+
+                            d3.select(this)
+                                .style('stroke-width', 1)
+                                .style('stroke', '#D36000');
+
+                        }).on('mouseout', function () {
+
+                            // hide text
+                            d3.select(this.parentNode)
+                                .select('text')
+                                .style('display', 'none');
+
+                            d3.select(this)
+                                .style('stroke-width', 0);
+                        });
 
                 } else {
+
                     tableCells.append("text")
                         .attr("x", self.fieldWidth / 2)
                         .attr("y", self.fieldHeight / 2)
