@@ -5,9 +5,9 @@
 
     <label>All cells:
         <input type="checkbox" ng-model="model.ui.allCellsChecked" ng-change="selectionChanged()">
-    </label><br/>
+    </label>
 
-    <label ng-show="!model.ui.allCellsChecked">Cells:
+    <label ng-show="!model.ui.allCellsChecked"><br>Cells:
         <ui-select multiple ng-model="model.ui.selectedCells" theme="select2" style="width: 220px;"
                    ng-change="selectedCellsChanged()">
             <ui-select-match placeholder="Click to select">{{$item}}</ui-select-match>
@@ -39,17 +39,13 @@
     </label>
 
     <hr>
-    <label>Attribute:
-        <select name="attribute" ng-model="model.ui.selectedChildAttribute" ng-change="broadcastChange()"
-                ng-options="str for str in model.masterChildAttributes"></select>
+
+    <label>Use bars:
+        <input type="checkbox" ng-model="model.ui.useBarsInTable" ng-change="broadcastChange()">
     </label>
+
     <hr>
 
-    <label>Units:
-        <select name="units" ng-model="model.ui.units" ng-change="unitsChanged()"
-                ng-options="str for str in ['px', 'nm']"></select>
-    </label>
-    <hr>
     <button ng-click="saveCurrentCellChildrenData()">Download</button>
 </div>
 

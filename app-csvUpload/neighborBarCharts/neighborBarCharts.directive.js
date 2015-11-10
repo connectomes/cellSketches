@@ -32,6 +32,7 @@
 
 
             function cellsChanged(slot, cells, childType, useTargetLabelGroups, useOnlySelectedTargets, selectedTargets, convertToNm, useRadius) {
+                var useBarsInTable = scope.model.ui.useBarsInTable;
                 $log.debug('neighborBarChart - cells changed');
                 $log.debug(' cellIndexes', cells);
                 $log.debug(' childType', childType);
@@ -41,11 +42,12 @@
                 $log.debug(' convertToNm', convertToNm);
                 $log.debug(' useRadius', convertToNm);
                 $log.debug(' convertToNm', useRadius);
+                $log.debug(' useBarsInTable', useBarsInTable);
 
                 var cellIndexes = cells.indexes;
-
                 visUtils.clearGroup(self.mainGroup);
 
+                // Get list of targets
                 var targets;
                 if (!useOnlySelectedTargets) {
                     targets = selectedTargets;
@@ -53,9 +55,11 @@
                     targets = volumeHelpers.getAggregateChildTargetNames(cellIndexes, childType, useTargetLabelGroups);
                 }
 
+                // Create header data from list of targes
                 var headerData = ['id', 'label'];
                 headerData = headerData.concat(targets);
 
+                // Create table data
                 var tableData = [];
                 var maxCount = -1;
                 var minCount = 10000;
@@ -77,13 +81,9 @@
                     });
                     tableData.push(rowData);
                 });
-                $log.debug(headerData);
-                $log.debug(tableData);
-                $log.debug(targets);
 
                 var table = new visTable.TableD3();
-                table.activate(headerData, tableData, self.mainGroup);
-                var previousSort = null;
+                table.activate(headerData, tableData, self.mainGroup, useBarsInTable, minCount, maxCount);
 
 
                 /*

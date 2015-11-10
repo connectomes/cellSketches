@@ -27,7 +27,11 @@
                     selectedNeighborLabels: [],
                     neighborGroups: [],
                     selectedNeighborGroups: [],
-                    useNeighborGroups: false
+                    useNeighborGroups: false,
+
+                    // TODO: These fields are accessed by directives without explicit communication from controller.
+                    // They should be refactored.
+                    useBarsInTable: true
                 },
 
                 // all available cells to be displayed
@@ -65,7 +69,7 @@
             };
 
         // Set this to false for loading local json of cell data.
-        $scope.model.usingRemote = false;
+        $scope.model.usingRemote = true;
 
         $scope.activate = function () {
 

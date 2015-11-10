@@ -24,9 +24,9 @@
                 activate: activate
             };
 
-            function activate(headerData, rowData, group) {
+            function activate(headerData, rowData, group, useBars, minValue, maxValue) {
                 createHeader(headerData, group);
-                createRows(rowData, group);
+                createRows(rowData, group, useBars, minValue, maxValue);
             }
 
             function createHeader(headerData, group) {
@@ -59,7 +59,7 @@
                     });
             }
 
-            function createRows(rowData, group) {
+            function createRows(rowData, group, useBars, minValue, maxValue) {
 
                 var rowsGroup = group.append("g")
                     .attr("class", "rowsGroup");
@@ -74,7 +74,6 @@
                     .attr("transform", function (d, i) {
                         return "translate(0," + (i + 1) * (self.fieldHeight + 1) + ")";
                     });
-
 
                 var tableCells = self.rows.selectAll('.cell')
                     .data(function (d) {
@@ -92,23 +91,76 @@
                     .attr("width", self.fieldWidth - 1)
                     .attr("height", self.fieldHeight);
 
-                tableCells.append("text")
-                    .attr("x", self.fieldWidth / 2)
-                    .attr("y", self.fieldHeight / 2)
-                    .attr("dy", ".35em")
-                    .text(function (d, i) {
-                        if (i == 0) {
-                            return Number(d);
-                        } else if (i == 1) {
-                            return d;
-                        } else {
-                            return d.length;
-                        }
+                if (useBars) {
+
+                    var firstTwoColumns = tableCells.filter(function (d, i) {
+                        return (i == 0) || (i == 1);
                     });
+
+                    var otherColumns = tableCells.filter(function (d, i) {
+                        return (i != 0) && (i != 1);
+                    });
+
+                    firstTwoColumns.append("text")
+                        .attr("x", self.fieldWidth / 2)
+                        .attr("y", self.fieldHeight / 2)
+                        .attr("dy", ".35em")
+                        .text(function (d, i) {
+                            if (i == 0) {
+                                return Number(d);
+                            } else if (i == 1) {
+                                return d;
+                            } else {
+                                return d.length;
+                            }
+                        });
+
+                    $log.debug('minValue', minValue);
+                    $log.debug('maxValue', maxValue);
+                    var cellFillScale = d3.scale.linear()
+                        .domain([minValue, maxValue])
+                        .range([0, self.fieldWidth - 1]);
+
+                    otherColumns.append('rect')
+                        .attr('width', self.fieldWidth - 1)
+                        .attr('height', self.fieldHeight)
+                        .style('fill', function (d, i) {
+                            if (d.length > 0) {
+                                return '#F8F8F8'
+                            } else {
+                                return '#FFFFFF';
+                            }
+                        });
+
+                    otherColumns.append('rect')
+                        .attr('width', function (d) {
+                            $log.debug(Number(d.length));
+                            return cellFillScale(Number(d.length));
+                        })
+                        .attr('height', self.fieldHeight)
+                        .style({
+                            fill: '#606060'
+                        });
+
+
+                } else {
+                    tableCells.append("text")
+                        .attr("x", self.fieldWidth / 2)
+                        .attr("y", self.fieldHeight / 2)
+                        .attr("dy", ".35em")
+                        .text(function (d, i) {
+                            if (i == 0) {
+                                return Number(d);
+                            } else if (i == 1) {
+                                return d;
+                            } else {
+                                return d.length;
+                            }
+                        });
+                }
             }
 
             function sortOnColumn(column) {
-                $log.debug('sorting...', column);
                 if (column != self.previousSort) {
                     self.rows.sort(function (a, b) {
                         return sort(a[column], b[column]);
@@ -129,7 +181,6 @@
             }
 
             function sort(a, b) {
-                $log.debug(typeof a);
                 if (typeof a == "string") {
                     return a.localeCompare(b);
                 }
