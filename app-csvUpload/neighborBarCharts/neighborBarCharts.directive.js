@@ -83,6 +83,7 @@
                 });
 
                 var table = new visTable.TableD3();
+
                 table.activate(headerData, tableData, self.mainGroup, useBarsInTable, minCount, maxCount);
 
 
