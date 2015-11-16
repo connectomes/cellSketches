@@ -231,4 +231,58 @@ describe('VolumeHelpers service test', function () {
         });
 
     });
+
+    it('getPerChildAttrGroupedByTypeAndTarget - simple', function() {
+
+        var id = 6115;
+        TestUtils.loadCellAndNeighbors(id, volumeCells, volumeStructures, httpBackend);
+        var cellIndexes = [0];
+        var useTargetLabelGroups = false;
+        var childType = [28, 35];
+        results = volumeHelpers.getPerChildAttrGroupedByTypeAndTarget(cellIndexes, childType, useTargetLabelGroups);
+
+        // results.valuesLists will be in this order:
+        // [null (G), null (PSD), AC (G), AC (PSD), Self (G), Self (PSD)]
+        var expectedLabels = ['null', 'null', 'AC', 'AC', 'Self', 'Self'];
+        var expectedChildTypes = [28, 35, 28, 35, 28, 35];
+        var expectedValuesLengths = [0, 3, 0, 3, 1, 0];
+
+        // Check labels
+        results.labels.forEach(function(label, i) {
+           expect(expectedLabels[i] == label).toBeTruthy();
+        });
+
+        // Check child types
+        results.childTypes.forEach(function(childType, i) {
+            expect(expectedChildTypes[i] == childType).toBeTruthy();
+        });
+
+        // Check values by making sure that:
+        // 1. we have correct number of children in each valuesList
+        // 2. children in valuesLists[i] have type expectedChildTypes[i]
+        // 3. children in valuesLists[i] targets have label expectLabels[i]
+        results.valuesLists.forEach(function(valuesList, i) {
+
+            expect(valuesList.length == expectedValuesLengths[i]).toBeTruthy();
+
+            valuesList.forEach(function(value) {
+
+                var child = volumeCells.getCellChildAt(value.cellIndex, value.childIndex);
+                expect(child.type == expectedChildTypes[i]).toBeTruthy();
+
+                var partners = volumeCells.getCellChildPartnerAt(value.cellIndex, value.childIndex);
+                var partnerId = partners.neighborIds[value.partnerIndex];
+                var partnerCell = volumeCells.getCell(partnerId);
+                if(expectedLabels[i] != 'Self') {
+                    expect(partnerCell.label == expectedLabels[i]).toBeTruthy();
+                } else {
+                    expect(partnerCell.label == 'CBb5w').toBeTruthy();
+                }
+            });
+
+        });
+
+
+
+    });
 });

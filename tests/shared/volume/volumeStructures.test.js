@@ -52,4 +52,11 @@ describe('VolumeStructures service test', function () {
         groupName = volumeStructures.getGroupAt(groupIndex);
         expect(groupName == 'Self').toBeTruthy();
     });
+
+    it('getChildTypeCode', function() {
+
+        expect(volumeStructures.getChildStructureTypeCode(28) == 'G').toBeTruthy();
+        expect(volumeStructures.getChildStructureTypeCode(35) == 'PSD').toBeTruthy();
+
+    });
 });

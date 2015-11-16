@@ -25,7 +25,8 @@
         var service = {
             getChildAttr: getChildAttr,
             getAggregateChildTargetNames: getAggregateChildTargetNames,
-            getAggregateChildAttrGroupedByTarget: getChildAttrGroupedByTarget
+            getAggregateChildAttrGroupedByTarget: getChildAttrGroupedByTarget,
+            getPerChildAttrGroupedByTypeAndTarget: getPerChildAttrGroupedByTypeAndTarget
         };
 
         service.PerChildAttributes = self.PerChildAttributes;
@@ -116,7 +117,7 @@
         }
 
         /**
-         * @name getPerChildAttrGroupedByTarget
+         * @name getChildAttrGroupedByTarget
          * @desc Returns an object {
          *      labels: contains a list of the targets that the children are grouped by
          *      maxValue: computed for all children of all cellIndexes
@@ -146,7 +147,7 @@
             results.labels = [];
 
             var targets = [];
-            if(otherIndexes) {
+            if (otherIndexes) {
                 var allIndexes = angular.copy(otherIndexes);
                 allIndexes.push(cellIndexes);
                 targets = getAggregateChildTargetNames(allIndexes, childType, useTargetLabelGroups);
@@ -218,6 +219,56 @@
             return results;
         }
 
+        /**
+         * @name getPerChildAttrGroupedByTypeAndTarget
+         * @desc Returns an object similar to the one returned by getChildAttrGroupedByTarget, with the valuesLists
+         *       divided by target label AND child type.
+         * @param cellIndexes - a list of cells whose children will be aggregated
+         * @param childTypes - int of child type, list of ints, or undefined for all child types
+         * @param useTargetLabelGroups - if true then use the groups defined by volume structures, else use labels
+         * @param attribute - desired attribute to aggregate, see self.PerChildAttributes
+         * @param otherIndexes - list of all cells who will be displayed - this will make sure the targets are uniformly ordered for all cells.
+         * @param units - see self.units
+         */
+        function getPerChildAttrGroupedByTypeAndTarget(cellIndexes, childTypes, useTargetLabelGroups, attribute, units, otherIndexes) {
+
+            var resultsByTarget = getChildAttrGroupedByTarget(cellIndexes, childTypes, useTargetLabelGroups, attribute, units, otherIndexes);
+
+            var results = {};
+            results.labels = [];
+            results.childTypes = [];
+            results.valuesLists = [];
+
+            var targets = resultsByTarget.labels;
+
+            targets.forEach(function (target, i) {
+
+                childTypes.forEach(function (childType) {
+
+                    results.labels.push(target);
+                    results.childTypes.push(childType);
+
+                    var values = resultsByTarget.valuesLists[i];
+                    var newValues = [];
+
+                    values.forEach(function (value) {
+
+                        var child = volumeCells.getCellChildAt(value.cellIndex, value.childIndex);
+
+                        if (child.type == childType) {
+                            newValues.push(value);
+                        }
+
+                    });
+
+                    results.valuesLists.push(newValues);
+
+                });
+
+            });
+
+            return results;
+        }
     }
 
 }());

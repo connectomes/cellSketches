@@ -22,6 +22,7 @@
             getChildStructureIdsFromNames: getChildStructureIdsFromNames,
             getChildStructureTypeAt: getChildStructureTypeAt,
             getChildStructureTypeCodeAt: getChildStructureTypeCodeAt,
+            getChildStructureTypeCode: getChildStructureTypeCode,
             getChildStructureTypeNameAt: getChildStructureTypeNameAt,
             getChildStructureTypeName: getChildStructureTypeName,
             getGroupAt: getGroupAt,
@@ -65,7 +66,7 @@
                     var cleanStructure = {
                         id: currStructure.ID,
                         name: currStructure.Name.trim(),
-                        code: currStructure.Code,
+                        code: currStructure.Code.trim(),
                         parentId: currStructure.ParentID,
                         color: currStructure.Color
                     };
@@ -144,6 +145,17 @@
 
         function getChildStructureTypeCodeAt(index) {
             return self.structureTypes[self.childStructureTypeIndexes[index]].code;
+        }
+
+        function getChildStructureTypeCode(id) {
+            for (var i = 0; i < self.childStructureTypeIndexes.length; ++i) {
+                var structureIndex = self.childStructureTypeIndexes[i];
+                var currStructure = self.structureTypes[structureIndex];
+                if (currStructure.id == id) {
+                    return currStructure.code;
+                }
+            }
+            throw 'Asked for invalid structure type name';
         }
 
         function getGroupAt(index) {
