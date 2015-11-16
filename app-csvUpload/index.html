@@ -17,7 +17,7 @@
     <script src="app.module.js"></script>
     <script src="app.js"></script>
     <script src="vis/childrenDistance.directive.js"></script>
-    <script src="neighborBarCharts/neighborBarCharts.directive.js"></script>
+    <script src="neighborTable/neighborTable.directive.js"></script>
 
     <!-- Shared modules. Order matters here. Module must be included before services. -->
     <script src="../shared/io/io.module.js"></script>
@@ -56,7 +56,7 @@
 
     <!-- Stylesheets. -->
     <link rel="stylesheet" type="text/css" href="style.css">
-    <link rel="stylesheet" type="text/css" href="neighborBarCharts/neighborBarCharts.css">
+    <link rel="stylesheet" type="text/css" href="neighborTable/neighborTable.css">
     <link rel="stylesheet" type="text/css" href="../bower_components/ui-select/dist/select.css">
     <link rel="stylesheet" type="text/css" href="../shared/d3/histogram.d3.css">
 
@@ -71,7 +71,7 @@
         <div class="container">
             <ul class="nav">
                 <li ui-sref-active="active"><a ui-sref="route1">Cells</a></li>
-                <li ui-sref-active="active"><a ui-sref="neighborBarCharts">Neighbors</a></li>
+                <li ui-sref-active="active"><a ui-sref="neighborTable">Neighbor Tables</a></li>
                 <li ui-sref-active="active"><a ui-sref="route2">Children</a></li>
             </ul>
         </div>

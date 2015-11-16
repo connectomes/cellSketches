@@ -21,9 +21,9 @@
                 templateUrl: "vis/route2.html",
                 controller: 'ExampleController'
             })
-            .state('neighborBarCharts', {
-                url: "/neighborBarCharts",
-                templateUrl: "neighborBarCharts/neighborBarCharts.html",
+            .state('neighborTable', {
+                url: "/neighborTable",
+                templateUrl: "neighborTable/neighborTable.html",
                 controller: 'ExampleController'
             })
     });
