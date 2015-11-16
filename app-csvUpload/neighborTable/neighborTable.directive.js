@@ -100,7 +100,7 @@
 
                 var table = new visTable.TableD3();
 
-                table.activate(headerData, tableData, self.mainGroup, useBarsInTable, minCount, maxCount);
+                table.activate(headerData, tableData, self.mainGroup, useBarsInTable, minCount, maxCount, onCellClicked);
 
 
                 /*
@@ -196,6 +196,20 @@
                 });
 
                 return targets;
+            }
+
+            function onCellClicked(valueList) {
+                console.log(valueList);
+
+                var uniqueTargets = [];
+                valueList.forEach(function(value) {
+                    var id = volumeCells.getCellNeighborIdFromChildAndPartner(value.cellIndex, value.childIndex, value.partnerIndex);
+                    if(uniqueTargets.indexOf(id) == -1) {
+                        uniqueTargets.push(id);
+                    }
+                });
+                $log.log(uniqueTargets);
+                $log.log(uniqueTargets.length);
             }
         }
     }

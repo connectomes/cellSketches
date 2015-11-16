@@ -24,9 +24,9 @@
                 activate: activate
             };
 
-            function activate(headerData, rowData, group, useBars, minValue, maxValue) {
+            function activate(headerData, rowData, group, useBars, minValue, maxValue, clickCallback) {
                 createHeader(headerData, group);
-                createRows(rowData, group, useBars, minValue, maxValue);
+                createRows(rowData, group, useBars, minValue, maxValue, clickCallback);
             }
 
             function createHeader(headerData, group) {
@@ -59,7 +59,7 @@
                     });
             }
 
-            function createRows(rowData, group, useBars, minValue, maxValue) {
+            function createRows(rowData, group, useBars, minValue, maxValue, clickCallback) {
 
                 var rowsGroup = group.append("g")
                     .attr("class", "rowsGroup");
@@ -173,7 +173,8 @@
 
                             d3.select(this)
                                 .style('stroke-width', 0);
-                        });
+
+                        }).on('click', clickCallback);
 
                 } else {
 
