@@ -30,6 +30,19 @@
             self.smallMultipleOffsets = new utils.Point2D(self.smallMultiplePadding + self.smallMultipleWidth, self.smallMultiplePadding + self.smallMultipleHeight);
             scope.broadcastChange();
 
+            addDownloadButton();
+
+            /**
+             * @name addDownLoadButton
+             * @desc adds a download button to the div id #sidebar.
+             */
+            function addDownloadButton() {
+                d3.select('#sidebar')
+                    .append('html')
+                    .html('<hr>' +
+                    '<button>Download</button>')
+                    .on('click', downloadClicked);
+            }
 
             function cellsChanged(slot, cells, childType, useTargetLabelGroups, useOnlySelectedTargets, selectedTargets, convertToNm, useRadius) {
                 var useBarsInTable = scope.model.ui.useBarsInTable;
@@ -44,18 +57,21 @@
                 $log.debug(' convertToNm', useRadius);
                 $log.debug(' useBarsInTable', useBarsInTable);
 
+                // Copy to member variables
+                self.cells = cells;
+                self.childType = childType;
+                self.useTargetLabelGroups = useTargetLabelGroups;
+                self.useOnlySelectedTargets = useOnlySelectedTargets;
+                self.selectedTargets = selectedTargets;
                 var cellIndexes = cells.indexes;
+
                 visUtils.clearGroup(self.mainGroup);
 
                 // Get list of targets
-                var targets;
-                if (!useOnlySelectedTargets) {
-                    targets = selectedTargets;
-                } else {
-                    targets = volumeHelpers.getAggregateChildTargetNames(cellIndexes, childType, useTargetLabelGroups);
-                }
+                var targets = getCellChildTargets(cellIndexes, childType, useTargetLabelGroups, useOnlySelectedTargets, selectedTargets);
+                self.targets = targets;
 
-                // Create header data from list of targes
+                // Create header data from list of targets
                 var headerData = ['id', 'label'];
                 headerData = headerData.concat(targets);
 
@@ -116,6 +132,70 @@
                  .selectAll('body').data(results.valuesLists[0]).enter().append('p').text(function(d) { return d.cellIndex + ', ' + d.childIndex + ', ' + d.value; });
                  });
                  */
+            }
+
+            function downloadClicked() {
+
+                var data = [];
+                var header = [];
+
+                self.cells.indexes.forEach(function(cellIndex) {
+
+                    var results = volumeHelpers.getPerChildAttrGroupedByTypeAndTarget([cellIndex], self.childType, self.useTargetLabelGroups, volumeHelpers.PerChildAttributes.CONFIDENCE, null, self.cells.indexes);
+
+                    if(header.length == 0) {
+
+                        header.push('id');
+                        header.push('label');
+
+                        results.labels.forEach(function (label, i) {
+                            var targetIndex = self.targets.indexOf(label);
+                            if(targetIndex != -1) {
+                                header[targetIndex + 2] = (label + ' (' + volumeStructures.getChildStructureTypeCode(results.childTypes[i]) + ')');
+                            }
+                        });
+                        $log.debug(header);
+                    }
+
+                    var rowData = [];
+
+                    var cell = volumeCells.getCellAt(cellIndex);
+                    rowData.push(cell.id);
+                    rowData.push(cell.label);
+
+                    results.valuesLists.forEach(function (values, i) {
+
+                        var targetsIndex = self.targets.indexOf(results.labels[i]);
+                        if (targetsIndex != -1) {
+                            rowData[targetsIndex + 2] = (values.length);
+                        }
+                    });
+
+                    data.push(rowData);
+                });
+
+                var csv = utils.dataToText(header);
+
+                data.forEach(function(row) {
+                    csv += utils.dataToText(row);
+                });
+
+                scope.saveData(csv);
+            }
+
+            function getCellChildTargets(cellIndexes, childType, useTargetLabelGroups, useOnlySelectedTargets, selectedTargets) {
+                var targets;
+                if (!useOnlySelectedTargets) {
+                    targets = selectedTargets;
+                } else {
+                    targets = volumeHelpers.getAggregateChildTargetNames(cellIndexes, childType, useTargetLabelGroups);
+                }
+
+                targets.sort(function(a, b) {
+                    return a.toLowerCase().localeCompare(b.toLowerCase());
+                });
+
+                return targets;
             }
         }
     }

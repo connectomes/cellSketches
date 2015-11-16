@@ -77,7 +77,6 @@
 
                 var tableCells = self.rows.selectAll('.cell')
                     .data(function (d) {
-                        $log.debug('table cells data', d);
                         return d;
                     })
                     .enter()
@@ -132,7 +131,6 @@
 
                     otherColumns.append('rect')
                         .attr('width', function (d) {
-                            $log.debug(Number(d.length));
                             return cellFillScale(Number(d.length));
                         })
                         .attr('x', 0.5)

@@ -244,6 +244,12 @@
             saveAs(blob, 'data.csv');
         };
 
+
+        $scope.saveData = function(data) {
+
+            var blob = new Blob([data], {type: "text"});
+            saveAs(blob, 'data.csv');
+        };
         /**
          * @name $scope.selectedChildTypesChanged
          * @desc called when user changes the child types they'd like to view. This will change the available
