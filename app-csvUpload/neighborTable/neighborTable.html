@@ -34,7 +34,8 @@
         <ui-select multiple ng-model="model.ui.selectedNeighborLabels" theme="select2" style="width: 220px;"
                    ng-change="selectedNeighborLabelsChanged()">
             <ui-select-match placeholder="Click to select">{{$item}}</ui-select-match>
-            <ui-select-choices repeat="label in model.ui.neighborLabels | filter:$select.search">{{label}}</ui-select-choices>
+            <ui-select-choices repeat="label in model.ui.neighborLabels | filter:$select.search">{{label}}
+            </ui-select-choices>
         </ui-select>
     </label>
 
@@ -47,9 +48,11 @@
 <div id="content">
 
     <neighbor-bar-chart></neighbor-bar-chart>
+
+    <h3>Connectivity Overview</h3>
     <div id="grid0" ui-grid="overviewGridOptions" ui-grid-cellNav class="grid"></div>
     <br/>
-        Neighbors
-        <div id="grid1" ui-grid="gridOptions" class="grid" ui-grid-resize-columns ui-grid-selection></div>
+    <h3>Details</h3>
+    <div id="grid1" ui-grid="gridOptions" class="grid" ui-grid-resize-columns ui-grid-selection></div>
     {{details}}
 </div>

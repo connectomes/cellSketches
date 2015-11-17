@@ -76,7 +76,7 @@
                 scope.overviewGridOptions.columnDefs = columnDefs;
                 scope.overviewGridOptions.multiSelect = false;
                 scope.overviewGridOptions.data = [];
-
+                scope.highlightList = [];
                 // Register API for interaction.
                 scope.overviewGridOptions.onRegisterApi = function (gridApi) {
                     scope.gridApi = gridApi;
@@ -84,6 +84,7 @@
                     gridApi.cellNav.on.navigate(scope, function (newRowCol, oldRowCol) {
                         var nameOfColumn = newRowCol.col.colDef.name;
                         var values = newRowCol.row.entity[nameOfColumn].values;
+                        clearHighlighting(scope);
                         onCellClicked(values);
                     });
                 };
@@ -154,7 +155,7 @@
                 scope.gridOptions.onRegisterApi = function (gridApi) {
                     scope.gridApi = gridApi;
                     gridApi.selection.on.rowSelectionChanged(scope, function (row) {
-                        // TODO: show which cells in the overviewtable are in this cell.
+                        updateNeighborCells(row.entity.id, scope);
                     });
                 };
             }
@@ -195,7 +196,8 @@
                             values: values,
                             fraction: (values.length / maxCount),
                             width: columnWidth,
-                            showText: !useBarsInTable
+                            showText: !useBarsInTable,
+                            highlight: false
                         };
                     });
                     data.push(rowData);
@@ -333,6 +335,35 @@
                 } else {
                     return 1;
                 }
+            }
+
+            function updateNeighborCells(neighborId, scope) {
+                clearHighlighting(scope);
+                console.log(scope.overviewGridOptions.data);
+                var neighborCell = volumeCells.getCell(neighborId);
+                var neighborLabel = neighborCell.label;
+                for(var i=0; i<scope.overviewGridOptions.data.length; ++i) {
+                    var row = scope.overviewGridOptions.data[i];
+                    var cellValues = row[neighborLabel].values;
+                    for(var j=0; j<cellValues.length; ++j) {
+                        var value = cellValues[j];
+                        var otherNeighbor = volumeCells.getCellNeighborIdFromChildAndPartner(value.cellIndex, value.childIndex, value.partnerIndex);
+                        if(otherNeighbor == neighborCell.id) {
+                            row[neighborLabel].highlight = true;
+                            scope.highlightList.push({row: i, label: neighborLabel});
+                        }
+                    }
+                }
+                scope.$apply();
+            }
+
+            function clearHighlighting(scope) {
+                for(var i=0; i<scope.highlightList.length; ++i) {
+                    var cell = scope.highlightList[i];
+                    scope.overviewGridOptions.data[cell.row][cell.label].highlight = false;
+                }
+                scope.highlightList = [];
+                scope.$apply();
             }
         }
     }

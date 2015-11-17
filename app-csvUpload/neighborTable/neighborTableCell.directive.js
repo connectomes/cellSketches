@@ -10,7 +10,8 @@
             scope: {
                 values: '=',
                 fraction: '=',
-                width: '='
+                width: '=',
+                highlight: '='
             },
             link: link,
             restrict: 'E'
@@ -22,11 +23,22 @@
             var valueBarFill = '#707070';
             var horizontalPadding = 4;
 
-            scope.$watch('values',onValuesChanged, true);
+            scope.$watch('values', onValuesChanged, true);
+            scope.$watch('highlight', onHighlightChanged, true);
+            var self = {};
 
             var svg = d3.select(element[0]).append('svg');
             if (scope.values.length > 0) {
                drawRects(scope, horizontalPadding, valueBarFill, nonZeroFill);
+            }
+
+            function onHighlightChanged(newValue, oldValue) {
+                console.log('highlight changed');
+                if(newValue) {
+                    self.fill.style('fill', '#101010');
+                } else if(oldValue) {
+                    self.fill.style('fill', valueBarFill);
+                }
             }
 
             function onValuesChanged(newValue, oldValue) {
@@ -43,7 +55,7 @@
                     .style('fill', nonZeroFill)
                     .attr('x', horizontalPadding);
 
-                svg.append('rect')
+                self.fill = svg.append('rect')
                     .attr('width', (scope.width - (horizontalPadding * 2)) * scope.fraction)
                     .attr('height', 20)
                     .style('fill', valueBarFill)
