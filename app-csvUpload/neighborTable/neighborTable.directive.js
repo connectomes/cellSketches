@@ -18,8 +18,8 @@
 
             $log.debug('neighborBarChart - link');
 
-            self.svg = visUtils.createSvg(element[0]);
-            self.mainGroup = visUtils.createMainGroup(self.svg);
+            //self.svg = visUtils.createSvg(element[0]);
+            //self.mainGroup = visUtils.createMainGroup(self.svg);
             scope.$on('cellsChanged', cellsChanged);
 
             self.numSmallMultiplesPerRow = 6;
@@ -64,7 +64,7 @@
                 self.selectedTargets = selectedTargets;
                 var cellIndexes = cells.indexes;
 
-                visUtils.clearGroup(self.mainGroup);
+                //visUtils.clearGroup(self.mainGroup);
 
                 // Get list of targets
                 var targets = getCellChildTargets(cellIndexes, childType, useTargetLabelGroups, useOnlySelectedTargets, selectedTargets);
@@ -74,49 +74,92 @@
                 var headerData = ['id', 'label'];
                 headerData = headerData.concat(targets);
 
+                scope.overviewGridOptions = {};
+                var columnDefs = [];
+                var columnWidth = 100;
+                headerData.forEach(function (field, i) {
+                        $log.debug(field);
+                        columnDefs.push({
+                            field: field,
+                            width: columnWidth,
+                            displayName: field
+                        });
+
+                        if (i > 1) {
+                            columnDefs[columnDefs.length - 1].cellTemplate = 'neighborTable/neighborTableCell.html';
+                            columnDefs[columnDefs.length - 1].sortingAlgorithm = sortColumn;
+                        }
+                    }
+                );
+                scope.overviewGridOptions.columnDefs = columnDefs;
                 // Create table data
                 var tableData = [];
                 var maxCount = -1;
                 var minCount = 10000;
 
+                scope.overviewGridOptions.data = [];
+
                 cellIndexes.forEach(function (cellIndex) {
                     var results = volumeHelpers.getAggregateChildAttrGroupedByTarget([cellIndex], childType, useTargetLabelGroups, volumeHelpers.PerChildAttributes.CONFIDENCE, null, cellIndexes);
-                    var rowData = [];
-                    rowData.push(volumeCells.getCellAt(cellIndex).id);
-                    rowData.push(volumeCells.getCellAt(cellIndex).label);
                     results.valuesLists.forEach(function (values, i) {
                         var targetsIndex = targets.indexOf(results.labels[i]);
                         if (targetsIndex != -1) {
-                            // Align rowData with targets
-                            // Offset by 2 b/c rowData[0] and rowData[1] are already taken by cell id and label
-                            rowData[targetsIndex + 2] = values;
                             maxCount = Math.max(maxCount, values.length);
                             minCount = Math.min(minCount, values.length);
                         }
                     });
-                    tableData.push(rowData);
                 });
 
-                var table = new visTable.TableD3();
 
-                table.activate(headerData, tableData, self.mainGroup, useBarsInTable, minCount, maxCount, onCellClicked);
+                cellIndexes.forEach(function (cellIndex) {
+                    var results = volumeHelpers.getAggregateChildAttrGroupedByTarget([cellIndex], childType, useTargetLabelGroups, volumeHelpers.PerChildAttributes.CONFIDENCE, null, cellIndexes);
+                    var rowData = {};
+                    rowData.id = volumeCells.getCellAt(cellIndex).id;
+                    rowData.label = volumeCells.getCellAt(cellIndex).label;
+
+                    results.valuesLists.forEach(function (values, i) {
+                        var currTarget = results.labels[i];
+                        rowData[currTarget] = {
+                            values: values,
+                            fraction: (values.length / maxCount),
+                            width: columnWidth
+                        };
+                        var targetsIndex = targets.indexOf(results.labels[i]);
+                        if (targetsIndex != -1) {
+                            // Align rowData with targets
+                            // Offset by 2 b/c rowData[0] and rowData[1] are already taken by cell id and label
+                            //rowData[targetsIndex + 2] = values;
+                            maxCount = Math.max(maxCount, values.length);
+                            minCount = Math.min(minCount, values.length);
+                        }
+                    });
+                    scope.overviewGridOptions.data.push(rowData);
+                });
+
+
+                //var table = new visTable.TableD3();
+
+                //table.activate(headerData, tableData, self.mainGroup, useBarsInTable, minCount, maxCount, onCellClicked);
 
                 scope.gridOptions = {};
                 scope.gridOptions.enableFullRowSelection = true;
                 scope.gridOptions.multiSelect = false;
                 scope.gridOptions.columnDefs = [{
                     field: 'id',
+                    displayName: 'id',
                     width: 75
                 }, {
                     field: 'count',
+                    displayName: 'count',
                     width: 75
                 }, {
-                    field: 'children'
+                    field: 'children',
+                    displayName: 'children'
                 }];
 
-                scope.gridOptions.onRegisterApi = function(gridApi) {
+                scope.gridOptions.onRegisterApi = function (gridApi) {
                     scope.gridApi = gridApi;
-                    gridApi.selection.on.rowSelectionChanged(scope, function(row) {
+                    gridApi.selection.on.rowSelectionChanged(scope, function (row) {
                         var msg = 'row selected ';
                         console.log(row);
                     });
@@ -158,18 +201,18 @@
                 var data = [];
                 var header = [];
 
-                self.cells.indexes.forEach(function(cellIndex) {
+                self.cells.indexes.forEach(function (cellIndex) {
 
                     var results = volumeHelpers.getPerChildAttrGroupedByTypeAndTarget([cellIndex], self.childType, self.useTargetLabelGroups, volumeHelpers.PerChildAttributes.CONFIDENCE, null, self.cells.indexes);
 
-                    if(header.length == 0) {
+                    if (header.length == 0) {
 
                         header.push('id');
                         header.push('label');
 
                         results.labels.forEach(function (label, i) {
                             var targetIndex = self.targets.indexOf(label);
-                            if(targetIndex != -1) {
+                            if (targetIndex != -1) {
                                 header[targetIndex + 2] = (label + ' (' + volumeStructures.getChildStructureTypeCode(results.childTypes[i]) + ')');
                             }
                         });
@@ -195,7 +238,7 @@
 
                 var csv = utils.dataToText(header);
 
-                data.forEach(function(row) {
+                data.forEach(function (row) {
                     csv += utils.dataToText(row);
                 });
 
@@ -210,7 +253,7 @@
                     targets = volumeHelpers.getAggregateChildTargetNames(cellIndexes, childType, useTargetLabelGroups);
                 }
 
-                targets.sort(function(a, b) {
+                targets.sort(function (a, b) {
                     return a.toLowerCase().localeCompare(b.toLowerCase());
                 });
 
@@ -223,11 +266,11 @@
                 var uniqueTargets = [];
                 var childrenPerTarget = [];
                 var numChildrenPerTarget = [];
-                valueList.forEach(function(value) {
+                valueList.forEach(function (value) {
                     var id = volumeCells.getCellNeighborIdFromChildAndPartner(value.cellIndex, value.childIndex, value.partnerIndex);
                     var child = volumeCells.getCellChildAt(value.cellIndex, value.childIndex);
                     var currIndex = uniqueTargets.indexOf(id);
-                    if(currIndex == -1) {
+                    if (currIndex == -1) {
                         uniqueTargets.push(id);
                         currIndex = uniqueTargets.length - 1;
                         childrenPerTarget[currIndex] = '';
@@ -240,7 +283,7 @@
                 });
 
                 scope.gridOptions.data = [];
-                uniqueTargets.forEach(function(target, i) {
+                uniqueTargets.forEach(function (target, i) {
                     scope.gridOptions.data.push({
                         id: target,
                         count: numChildrenPerTarget[i],
@@ -250,6 +293,18 @@
                 });
 
                 scope.$apply();
+            }
+
+            function sortColumn(a, b, rowA, rowB, direction) {
+                var aData = a.values.length;
+                var bData = b.values.length;
+                if (aData < bData) {
+                    return -1;
+                } else if (aData == bData) {
+                    return 0;
+                } else {
+                    return 1;
+                }
             }
         }
     }

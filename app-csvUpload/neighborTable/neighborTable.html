@@ -39,7 +39,6 @@
     </label>
 
     <hr>
-
     <label>Use bars:
         <input type="checkbox" ng-model="model.ui.useBarsInTable" ng-change="broadcastChange()">
     </label>
@@ -48,6 +47,7 @@
 <div id="content">
 
     <neighbor-bar-chart></neighbor-bar-chart>
+    <div id="grid0" ui-grid="overviewGridOptions" class="grid"><</div>
     <br/>
         Neighbors
         <div id="grid1" ui-grid="gridOptions" class="grid" ui-grid-resize-columns ui-grid-selection></div>

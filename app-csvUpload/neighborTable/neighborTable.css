@@ -22,3 +22,7 @@
     width: 1350px;
     height: 250px;
 }
+
+.overviewGridCell {
+    padding-top: 5px;
+}
