@@ -93,7 +93,7 @@
                 var maxCount = results.maxCount;
 
                 // Create row data.
-                scope.overviewGridOptions.data = createRowData(cellIndexes, childType, useTargetLabelGroups, maxCount, columnWidth);
+                scope.overviewGridOptions.data = createRowData(cellIndexes, childType, useTargetLabelGroups, maxCount, columnWidth, useBarsInTable);
 
                 // Done with the overview table. Now create the details table.
                 createDetailsTable(scope);
@@ -181,7 +181,7 @@
                 return columnDefs;
             }
 
-            function createRowData(cellIndexes, childType, useTargetLabelGroups, maxCount, columnWidth) {
+            function createRowData(cellIndexes, childType, useTargetLabelGroups, maxCount, columnWidth, useBarsInTable) {
                 var data = [];
                 cellIndexes.forEach(function (cellIndex) {
                     var results = volumeHelpers.getAggregateChildAttrGroupedByTarget([cellIndex], childType, useTargetLabelGroups, volumeHelpers.PerChildAttributes.CONFIDENCE, null, cellIndexes);
@@ -194,7 +194,8 @@
                         rowData[currTarget] = {
                             values: values,
                             fraction: (values.length / maxCount),
-                            width: columnWidth
+                            width: columnWidth,
+                            showText: !useBarsInTable
                         };
                     });
                     data.push(rowData);

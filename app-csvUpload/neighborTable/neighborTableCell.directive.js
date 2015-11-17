@@ -48,6 +48,9 @@
                     .attr('height', 20)
                     .style('fill', valueBarFill)
                     .attr('x', horizontalPadding);
+
+                svg.append('text')
+                    .text(scope.values.length);
             }
         }
     }
