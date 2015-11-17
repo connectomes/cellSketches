@@ -17,3 +17,8 @@
     font: 10px sans-serif;
     text-anchor: middle;
 }
+
+.grid {
+    width: 1350px;
+    height: 250px;
+}

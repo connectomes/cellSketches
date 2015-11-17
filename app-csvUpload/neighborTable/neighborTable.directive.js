@@ -20,7 +20,6 @@
 
             self.svg = visUtils.createSvg(element[0]);
             self.mainGroup = visUtils.createMainGroup(self.svg);
-            self.detailsGroup = visUtils.createDetailsGroup(self.svg);
             scope.$on('cellsChanged', cellsChanged);
 
             self.numSmallMultiplesPerRow = 6;
@@ -102,6 +101,26 @@
 
                 table.activate(headerData, tableData, self.mainGroup, useBarsInTable, minCount, maxCount, onCellClicked);
 
+                scope.gridOptions = {};
+                scope.gridOptions.enableFullRowSelection = true;
+                scope.gridOptions.multiSelect = false;
+                scope.gridOptions.columnDefs = [{
+                    field: 'id',
+                    width: 75
+                }, {
+                    field: 'count',
+                    width: 75
+                }, {
+                    field: 'children'
+                }];
+
+                scope.gridOptions.onRegisterApi = function(gridApi) {
+                    scope.gridApi = gridApi;
+                    gridApi.selection.on.rowSelectionChanged(scope, function(row) {
+                        var msg = 'row selected ';
+                        console.log(row);
+                    });
+                };
 
                 /*
                  d3.select(element[0]).selectAll('div').remove();
@@ -202,14 +221,35 @@
                 console.log(valueList);
 
                 var uniqueTargets = [];
+                var childrenPerTarget = [];
+                var numChildrenPerTarget = [];
                 valueList.forEach(function(value) {
                     var id = volumeCells.getCellNeighborIdFromChildAndPartner(value.cellIndex, value.childIndex, value.partnerIndex);
-                    if(uniqueTargets.indexOf(id) == -1) {
+                    var child = volumeCells.getCellChildAt(value.cellIndex, value.childIndex);
+                    var currIndex = uniqueTargets.indexOf(id);
+                    if(currIndex == -1) {
                         uniqueTargets.push(id);
+                        currIndex = uniqueTargets.length - 1;
+                        childrenPerTarget[currIndex] = '';
+                        childrenPerTarget[currIndex] += child.id;
+                        numChildrenPerTarget[currIndex] = 1;
+                    } else {
+                        childrenPerTarget[currIndex] += ', ' + child.id;
+                        numChildrenPerTarget[currIndex] += 1;
                     }
                 });
-                $log.log(uniqueTargets);
-                $log.log(uniqueTargets.length);
+
+                scope.gridOptions.data = [];
+                uniqueTargets.forEach(function(target, i) {
+                    scope.gridOptions.data.push({
+                        id: target,
+                        count: numChildrenPerTarget[i],
+                        children: childrenPerTarget[i]
+
+                    });
+                });
+
+                scope.$apply();
             }
         }
     }

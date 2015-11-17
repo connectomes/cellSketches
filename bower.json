@@ -26,5 +26,8 @@
   ],
   "resolutions": {
     "angular": "1.4.7"
+  },
+  "devDependencies": {
+    "angular-ui-grid": "ui-grid#~3.0.7"
   }
 }

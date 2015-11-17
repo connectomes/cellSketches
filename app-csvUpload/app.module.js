@@ -1,9 +1,10 @@
-(function() {
+(function () {
     'use strict';
 
-    var app = angular.module('app.csvUpload', ['app.volumeModule', 'ui.router', 'ui.select', 'ngSanitize', 'app.ioModule', 'app.visModule']);
+    var app = angular.module('app.csvUpload', ['app.volumeModule', 'ui.router', 'ui.select', 'ngSanitize', 'app.ioModule', 'app.visModule',
+        'ui.grid', 'ui.grid.resizeColumns', 'ui.grid.selection']);
 
-    app.config(function($stateProvider, $urlRouterProvider){
+    app.config(function ($stateProvider, $urlRouterProvider) {
 
         // For any unmatched url, send to /route1
         $urlRouterProvider.otherwise("/route1");

@@ -12,7 +12,7 @@
         var self = this;
 
         self.svgWidth = 1350;
-        self.svgHeight = 800;
+        self.svgHeight = 400;
 
         self.mainHeight = 500;
         self.mainPadding = 10;
