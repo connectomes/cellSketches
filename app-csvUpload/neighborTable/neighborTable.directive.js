@@ -28,7 +28,6 @@
             self.smallMultipleHeight = 200;
             self.smallMultipleOffsets = new utils.Point2D(self.smallMultiplePadding + self.smallMultipleWidth, self.smallMultiplePadding + self.smallMultipleHeight);
             scope.broadcastChange();
-
             addDownloadButton();
 
             /**
@@ -64,83 +63,78 @@
                 self.selectedTargets = selectedTargets;
                 var cellIndexes = cells.indexes;
 
-                //visUtils.clearGroup(self.mainGroup);
-
-                // Get list of targets
+                // Create column defs from targets.
                 var targets = getCellChildTargets(cellIndexes, childType, useTargetLabelGroups, useOnlySelectedTargets, selectedTargets);
                 self.targets = targets;
-
-                // Create header data from list of targets
                 var headerData = ['id', 'label'];
                 headerData = headerData.concat(targets);
-
-                scope.overviewGridOptions = {};
-                var columnDefs = [];
                 var columnWidth = 100;
-                headerData.forEach(function (field, i) {
-                        $log.debug(field);
-                        columnDefs.push({
-                            field: field,
-                            width: columnWidth,
-                            displayName: field
-                        });
+                var columnDefs = createColumnDefs(headerData, columnWidth);
 
-                        if (i > 1) {
-                            columnDefs[columnDefs.length - 1].cellTemplate = 'neighborTable/neighborTableCell.html';
-                            columnDefs[columnDefs.length - 1].sortingAlgorithm = sortColumn;
-                        }
-                    }
-                );
+                // Create overview grid options
+                scope.overviewGridOptions = {};
                 scope.overviewGridOptions.columnDefs = columnDefs;
-                // Create table data
-                var tableData = [];
-                var maxCount = -1;
-                var minCount = 10000;
-
+                scope.overviewGridOptions.multiSelect = false;
                 scope.overviewGridOptions.data = [];
 
+                // Register API for interaction.
+                scope.overviewGridOptions.onRegisterApi = function (gridApi) {
+                    scope.gridApi = gridApi;
+
+                    gridApi.cellNav.on.navigate(scope, function (newRowCol, oldRowCol) {
+                        var nameOfColumn = newRowCol.col.colDef.name;
+                        var values = newRowCol.row.entity[nameOfColumn].values;
+                        onCellClicked(values);
+                    });
+                };
+
+                // Find min and max values
+                var results = findMinMaxValues(cellIndexes, childType, targets, useTargetLabelGroups);
+                var maxCount = results.maxCount;
+
+                // Create row data.
+                scope.overviewGridOptions.data = createRowData(cellIndexes, childType, useTargetLabelGroups, maxCount, columnWidth);
+
+                // Done with the overview table. Now create the details table.
+                createDetailsTable(scope);
+
+                //createDebuggingElements(cells, useOnlySelectedTargets, selectedTargets, childType);
+            }
+
+            function createDebuggingElements(cells, useTargetLabelGroups, useOnlySelectedTargets, selectedTargets, childType) {
+                d3.select(element[0]).selectAll('div').remove();
+
+                d3.select(element[0]).append('div').html('<h4>cell indexes</h4>');
+                d3.select(element[0]).append('div').html(cells.ids);
+
+                d3.select(element[0]).append('div').html('<h4>selected labels</h4>');
+
+                if (!useOnlySelectedTargets) {
+                    d3.select(element[0]).append('div').html(selectedTargets);
+                } else {
+                    d3.select(element[0]).append('div').html('using all targets');
+                }
+
+                d3.select(element[0]).append('div').html('<h4>selected child types</h4>');
+                d3.select(element[0]).append('div').html(childType);
+
+                var cellIndexes = cells.indexes;
+                var targets = volumeHelpers.getAggregateChildTargetNames(cellIndexes, childType, useTargetLabelGroups);
+                d3.select(element[0]).append('div').html('<h4>all targets</h4>');
+                d3.select(element[0]).append('div').html(targets);
+
                 cellIndexes.forEach(function (cellIndex) {
                     var results = volumeHelpers.getAggregateChildAttrGroupedByTarget([cellIndex], childType, useTargetLabelGroups, volumeHelpers.PerChildAttributes.CONFIDENCE, null, cellIndexes);
-                    results.valuesLists.forEach(function (values, i) {
-                        var targetsIndex = targets.indexOf(results.labels[i]);
-                        if (targetsIndex != -1) {
-                            maxCount = Math.max(maxCount, values.length);
-                            minCount = Math.min(minCount, values.length);
-                        }
-                    });
+                    d3.select(element[0]).append('div').html('<h4>results</h4>');
+                    d3.select(element[0]).append('div')
+                        .selectAll('body').data(results.valuesLists[0]).enter().append('p').text(function (d) {
+                            return d.cellIndex + ', ' + d.childIndex + ', ' + d.value;
+                        });
                 });
+            }
 
-
-                cellIndexes.forEach(function (cellIndex) {
-                    var results = volumeHelpers.getAggregateChildAttrGroupedByTarget([cellIndex], childType, useTargetLabelGroups, volumeHelpers.PerChildAttributes.CONFIDENCE, null, cellIndexes);
-                    var rowData = {};
-                    rowData.id = volumeCells.getCellAt(cellIndex).id;
-                    rowData.label = volumeCells.getCellAt(cellIndex).label;
-
-                    results.valuesLists.forEach(function (values, i) {
-                        var currTarget = results.labels[i];
-                        rowData[currTarget] = {
-                            values: values,
-                            fraction: (values.length / maxCount),
-                            width: columnWidth
-                        };
-                        var targetsIndex = targets.indexOf(results.labels[i]);
-                        if (targetsIndex != -1) {
-                            // Align rowData with targets
-                            // Offset by 2 b/c rowData[0] and rowData[1] are already taken by cell id and label
-                            //rowData[targetsIndex + 2] = values;
-                            maxCount = Math.max(maxCount, values.length);
-                            minCount = Math.min(minCount, values.length);
-                        }
-                    });
-                    scope.overviewGridOptions.data.push(rowData);
-                });
-
-
-                //var table = new visTable.TableD3();
-
-                //table.activate(headerData, tableData, self.mainGroup, useBarsInTable, minCount, maxCount, onCellClicked);
-
+            function createDetailsTable(scope) {
+                // Create the details grid.
                 scope.gridOptions = {};
                 scope.gridOptions.enableFullRowSelection = true;
                 scope.gridOptions.multiSelect = false;
@@ -160,40 +154,52 @@
                 scope.gridOptions.onRegisterApi = function (gridApi) {
                     scope.gridApi = gridApi;
                     gridApi.selection.on.rowSelectionChanged(scope, function (row) {
-                        var msg = 'row selected ';
-                        console.log(row);
+                        // TODO: show which cells in the overviewtable are in this cell.
                     });
                 };
+            }
 
-                /*
-                 d3.select(element[0]).selectAll('div').remove();
+            function createColumnDefs(headerData, columnWidth) {
+                var columnDefs = [];
+                for (var i = 0; i < headerData.length; ++i) {
+                    var column = {
+                        field: headerData[i],
+                        width: columnWidth,
+                        displayName: headerData[i]
+                    };
 
-                 d3.select(element[0]).append('div').html('<h4>cell indexes</h4>');
-                 d3.select(element[0]).append('div').html(cells.ids);
+                    if (i > 1) {
+                        column.cellTemplate = 'neighborTable/neighborTableCell.html';
+                        column.sortingAlgorithm = sortColumn;
+                    } else {
+                        column.allowCellFocus = false;
+                    }
 
-                 d3.select(element[0]).append('div').html('<h4>selected labels</h4>');
+                    columnDefs.push(column);
+                }
 
-                 if (!useOnlySelectedTargets) {
-                 d3.select(element[0]).append('div').html(selectedTargets);
-                 } else {
-                 d3.select(element[0]).append('div').html('using all targets');
-                 }
+                return columnDefs;
+            }
 
-                 d3.select(element[0]).append('div').html('<h4>selected child types</h4>');
-                 d3.select(element[0]).append('div').html(childType);
+            function createRowData(cellIndexes, childType, useTargetLabelGroups, maxCount, columnWidth) {
+                var data = [];
+                cellIndexes.forEach(function (cellIndex) {
+                    var results = volumeHelpers.getAggregateChildAttrGroupedByTarget([cellIndex], childType, useTargetLabelGroups, volumeHelpers.PerChildAttributes.CONFIDENCE, null, cellIndexes);
+                    var rowData = {};
+                    rowData.id = volumeCells.getCellAt(cellIndex).id;
+                    rowData.label = volumeCells.getCellAt(cellIndex).label;
 
-                 var cellIndexes = cells.indexes;
-                 var targets = volumeHelpers.getAggregateChildTargetNames(cellIndexes, childType, useTargetLabelGroups);
-                 d3.select(element[0]).append('div').html('<h4>all targets</h4>');
-                 d3.select(element[0]).append('div').html(targets);
-
-                 cellIndexes.forEach(function(cellIndex) {
-                 var results = volumeHelpers.getAggregateChildAttrGroupedByTarget([cellIndex], childType, useTargetLabelGroups, volumeHelpers.PerChildAttributes.CONFIDENCE, null, cellIndexes);
-                 d3.select(element[0]).append('div').html('<h4>results</h4>');
-                 d3.select(element[0]).append('div')
-                 .selectAll('body').data(results.valuesLists[0]).enter().append('p').text(function(d) { return d.cellIndex + ', ' + d.childIndex + ', ' + d.value; });
-                 });
-                 */
+                    results.valuesLists.forEach(function (values, i) {
+                        var currTarget = results.labels[i];
+                        rowData[currTarget] = {
+                            values: values,
+                            fraction: (values.length / maxCount),
+                            width: columnWidth
+                        };
+                    });
+                    data.push(rowData);
+                });
+                return data;
             }
 
             function downloadClicked() {
@@ -245,7 +251,30 @@
                 scope.saveData(csv);
             }
 
+            function findMinMaxValues(cellIndexes, childType, targets, useTargetLabelGroups) {
+
+                var minCount = 100000;
+                var maxCount = -1;
+
+                cellIndexes.forEach(function (cellIndex) {
+                    var results = volumeHelpers.getAggregateChildAttrGroupedByTarget([cellIndex], childType, useTargetLabelGroups, volumeHelpers.PerChildAttributes.CONFIDENCE, null, cellIndexes);
+                    results.valuesLists.forEach(function (values, i) {
+                        var targetsIndex = targets.indexOf(results.labels[i]);
+                        if (targetsIndex != -1) {
+                            maxCount = Math.max(maxCount, values.length);
+                            minCount = Math.min(minCount, values.length);
+                        }
+                    });
+                });
+
+                return {
+                    minCount: minCount,
+                    maxCount: maxCount
+                };
+            }
+
             function getCellChildTargets(cellIndexes, childType, useTargetLabelGroups, useOnlySelectedTargets, selectedTargets) {
+
                 var targets;
                 if (!useOnlySelectedTargets) {
                     targets = selectedTargets;
@@ -261,8 +290,6 @@
             }
 
             function onCellClicked(valueList) {
-                console.log(valueList);
-
                 var uniqueTargets = [];
                 var childrenPerTarget = [];
                 var numChildrenPerTarget = [];
