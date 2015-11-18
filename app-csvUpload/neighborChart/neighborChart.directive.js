@@ -97,10 +97,10 @@
                     var group = self.mainGroup.append('g')
                         .attr('transform', 'translate' + position.toString());
 
-                    visUtils.addOutlineToGroup(group, self.smallMultipleWidth, self.smallMultipleHeight);
+                    //visUtils.addOutlineToGroup(group, self.smallMultipleWidth, self.smallMultipleHeight);
 
                     var chart = new visBarChart.BarChartD3();
-                    chart.activate(group, cells.ids[i], self.smallMultipleWidth, self.smallMultipleHeight, targets, chartData[i]);
+                    chart.activate(group, cells.ids[i], self.smallMultipleWidth, self.smallMultipleHeight, targets, chartData[i], maxCount);
 
                 }
                 // create a bar chart

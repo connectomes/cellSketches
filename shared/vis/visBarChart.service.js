@@ -22,7 +22,7 @@
             self.paddingBottomPercent = 0.10;
             self.paddingTopPercent = 0.025;
 
-            self.activate = function(group, title, width, height, targets, chartData) {
+            self.activate = function(group, title, width, height, targets, chartData, xAxisMax) {
                 group.append('g')
                     .attr('transform', 'translate(' + (width - 5) + ', 14)')
                     .append('text')
@@ -32,7 +32,17 @@
 
                 self.yScale = createYScale(targets, height, self.paddingTopPercent, self.paddingBottomPercent);
                 self.yAxis = createYAxis(group, self.yScale, self.paddingLeftPercent, width, customAxis);
+
+                self.xScale = createXScale(xAxisMax, width, self.paddingLeftPercent);
+                self.xAxis = createXAxis(group, self.xScale, self.paddingLeftPercent, self.paddingBottomPercent, width, height);
             };
+
+            function createXScale(xAxisMax, width, paddingLeftPercent) {
+                var xScale = d3.scale.linear();
+                xScale.domain([0, xAxisMax])
+                    .range([0, width * (1 - paddingLeftPercent)]);
+                return xScale;
+            }
 
             function createYScale(targets, height, paddingTopPercent, paddingBottomPercent) {
                 var yScale = d3.scale.ordinal();
@@ -42,17 +52,32 @@
                 return yScale;
             }
 
+            function createXAxis(group, xScale, paddingLeftPercent, paddingBottomPercent, width, height, customAxisFn) {
+                var xAxis = d3.svg.axis();
+                xAxis.scale(xScale)
+                    .orient('bottom');
+
+                group.append('g')
+                    .attr({
+                        transform: 'translate(' + (paddingLeftPercent * width) + ', ' + (height - (height * paddingBottomPercent)) + ')',
+                        'font-size': '9px'
+                    })
+                    .call(xAxis);
+
+                return xAxis;
+            }
+
             function createYAxis(group, yScale, paddingLeftPercent, width, customAxisFn) {
                 var yAxis = d3.svg.axis();
-                yAxis.scale(self.yScale)
+                yAxis.scale(yScale)
                     .orient('left');
 
                 group.append('g')
                     .attr({
-                        transform: 'translate(' + (self.paddingLeftPercent * width) + ', 0)',
+                        transform: 'translate(' + (paddingLeftPercent * width) + ', 0)',
                         'font-size': '9px'
                     })
-                    .call(yAxis).call(customAxis);
+                    .call(yAxis).call(customAxisFn);
 
                 return yAxis;
             }
