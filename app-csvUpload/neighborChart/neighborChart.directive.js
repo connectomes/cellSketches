@@ -2,11 +2,11 @@
     'use strict';
 
     angular.module('app.csvUpload')
-        .directive('neighborTable', neighborTable);
+        .directive('neighborChart', neighborChart);
 
-    neighborTable.$inject = ['$log', 'volumeCells', 'volumeStructures', 'volumeHelpers', 'visUtils', 'visTable'];
+    neighborChart.$inject = ['$log', 'volumeCells', 'volumeStructures', 'volumeHelpers', 'visUtils'];
 
-    function neighborTable($log, volumeCells, volumeStructures, volumeHelpers, visUtils, visTable) {
+    function neighborChart($log, volumeCells, volumeStructures, volumeHelpers, visUtils) {
 
         return {
             link: link,
@@ -55,6 +55,7 @@
                 $log.debug(' convertToNm', useRadius);
                 $log.debug(' useBarsInTable', useBarsInTable);
 
+                /*
                 // Copy to member variables
                 self.cells = cells;
                 self.childType = childType;
@@ -98,8 +99,9 @@
 
                 // Done with the overview table. Now create the details table.
                 createDetailsTable(scope);
-
-                //createDebuggingElements(cells, useOnlySelectedTargets, selectedTargets, childType);
+*/
+                $log.debug(childType);
+                createDebuggingElements(cells, useTargetLabelGroups, useOnlySelectedTargets, selectedTargets, childType);
             }
 
             function createDebuggingElements(cells, useTargetLabelGroups, useOnlySelectedTargets, selectedTargets, childType) {

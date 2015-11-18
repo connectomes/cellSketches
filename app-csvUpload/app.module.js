@@ -26,6 +26,10 @@
                 url: "/neighborTable",
                 templateUrl: "neighborTable/neighborTable.html",
                 controller: 'ExampleController'
-            })
+            }).state('neighborChart', {
+                url: "/neighborChart",
+                templateUrl: "neighborChart/neighborChart.html",
+                controller: 'ExampleController'
+            });
     });
 })();
