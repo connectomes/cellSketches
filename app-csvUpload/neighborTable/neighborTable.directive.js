@@ -64,7 +64,7 @@
                 var cellIndexes = cells.indexes;
 
                 // Create column defs from targets.
-                var targets = getCellChildTargets(cellIndexes, childType, useTargetLabelGroups, useOnlySelectedTargets, selectedTargets);
+                var targets = volumeHelpers.getCellChildTargets(cellIndexes, childType, useTargetLabelGroups, useOnlySelectedTargets, selectedTargets);
                 self.targets = targets;
                 var headerData = ['id', 'label'];
                 headerData = headerData.concat(targets);
@@ -90,7 +90,7 @@
                 };
 
                 // Find min and max values
-                var results = findMinMaxValues(cellIndexes, childType, targets, useTargetLabelGroups);
+                var results = volumeHelpers.getMinMaxCount(cellIndexes, childType, targets, useTargetLabelGroups);
                 var maxCount = results.maxCount;
 
                 // Create row data.
@@ -252,44 +252,6 @@
                 });
 
                 scope.saveData(csv);
-            }
-
-            function findMinMaxValues(cellIndexes, childType, targets, useTargetLabelGroups) {
-
-                var minCount = 100000;
-                var maxCount = -1;
-
-                cellIndexes.forEach(function (cellIndex) {
-                    var results = volumeHelpers.getAggregateChildAttrGroupedByTarget([cellIndex], childType, useTargetLabelGroups, volumeHelpers.PerChildAttributes.CONFIDENCE, null, cellIndexes);
-                    results.valuesLists.forEach(function (values, i) {
-                        var targetsIndex = targets.indexOf(results.labels[i]);
-                        if (targetsIndex != -1) {
-                            maxCount = Math.max(maxCount, values.length);
-                            minCount = Math.min(minCount, values.length);
-                        }
-                    });
-                });
-
-                return {
-                    minCount: minCount,
-                    maxCount: maxCount
-                };
-            }
-
-            function getCellChildTargets(cellIndexes, childType, useTargetLabelGroups, useOnlySelectedTargets, selectedTargets) {
-
-                var targets;
-                if (!useOnlySelectedTargets) {
-                    targets = selectedTargets;
-                } else {
-                    targets = volumeHelpers.getAggregateChildTargetNames(cellIndexes, childType, useTargetLabelGroups);
-                }
-
-                targets.sort(function (a, b) {
-                    return a.toLowerCase().localeCompare(b.toLowerCase());
-                });
-
-                return targets;
             }
 
             function onCellClicked(valueList) {

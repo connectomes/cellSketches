@@ -4,9 +4,9 @@
     angular.module('app.csvUpload')
         .directive('neighborChart', neighborChart);
 
-    neighborChart.$inject = ['$log', 'volumeCells', 'volumeStructures', 'volumeHelpers', 'visUtils'];
+    neighborChart.$inject = ['$log', 'volumeCells', 'volumeStructures', 'volumeHelpers', 'visUtils', 'visBarChart'];
 
-    function neighborChart($log, volumeCells, volumeStructures, volumeHelpers, visUtils) {
+    function neighborChart($log, volumeCells, volumeStructures, volumeHelpers, visUtils, visBarChart) {
 
         return {
             link: link,
@@ -22,14 +22,14 @@
             //self.mainGroup = visUtils.createMainGroup(self.svg);
             scope.$on('cellsChanged', cellsChanged);
 
-            self.numSmallMultiplesPerRow = 6;
+            self.numSmallMultiplesPerRow = 3;
             self.smallMultiplePadding = 10;
             self.smallMultipleWidth = (visUtils.getSvgWidth() - (self.numSmallMultiplesPerRow * self.smallMultiplePadding)) / self.numSmallMultiplesPerRow;
-            self.smallMultipleHeight = 200;
+            self.smallMultipleHeight = 300;
             self.smallMultipleOffsets = new utils.Point2D(self.smallMultiplePadding + self.smallMultipleWidth, self.smallMultiplePadding + self.smallMultipleHeight);
             scope.broadcastChange();
             addDownloadButton();
-
+            self.mainGroup = null;
             /**
              * @name addDownLoadButton
              * @desc adds a download button to the div id #sidebar.
@@ -55,52 +55,58 @@
                 $log.debug(' convertToNm', useRadius);
                 $log.debug(' useBarsInTable', useBarsInTable);
 
-                /*
-                // Copy to member variables
-                self.cells = cells;
-                self.childType = childType;
-                self.useTargetLabelGroups = useTargetLabelGroups;
-                self.useOnlySelectedTargets = useOnlySelectedTargets;
-                self.selectedTargets = selectedTargets;
+                // Get list of targets. These will be bars in the small multiples.
                 var cellIndexes = cells.indexes;
+                var targets = volumeHelpers.getCellChildTargets(cellIndexes, childType, useTargetLabelGroups, useOnlySelectedTargets, selectedTargets);
 
-                // Create column defs from targets.
-                var targets = getCellChildTargets(cellIndexes, childType, useTargetLabelGroups, useOnlySelectedTargets, selectedTargets);
-                self.targets = targets;
-                var headerData = ['id', 'label'];
-                headerData = headerData.concat(targets);
-                var columnWidth = 100;
-                var columnDefs = createColumnDefs(headerData, columnWidth);
-
-                // Create overview grid options
-                scope.overviewGridOptions = {};
-                scope.overviewGridOptions.columnDefs = columnDefs;
-                scope.overviewGridOptions.multiSelect = false;
-                scope.overviewGridOptions.data = [];
-                scope.highlightList = [];
-                // Register API for interaction.
-                scope.overviewGridOptions.onRegisterApi = function (gridApi) {
-                    scope.gridApi = gridApi;
-
-                    gridApi.cellNav.on.navigate(scope, function (newRowCol, oldRowCol) {
-                        var nameOfColumn = newRowCol.col.colDef.name;
-                        var values = newRowCol.row.entity[nameOfColumn].values;
-                        clearHighlighting(scope);
-                        onCellClicked(values);
-                    });
-                };
-
-                // Find min and max values
-                var results = findMinMaxValues(cellIndexes, childType, targets, useTargetLabelGroups);
+                // Get min and max count of children. These will be used to scale the bars.
+                var results = volumeHelpers.getMinMaxCount(cellIndexes, childType, targets, useTargetLabelGroups);
                 var maxCount = results.maxCount;
+                $log.debug('maxCount', maxCount);
 
-                // Create row data.
-                scope.overviewGridOptions.data = createRowData(cellIndexes, childType, useTargetLabelGroups, maxCount, columnWidth, useBarsInTable);
+                // Create the chart data.
+                var chartData = createChartData(cellIndexes, childType, useTargetLabelGroups, maxCount);
+                $log.debug('chartData', chartData);
 
-                // Done with the overview table. Now create the details table.
-                createDetailsTable(scope);
-*/
-                $log.debug(childType);
+                // Create the main group to hold all the charts
+                // Total height: numRows * heightPerRow
+                // numRows = numSmallMultiples / smallMultiplesPerRow
+                var svgWidth = visUtils.getSvgWidth();
+                var numRows = cellIndexes.length / self.numSmallMultiplesPerRow;
+                var svgHeight = Math.ceil(numRows) * self.smallMultipleHeight + self.smallMultiplePadding * 2;
+
+                if(!self.mainGroup) {
+                    self.mainGroup = d3.select(element[0])
+                        .append('svg')
+                        .attr('width', svgWidth)
+                        .attr('height', svgHeight);
+                } else {
+                    visUtils.clearGroup(self.mainGroup);
+                }
+
+                //visUtils.addOutlineToGroup(self.mainGroup, svgWidth, svgHeight);
+
+                // foreach element in chart data
+                var offsets = new utils.Point2D(self.smallMultipleWidth, self.smallMultipleHeight);
+                for(var i=0; i<cellIndexes.length; ++i) {
+                    var positionInGrid = visUtils.computeGridPosition(i, self.numSmallMultiplesPerRow);
+                    var position = positionInGrid.multiply(offsets);
+                    var totalPadding = positionInGrid.multiply(new utils.Point2D(self.smallMultiplePadding, self.smallMultiplePadding));
+                    position = position.add(totalPadding);
+                    $log.debug(position.toString());
+                    var group = self.mainGroup.append('g')
+                        .attr('transform', 'translate' + position.toString());
+
+                    visUtils.addOutlineToGroup(group, self.smallMultipleWidth, self.smallMultipleHeight);
+
+                    var chart = new visBarChart.BarChartD3();
+                    chart.activate(group, cells.ids[i], self.smallMultipleWidth, self.smallMultipleHeight, targets, chartData[i]);
+
+                }
+                // create a bar chart
+
+                // create details table below the bar charts
+
                 createDebuggingElements(cells, useTargetLabelGroups, useOnlySelectedTargets, selectedTargets, childType);
             }
 
@@ -184,7 +190,7 @@
                 return columnDefs;
             }
 
-            function createRowData(cellIndexes, childType, useTargetLabelGroups, maxCount, columnWidth, useBarsInTable) {
+            function createChartData(cellIndexes, childType, useTargetLabelGroups, maxCount, columnWidth, useBarsInTable) {
                 var data = [];
                 cellIndexes.forEach(function (cellIndex) {
                     var results = volumeHelpers.getAggregateChildAttrGroupedByTarget([cellIndex], childType, useTargetLabelGroups, volumeHelpers.PerChildAttributes.CONFIDENCE, null, cellIndexes);
@@ -197,8 +203,6 @@
                         rowData[currTarget] = {
                             values: values,
                             fraction: (values.length / maxCount),
-                            width: columnWidth,
-                            showText: !useBarsInTable,
                             highlight: false
                         };
                     });
@@ -256,43 +260,6 @@
                 scope.saveData(csv);
             }
 
-            function findMinMaxValues(cellIndexes, childType, targets, useTargetLabelGroups) {
-
-                var minCount = 100000;
-                var maxCount = -1;
-
-                cellIndexes.forEach(function (cellIndex) {
-                    var results = volumeHelpers.getAggregateChildAttrGroupedByTarget([cellIndex], childType, useTargetLabelGroups, volumeHelpers.PerChildAttributes.CONFIDENCE, null, cellIndexes);
-                    results.valuesLists.forEach(function (values, i) {
-                        var targetsIndex = targets.indexOf(results.labels[i]);
-                        if (targetsIndex != -1) {
-                            maxCount = Math.max(maxCount, values.length);
-                            minCount = Math.min(minCount, values.length);
-                        }
-                    });
-                });
-
-                return {
-                    minCount: minCount,
-                    maxCount: maxCount
-                };
-            }
-
-            function getCellChildTargets(cellIndexes, childType, useTargetLabelGroups, useOnlySelectedTargets, selectedTargets) {
-
-                var targets;
-                if (!useOnlySelectedTargets) {
-                    targets = selectedTargets;
-                } else {
-                    targets = volumeHelpers.getAggregateChildTargetNames(cellIndexes, childType, useTargetLabelGroups);
-                }
-
-                targets.sort(function (a, b) {
-                    return a.toLowerCase().localeCompare(b.toLowerCase());
-                });
-
-                return targets;
-            }
 
             function onCellClicked(valueList) {
                 var uniqueTargets = [];

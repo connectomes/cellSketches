@@ -23,10 +23,12 @@
         };
 
         var service = {
+            getCellChildTargets: getCellChildTargets,
             getChildAttr: getChildAttr,
             getAggregateChildTargetNames: getAggregateChildTargetNames,
             getAggregateChildAttrGroupedByTarget: getChildAttrGroupedByTarget,
-            getPerChildAttrGroupedByTypeAndTarget: getPerChildAttrGroupedByTypeAndTarget
+            getPerChildAttrGroupedByTypeAndTarget: getPerChildAttrGroupedByTypeAndTarget,
+            getMinMaxCount: getMinMaxCount
         };
 
         service.PerChildAttributes = self.PerChildAttributes;
@@ -112,6 +114,31 @@
                 });
 
             }
+
+            return targets;
+        }
+
+        /**
+         * @name getCellChildTargets
+         * @param cellIndexes
+         * @param childType
+         * @param useTargetLabelGroups
+         * @param useOnlySelectedTargets
+         * @param selectedTargets
+         * @returns List of cell child targets.
+         */
+        function getCellChildTargets(cellIndexes, childType, useTargetLabelGroups, useOnlySelectedTargets, selectedTargets) {
+
+            var targets;
+            if (!useOnlySelectedTargets) {
+                targets = selectedTargets;
+            } else {
+                targets = getAggregateChildTargetNames(cellIndexes, childType, useTargetLabelGroups);
+            }
+
+            targets.sort(function (a, b) {
+                return a.toLowerCase().localeCompare(b.toLowerCase());
+            });
 
             return targets;
         }
@@ -217,6 +244,37 @@
             }
 
             return results;
+        }
+
+        /**
+         * @name getMinMaxValues
+         * @desc XXX UNTESTED!
+         * @param cellIndexes
+         * @param childType
+         * @param targets
+         * @param useTargetLabelGroups
+         * @returns {{minCount: number, maxCount: number}}
+         */
+        function getMinMaxCount(cellIndexes, childType, targets, useTargetLabelGroups) {
+
+            var minCount = 100000;
+            var maxCount = -1;
+
+            cellIndexes.forEach(function (cellIndex) {
+                var results = getChildAttrGroupedByTarget([cellIndex], childType, useTargetLabelGroups, self.PerChildAttributes.CONFIDENCE, null, cellIndexes);
+                results.valuesLists.forEach(function (values, i) {
+                    var targetsIndex = targets.indexOf(results.labels[i]);
+                    if (targetsIndex != -1) {
+                        maxCount = Math.max(maxCount, values.length);
+                        minCount = Math.min(minCount, values.length);
+                    }
+                });
+            });
+
+            return {
+                minCount: minCount,
+                maxCount: maxCount
+            };
         }
 
         /**
