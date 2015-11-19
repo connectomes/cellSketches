@@ -54,10 +54,16 @@
                 $log.debug(' useRadius', convertToNm);
                 $log.debug(' convertToNm', useRadius);
                 $log.debug(' useBarsInTable', useBarsInTable);
+                self.cells = cells;
+                self.childType = childType;
+                self.useTargetLabelGroups = useTargetLabelGroups;
+                self.useOnlySelectedTargets = useOnlySelectedTargets;
+                self.selectedTargets = selectedTargets;
 
                 // Get list of targets. These will be bars in the small multiples.
                 var cellIndexes = cells.indexes;
                 var targets = volumeHelpers.getCellChildTargets(cellIndexes, childType, useTargetLabelGroups, useOnlySelectedTargets, selectedTargets);
+                self.targets = targets;
 
                 // Get min and max count of children. These will be used to scale the bars.
                 var results = volumeHelpers.getMinMaxCount(cellIndexes, childType, targets, useTargetLabelGroups);
@@ -86,9 +92,6 @@
                 self.mainGroup.on('click', function () {
                     clearHighlighting();
                 });
-
-
-                //visUtils.addOutlineToGroup(self.mainGroup, svgWidth, svgHeight);
 
                 // foreach element in chart data
                 var offsets = new utils.Point2D(self.smallMultipleWidth, self.smallMultipleHeight);
@@ -222,7 +225,7 @@
                 self.cells.indexes.forEach(function (cellIndex) {
 
                     var results = volumeHelpers.getPerChildAttrGroupedByTypeAndTarget([cellIndex], self.childType, self.useTargetLabelGroups, volumeHelpers.PerChildAttributes.CONFIDENCE, null, self.cells.indexes);
-
+                    $log.debug(results);
                     if (header.length == 0) {
 
                         header.push('id');
@@ -230,8 +233,11 @@
 
                         results.labels.forEach(function (label, i) {
                             var targetIndex = self.targets.indexOf(label);
+
                             if (targetIndex != -1) {
-                                header[targetIndex + 2] = (label + ' (' + volumeStructures.getChildStructureTypeCode(results.childTypes[i]) + ')');
+                                var currColumnHeader = label + ' (' + volumeStructures.getChildStructureTypeCode(results.childTypes[i]) + ')';
+                                $log.debug(currColumnHeader);
+                                header[i + 2] = currColumnHeader
                             }
                         });
                         $log.debug(header);
@@ -244,10 +250,9 @@
                     rowData.push(cell.label);
 
                     results.valuesLists.forEach(function (values, i) {
-
                         var targetsIndex = self.targets.indexOf(results.labels[i]);
                         if (targetsIndex != -1) {
-                            rowData[targetsIndex + 2] = (values.length);
+                            rowData[i + 2] = (values.length);
                         }
                     });
 
