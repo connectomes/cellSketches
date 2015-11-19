@@ -20,9 +20,9 @@
             self.yAxis = d3.svg.axis();
             self.paddingLeftPercent = 0.15;
             self.paddingBottomPercent = 0.10;
-            self.paddingTopPercent = 0.025;
+            self.paddingTopPercent = 0.1;
 
-            self.activate = function(group, title, width, height, targets, chartData, xAxisMax) {
+            self.activate = function(group, title, width, height, targets, chartData, xAxisMax, clickCallbackFn) {
                 group.append('g')
                     .attr('transform', 'translate(' + (width - 5) + ', 14)')
                     .append('text')
@@ -30,11 +30,39 @@
                     .style('font-size', '12px')
                     .style('text-anchor', 'end');
 
+                self.bars = group.append('g');
+
                 self.yScale = createYScale(targets, height, self.paddingTopPercent, self.paddingBottomPercent);
                 self.yAxis = createYAxis(group, self.yScale, self.paddingLeftPercent, width, customAxis);
 
                 self.xScale = createXScale(xAxisMax, width, self.paddingLeftPercent);
                 self.xAxis = createXAxis(group, self.xScale, self.paddingLeftPercent, self.paddingBottomPercent, width, height);
+
+                var barData = [];
+                for(var i=0; i<targets.length; ++i) {
+                    var bar = {};
+                    bar.name = targets[i];
+                    bar.values = chartData[targets[i]];
+                    barData.push(bar);
+                }
+                console.log(barData);
+                self.bars.selectAll('.bar')
+                    .data(barData)
+                    .enter()
+                    .append('rect')
+                    .attr('class', 'bar')
+                    .attr('y', function (d) {
+                        return self.yScale(d.name) + 2;
+                    })
+                    .attr('x', width * self.paddingLeftPercent)
+                    .attr('width', function (d) {
+                        return self.xScale(d3.max([0, d.values.values.length]));
+                    })
+                    .attr('height', function (d) {
+                        return self.yScale.rangeBand() - 4;
+                    }).attr('rx', 3)
+                    .on('click', clickCallbackFn);
+
             };
 
             function createXScale(xAxisMax, width, paddingLeftPercent) {

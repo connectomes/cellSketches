@@ -21,7 +21,6 @@ function BarChart(group, data, title, height, width, xAxisMax, callback) {
             'font-size': '12px'
         });
     self.bars = group.append('g');
-
     self.yScale
         .domain(data.map(function (d) {
             return d.name;

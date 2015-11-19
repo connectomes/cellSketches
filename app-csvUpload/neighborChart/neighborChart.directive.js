@@ -29,7 +29,7 @@
             self.smallMultipleOffsets = new utils.Point2D(self.smallMultiplePadding + self.smallMultipleWidth, self.smallMultiplePadding + self.smallMultipleHeight);
             scope.broadcastChange();
             addDownloadButton();
-            self.mainGroup = null;
+
             /**
              * @name addDownLoadButton
              * @desc adds a download button to the div id #sidebar.
@@ -65,7 +65,7 @@
                 $log.debug('maxCount', maxCount);
 
                 // Create the chart data.
-                var chartData = createChartData(cellIndexes, childType, useTargetLabelGroups, maxCount);
+                var chartData = createChartData(cellIndexes, childType, useTargetLabelGroups, maxCount, onBarClicked);
                 $log.debug('chartData', chartData);
 
                 // Create the main group to hold all the charts
@@ -75,20 +75,24 @@
                 var numRows = cellIndexes.length / self.numSmallMultiplesPerRow;
                 var svgHeight = Math.ceil(numRows) * self.smallMultipleHeight + self.smallMultiplePadding * 2;
 
-                if(!self.mainGroup) {
+                if (!self.mainGroup) {
                     self.mainGroup = d3.select(element[0])
                         .append('svg')
                         .attr('width', svgWidth)
                         .attr('height', svgHeight);
-                } else {
-                    visUtils.clearGroup(self.mainGroup);
                 }
+                visUtils.clearGroup(self.mainGroup);
+
+                self.mainGroup.on('click', function () {
+                    clearHighlighting();
+                });
+
 
                 //visUtils.addOutlineToGroup(self.mainGroup, svgWidth, svgHeight);
 
                 // foreach element in chart data
                 var offsets = new utils.Point2D(self.smallMultipleWidth, self.smallMultipleHeight);
-                for(var i=0; i<cellIndexes.length; ++i) {
+                for (var i = 0; i < cellIndexes.length; ++i) {
                     var positionInGrid = visUtils.computeGridPosition(i, self.numSmallMultiplesPerRow);
                     var position = positionInGrid.multiply(offsets);
                     var totalPadding = positionInGrid.multiply(new utils.Point2D(self.smallMultiplePadding, self.smallMultiplePadding));
@@ -100,14 +104,13 @@
                     //visUtils.addOutlineToGroup(group, self.smallMultipleWidth, self.smallMultipleHeight);
 
                     var chart = new visBarChart.BarChartD3();
-                    chart.activate(group, cells.ids[i], self.smallMultipleWidth, self.smallMultipleHeight, targets, chartData[i], maxCount);
+                    chart.activate(group, cells.ids[i], self.smallMultipleWidth, self.smallMultipleHeight, targets, chartData[i], maxCount, onBarClicked);
 
                 }
-                // create a bar chart
 
                 // create details table below the bar charts
-
-                createDebuggingElements(cells, useTargetLabelGroups, useOnlySelectedTargets, selectedTargets, childType);
+                createDetailsTable(scope);
+                //createDebuggingElements(cells, useTargetLabelGroups, useOnlySelectedTargets, selectedTargets, childType);
             }
 
             function createDebuggingElements(cells, useTargetLabelGroups, useOnlySelectedTargets, selectedTargets, childType) {
@@ -260,7 +263,6 @@
                 scope.saveData(csv);
             }
 
-
             function onCellClicked(valueList) {
                 var uniqueTargets = [];
                 var childrenPerTarget = [];
@@ -307,32 +309,48 @@
             }
 
             function updateNeighborCells(neighborId, scope) {
-                clearHighlighting(scope);
-                console.log(scope.overviewGridOptions.data);
-                var neighborCell = volumeCells.getCell(neighborId);
-                var neighborLabel = neighborCell.label;
-                for(var i=0; i<scope.overviewGridOptions.data.length; ++i) {
-                    var row = scope.overviewGridOptions.data[i];
-                    var cellValues = row[neighborLabel].values;
-                    for(var j=0; j<cellValues.length; ++j) {
-                        var value = cellValues[j];
-                        var otherNeighbor = volumeCells.getCellNeighborIdFromChildAndPartner(value.cellIndex, value.childIndex, value.partnerIndex);
-                        if(otherNeighbor == neighborCell.id) {
-                            row[neighborLabel].highlight = true;
-                            scope.highlightList.push({row: i, label: neighborLabel});
-                        }
-                    }
-                }
-                scope.$apply();
+
+                /*
+                 clearHighlighting(scope);
+
+
+                 var neighborCell = volumeCells.getCell(neighborId);
+                 var neighborLabel = neighborCell.label;
+                 for (var i = 0; i < scope.overviewGridOptions.data.length; ++i) {
+                 var row = scope.overviewGridOptions.data[i];
+                 var cellValues = row[neighborLabel].values;
+                 for (var j = 0; j < cellValues.length; ++j) {
+                 var value = cellValues[j];
+                 var otherNeighbor = volumeCells.getCellNeighborIdFromChildAndPartner(value.cellIndex, value.childIndex, value.partnerIndex);
+                 if (otherNeighbor == neighborCell.id) {
+                 row[neighborLabel].highlight = true;
+                 scope.highlightList.push({row: i, label: neighborLabel});
+                 }
+                 }
+                 }
+                 scope.$apply();
+                 */
             }
 
-            function clearHighlighting(scope) {
-                for(var i=0; i<scope.highlightList.length; ++i) {
-                    var cell = scope.highlightList[i];
-                    scope.overviewGridOptions.data[cell.row][cell.label].highlight = false;
-                }
-                scope.highlightList = [];
-                scope.$apply();
+            function clearHighlighting() {
+
+                d3.selectAll('.bar')
+                    .style('fill', '#D0D0D0');
+
+            }
+
+            function onBarClicked(d) {
+
+                clearHighlighting();
+
+                console.log(d);
+                d3.select(this)
+                    .style('fill', '#b3c4c7');
+
+                d3.event.stopPropagation();
+
+                onCellClicked(d.values.values);
+
             }
         }
     }

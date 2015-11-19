@@ -69,7 +69,7 @@
             };
 
         // Set this to false for loading local json of cell data.
-        $scope.model.usingRemote = false;
+        $scope.model.usingRemote = true;
 
         $scope.activate = function () {
 
@@ -246,14 +246,13 @@
 
 
         $scope.saveData = function(data) {
-
             var blob = new Blob([data], {type: "text"});
             saveAs(blob, 'data.csv');
         };
+
         /**
          * @name $scope.selectedChildTypesChanged
-         * @desc called when user changes the child types they'd like to view. This will change the available
-         *      neighbor labels, selected neighbor labels (removing those no longer reachable) then broadcast
+         * @desc called when user changes the child types they'd like to view. This will change the available neighbor labels, selected neighbor labels (removing those no longer reachable) then broadcast
          *      the change.
          */
         $scope.selectedChildTypesChanged = function () {
