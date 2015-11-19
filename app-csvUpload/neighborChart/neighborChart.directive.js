@@ -60,6 +60,9 @@
                 self.useOnlySelectedTargets = useOnlySelectedTargets;
                 self.selectedTargets = selectedTargets;
 
+                scope.model.ui.details.cellId = -1;
+                scope.model.ui.details.target = '';
+
                 // Get list of targets. These will be bars in the small multiples.
                 var cellIndexes = cells.indexes;
                 var targets = volumeHelpers.getCellChildTargets(cellIndexes, childType, useTargetLabelGroups, useOnlySelectedTargets, selectedTargets);
@@ -342,6 +345,10 @@
                 d3.selectAll('.bar')
                     .style('fill', '#D0D0D0');
 
+
+                scope.model.ui.details.cellId = -1;
+                scope.model.ui.details.target = '';
+                scope.$apply();
             }
 
             function onBarClicked(d) {
@@ -349,6 +356,10 @@
                 clearHighlighting();
 
                 console.log(d);
+
+                scope.model.ui.details.cellId = d.cellId;
+                scope.model.ui.details.target = d.name;
+
                 d3.select(this)
                     .style('fill', '#b3c4c7');
 

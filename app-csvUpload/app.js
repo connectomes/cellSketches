@@ -31,7 +31,13 @@
 
                     // TODO: These fields are accessed by directives without explicit communication from controller.
                     // They should be refactored.
-                    useBarsInTable: true
+                    useBarsInTable: true,
+
+                    // TODO: This should be specific to each directive...
+                    details: {
+                        cellId: -1,
+                        targetLabel: ''
+                    }
                 },
 
                 // all available cells to be displayed
@@ -69,7 +75,7 @@
             };
 
         // Set this to false for loading local json of cell data.
-        $scope.model.usingRemote = true;
+        $scope.model.usingRemote = false;
 
         $scope.activate = function () {
 

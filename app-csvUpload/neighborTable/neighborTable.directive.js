@@ -43,6 +43,7 @@
             }
 
             function cellsChanged(slot, cells, childType, useTargetLabelGroups, useOnlySelectedTargets, selectedTargets, convertToNm, useRadius) {
+
                 var useBarsInTable = scope.model.ui.useBarsInTable;
                 $log.debug('neighborBarChart - cells changed');
                 $log.debug(' cellIndexes', cells);
@@ -54,6 +55,10 @@
                 $log.debug(' useRadius', convertToNm);
                 $log.debug(' convertToNm', useRadius);
                 $log.debug(' useBarsInTable', useBarsInTable);
+
+                // Reset user selection
+                scope.model.ui.details.cellId = -1;
+                scope.model.ui.details.target = '';
 
                 // Copy to member variables
                 self.cells = cells;
@@ -82,10 +87,18 @@
                     scope.gridApi = gridApi;
 
                     gridApi.cellNav.on.navigate(scope, function (newRowCol, oldRowCol) {
+
                         var nameOfColumn = newRowCol.col.colDef.name;
                         var values = newRowCol.row.entity[nameOfColumn].values;
                         clearHighlighting(scope);
                         onCellClicked(values);
+
+                        scope.model.ui.details.cellId = newRowCol.row.entity['id'];
+                        scope.model.ui.details.target = nameOfColumn;
+
+
+                        //scope.model.ui.details.cellId;
+
                     });
                 };
 

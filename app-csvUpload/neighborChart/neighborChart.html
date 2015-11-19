@@ -46,9 +46,18 @@
 </div>
 
 <div id="content">
+
     <h3>Child Count vs Target Label</h3>
+
     <neighbor-chart></neighbor-chart>
-    <h3>Details of Selected Cell</h3>
-    <div id="grid1" ui-grid="gridOptions" class="grid" ui-grid-resize-columns ui-grid-selection></div>
+
+    <div ng-show="model.ui.details.cellId == -1">
+        <h3>Click on a bar for details</h3>
+    </div>
+
+    <div ng-show="model.ui.details.cellId != -1">
+        <h3>Cell {{model.ui.details.cellId}} Children Connected with {{model.ui.details.target}}</h3>
+        <div id="grid1" ui-grid="gridOptions" class="grid" ui-grid-resize-columns ui-grid-selection></div>
+    </div>
 
 </div>

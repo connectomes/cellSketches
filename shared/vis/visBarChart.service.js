@@ -16,13 +16,14 @@
         function BarChartD3() {
 
             var self = this;
+
             self.yScale = d3.scale.ordinal();
             self.yAxis = d3.svg.axis();
             self.paddingLeftPercent = 0.15;
             self.paddingBottomPercent = 0.10;
             self.paddingTopPercent = 0.1;
 
-            self.activate = function(group, title, width, height, targets, chartData, xAxisMax, clickCallbackFn) {
+            self.activate = function (group, title, width, height, targets, chartData, xAxisMax, clickCallbackFn) {
                 group.append('g')
                     .attr('transform', 'translate(' + (width - 5) + ', 14)')
                     .append('text')
@@ -39,13 +40,14 @@
                 self.xAxis = createXAxis(group, self.xScale, self.paddingLeftPercent, self.paddingBottomPercent, width, height);
 
                 var barData = [];
-                for(var i=0; i<targets.length; ++i) {
+                for (var i = 0; i < targets.length; ++i) {
                     var bar = {};
                     bar.name = targets[i];
                     bar.values = chartData[targets[i]];
+                    bar.cellId = title;
                     barData.push(bar);
                 }
-                console.log(barData);
+
                 self.bars.selectAll('.bar')
                     .data(barData)
                     .enter()

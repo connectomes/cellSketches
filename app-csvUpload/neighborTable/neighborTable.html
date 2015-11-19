@@ -50,9 +50,18 @@
     <neighbor-table></neighbor-table>
 
     <h3>Connectivity Overview</h3>
+
     <div id="grid0" ui-grid="overviewGridOptions" ui-grid-cellNav class="grid"></div>
+
     <br/>
-    <h3>Details</h3>
-    <div id="grid1" ui-grid="gridOptions" class="grid" ui-grid-resize-columns ui-grid-selection></div>
-    {{details}}
+
+    <div ng-show="model.ui.details.cellId == -1">
+        <h3>Click on a cell for details</h3>
+    </div>
+
+    <div ng-show="model.ui.details.cellId != -1">
+        <h3>Cell {{model.ui.details.cellId}} Children Connected with {{model.ui.details.target}}</h3>
+        <div id="grid1" ui-grid="gridOptions" class="grid" ui-grid-resize-columns ui-grid-selection></div>
+    </div>
+
 </div>
