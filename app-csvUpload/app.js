@@ -75,7 +75,7 @@
             };
 
         // Set this to false for loading local json of cell data.
-        $scope.model.usingRemote = false;
+        $scope.model.usingRemote = true;
 
         $scope.activate = function () {
 

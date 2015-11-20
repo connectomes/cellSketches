@@ -1,6 +1,6 @@
 (function () {
     'use strict';
 
-    angular.module('app.volumeModule', []);
+    angular.module('app.volumeModule', ['toastr']);
 
 })();
