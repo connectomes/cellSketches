@@ -8,6 +8,7 @@ module.exports = function (config) {
             'bower_components/angular-mocks/angular-mocks.js',
             'bower_components/karma-read-json/karma-read-json.js',
             'bower_components/d3/d3.js',
+            'bower_components/angular-toastr/dist/angular-toastr.tpls.js',
             'shared/utils/utils.js',
             'shared/utils/*.js',
             'shared/volume/volume.module.js',

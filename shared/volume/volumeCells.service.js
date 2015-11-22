@@ -5,9 +5,9 @@
         .module('app.volumeModule')
         .factory('volumeCells', volumeCells);
 
-    volumeCells.$inject = ['$q', '$http', 'volumeOData', 'volumeStructures', 'toastr'];
+    volumeCells.$inject = ['$q', '$http', 'volumeOData', 'volumeStructures', 'toastr', '$log'];
 
-    function volumeCells($q, $http, volumeOData, volumeStructures, toastr) {
+    function volumeCells($q, $http, volumeOData, volumeStructures, toastr, $log) {
 
         var self = this;
         // Places where data will be stored.
@@ -482,11 +482,10 @@
                         var childIsTarget = targets.length > 0;
 
                         if (childIsTarget && childIsSource) {
-
-                            console.log(values[i]);
-                            toastr.error('Error - found child that is both source and target?!', 'error', {timeOut: 0});
-                            console.log('Error - found child that is both source and target?!');
-
+                            var title = 'Child is both source and target';
+                            var message = 'Cell: ' + values[i].ParentID + ' child: ' + values[i].ID;
+                            toastr.warning(message, title);
+                            $log.warn('VolumeCells - found child that is both a source and target', values[i]);
                         }
 
                         if (values[i].ParentID != cellId) {
