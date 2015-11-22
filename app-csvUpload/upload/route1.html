@@ -4,14 +4,14 @@
 <div id="sidebar">
     <b>Directions:</b>
     <ol style="width: 70%">
-        <li> Select a file that contains a comma separated list of cell ids.</li>
-        <li> Click load cells in file.</li>
-        <li> Wait for cells to load (this can take up to a minute for 10 cells).</li>
-        <li> Click 'Go to children' to download data.</li>
+        <li>Enter a list of cell IDs</li>
+        <li>Click 'Load cells'</li>
+        <li>Wait (~1 minute for 10 cells)</li>
+        <li>Click on the desired tab</li>
     </ol>
 </div>
 <div id="content">
-    <h4>Enter cell IDs</h4>
+    <h4>Cell IDs</h4>
     <io-text-input></io-text-input>
     <div ng-show="model.cellsLoading"><h5>Loading cells</h5></div>
     <div ng-show="model.cellsLoaded"><h5>Cells loaded!</h5></div>
