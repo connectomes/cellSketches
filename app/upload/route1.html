@@ -13,7 +13,12 @@
 <div id="content">
     <h4>Cell IDs</h4>
     <io-text-input></io-text-input>
-    <div ng-show="model.cellsLoading"><h5>Loading cells</h5></div>
-    <div ng-show="model.cellsLoaded"><h5>Cells loaded!</h5></div>
-    <div ng-show="model.cellsLoadError"><h5>Error: {{model.cellsLoadErrorMessage}}</h5></div>
+    <div ng-show="model.cellsLoading"><h4>Loading cells</h4></div>
+
+    <div ng-show="model.cellsLoadError"><h4>Error: {{model.cellsLoadErrorMessage}}</h4></div>
+    <br><br>
+    <div ng-show="model.cellsLoaded"><h4>Cells loaded!</h4>
+        <loaded-cells model="model"></loaded-cells>
+    </div>
+    <!-- <div ng-show="!model.cellsLoaded && !model.cellsLoading"><h5>No cells loaded!</h5></div>-->
 </div>

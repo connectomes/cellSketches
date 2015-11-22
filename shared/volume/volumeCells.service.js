@@ -652,11 +652,6 @@
             var requestIds = [];
             for (var i = 0; i < cellIds.length; ++i) {
 
-                // Is ID already loaded?
-                if (getCellIndex(cellIds[i]) > -1) {
-                    continue;
-                }
-
                 // This is where the cell gets stored when it gets returned from request.
                 var cell = new utils.Cell(cellIds[i]);
                 self.cells.push(cell);

@@ -169,7 +169,6 @@
 
             if ($scope.model.usingRemote) {
 
-                volumeCells.reset();
                 volumeCells.loadCellIds(cells).then(cellsLoadedSuccess, cellsLoadedFailure);
 
             } else {
