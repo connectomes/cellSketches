@@ -5,9 +5,9 @@
     angular.module('app.ioModule')
         .directive('ioTextInput', ioTextInput);
 
-    ioTextInput.$inject = ['$log', 'ioTextParser'];
+    ioTextInput.$inject = ['$log', 'ioTextParser', 'toastr'];
 
-    function ioTextInput($log, ioTextParser) {
+    function ioTextInput($log, ioTextParser, toastr) {
 
         return {
             link: link,
@@ -34,7 +34,7 @@
 
                 } else {
 
-                    throw results.message;
+                    toastr.error('Found invalid cell ids. Cannot continue.' + results.message);
 
                 }
             }

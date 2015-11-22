@@ -5,9 +5,9 @@
         .controller('ExampleController', ExampleController);
 
     // Order here has to match the parameters of the ExampleController function.
-    ExampleController.$inject = ['$scope', '$q', '$log', 'volumeOData', 'volumeBounds', 'volumeLayers', 'volumeCells', 'volumeStructures'];
+    ExampleController.$inject = ['$scope', '$q', '$log', 'volumeOData', 'volumeBounds', 'volumeLayers', 'volumeCells', 'volumeStructures', 'toastr'];
 
-    function ExampleController($scope, $q, $log, volumeOData, volumeBounds, volumeLayers, volumeCells, volumeStructures) {
+    function ExampleController($scope, $q, $log, volumeOData, volumeBounds, volumeLayers, volumeCells, volumeStructures, toastr) {
         var self = this;
         self.verbose = true;
         self.dumpVolumeCells = false;
@@ -404,8 +404,7 @@
         function cellChildrenSuccess(results) {
 
             if (self.verbose) {
-                console.log('Cell children loaded successfully: ');
-                console.log(results);
+                $log.debug('MainCtrl - children loaded successfully: ', results);
             }
 
             var cellIndexes = getIndexesFromResults(results);
@@ -426,8 +425,7 @@
 
         function cellChildrenEdgesSuccess(results) {
             if (self.verbose) {
-                console.log('Cell children edges loaded successfully: ');
-                console.log(results);
+                $log.debug('MainCtrl - cell children edges loaded successfully:', results);
             }
 
             var cellIndexes = getIndexesFromResults(results);
@@ -443,15 +441,16 @@
 
         function cellsLoadedFailure(results) {
             $scope.model.invalidIds = angular.copy(results.invalidIds);
-            $scope.model.cellsLoadErrorMessage = "The following cells could not be loaded:" + $scope.model.invalidIds;
-            $scope.model.cellsLoadError = true;
+            toastr.warning('I couldn\'t find these IDs:' + $scope.model.invalidIds, 'Cells do not exist!');
+            toastr.warning('I am giving up. Try loading cells again');
+            $scope.model.cellsLoading = false;
+            volumeCells.reset();
         }
 
         function cellsLoadedSuccess(results) {
 
             if (self.verbose) {
-                console.log('Cells loaded successfully: ');
-                console.log(results);
+                $log.debug('MainCtrl - cells loaded successfully: ', results);
             }
 
             var promises = [];
@@ -473,14 +472,12 @@
         function cellLocationsSuccess(results) {
 
             if (self.verbose) {
-                console.log('Cell locations loaded successfully: ');
-                console.log(results);
+                $log.debug('MainCtrl - cell locations loaded successfully: ', results);
             }
 
             var cellIndexes = getIndexesFromResults(results);
             var promises = [];
 
-            console.log(cellIndexes);
             // Load cell children that the user asked for.
             for (var i = 0; i < cellIndexes.length; ++i) {
                 promises.push(volumeCells.loadCellChildPartnersAt(cellIndexes[i]));
@@ -499,8 +496,7 @@
 
         function cellNeighborsSuccess(results) {
             if (self.verbose) {
-                console.log('Cell neighbors loaded successfully:');
-                console.log(results);
+                $log.debug('MainCtrl - cell neighbors loaded successfully:', results);
             }
 
             cellsFinished();
