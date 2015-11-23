@@ -49,6 +49,7 @@
             getNumCellChildrenAt: getNumCellChildrenAt,
             getNumCells: getNumCells,
             hasLoadedNeighbors: hasLoadedNeighbors,
+            isCellCompletelyLoaded: isCellCompletelyLoaded,
             loadCellChildrenAt: loadCellChildrenAt,
             loadCellId: loadCellId,
             loadCellIds: loadCellIds,
@@ -457,6 +458,21 @@
 
             }
             return true;
+        }
+
+        function isCellCompletelyLoaded(cellId) {
+
+            var cellIndex = getCellIndex(cellId);
+
+            if(cellIndex == -1) {
+                return false;
+            }
+
+            var loadedChildren = self.cellChildren[cellIndex] != null;
+            var loadedLocations = self.cellLocations[cellIndex] != null;
+            var loadedPartners = self.cellChildrenPartners[cellIndex] != null;
+
+            return loadedChildren && loadedLocations && loadedPartners;
         }
 
         function loadCellChildPartnersAt(cellIndex) {

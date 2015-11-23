@@ -471,4 +471,17 @@ describe('VolumeCells service test', function () {
         expect(centroid.x - 79921.187025).toBeCloseTo(0);
         expect(centroid.y - 49134.106224).toBeCloseTo(0);
     });
+
+    it('isCellCompletelyLoaded', function() {
+
+        expect(!volumeCells.isCellCompletelyLoaded(6115)).toBeTruthy();
+
+        var id = 6115;
+
+        TestUtils.loadCellAndNeighbors(id, volumeCells, volumeStructures, httpBackend);
+
+        expect(volumeCells.isCellCompletelyLoaded(6115)).toBeTruthy();
+
+        expect(!volumeCells.isCellCompletelyLoaded(8577)).toBeTruthy();
+    });
 });
