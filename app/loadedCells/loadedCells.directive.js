@@ -17,11 +17,12 @@
         function link(scope, element, attribute) {
             var self = {};
 
-            $log.debug('neighborBarChart - link', scope);
+            $log.debug('neighborCells - link', scope);
             scope.$on('cellsChanged', cellsChanged);
 
             scope.gridLoadedCellsOptions = {};
             scope.gridLoadedCellsOptions.columnDefs = createColumnDefs(['id', 'label'], 100);
+            scope.broadcastChange();
 
             function cellsChanged(slot, cells, childType, useTargetLabelGroups, useOnlySelectedTargets, selectedTargets) {
                 $log.debug('loadedCells - cells changed', cells);

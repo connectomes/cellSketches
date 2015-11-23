@@ -53,13 +53,17 @@
                     .attr('width', scope.width - horizontalPadding * 2)
                     .attr('height', 20)
                     .style('fill', nonZeroFill)
-                    .attr('x', horizontalPadding);
+                    .attr('x', horizontalPadding)
+                    .style('rx', 2)
+                    .style('ry', 2);
 
                 self.fill = svg.append('rect')
-                    .attr('width', (scope.width - (horizontalPadding * 2)) * scope.fraction)
+                    .attr('width',  2 + (scope.width - (horizontalPadding * 2) - 2) * scope.fraction)
                     .attr('height', 20)
                     .style('fill', valueBarFill)
-                    .attr('x', horizontalPadding);
+                    .attr('x', horizontalPadding)
+                    .style('rx', 2)
+                    .style('ry', 2);
 
                 svg.append('text')
                     .text(scope.values.length);

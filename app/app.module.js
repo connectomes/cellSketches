@@ -7,22 +7,20 @@
     app.config(function ($stateProvider, $urlRouterProvider) {
 
         // For any unmatched url, send to /route1
-        $urlRouterProvider.otherwise("/route1");
+        $urlRouterProvider.otherwise("/input");
 
         // The way we set controllers here will actually create new controllers for each of these routes. We use the
         // variable $scope.model to pass information between controllers.
         $stateProvider
             .state('route1', {
-                url: "/route1",
+                url: "/input",
                 templateUrl: "upload/route1.html",
                 controller: 'ExampleController'
-            })
-            .state('route2', {
+            }).state('route2', {
                 url: "/route2",
                 templateUrl: "vis/route2.html",
                 controller: 'ExampleController'
-            })
-            .state('neighborTable', {
+            }).state('neighborTable', {
                 url: "/neighborTable",
                 templateUrl: "neighborTable/neighborTable.html",
                 controller: 'ExampleController'
