@@ -164,12 +164,39 @@
          */
         $scope.loadCells = function (cells) {
 
-            $scope.model.cellsLoading = true;
-            $scope.model.cellsLoaded = false;
+
 
             if ($scope.model.usingRemote) {
+                var cellsToLoad = [];
+                var cellsAlreadyLoaded = [];
 
-                volumeCells.loadCellIds(cells).then(cellsLoadedSuccess, cellsLoadedFailure);
+                // User entered list of cell IDs stored in cells.
+                // Check that they haven't already been loaded. VolumeCells will not do check this for us.
+                for(var i=0; i<cells.length; ++i) {
+                    var cellId = cells[i];
+                    if(!volumeCells.isCellCompletelyLoaded(cellId)) {
+
+                        // Check that the user didn't ask for duplicate cell ids.
+                        if(cellsToLoad.indexOf(cellId) == -1) {
+                            cellsToLoad.push(cellId);
+                        } else {
+                            toastr.warning('I will still try to load this id:' + cellId + '!', 'You asked for the same cell ID twice.');
+                        }
+
+                    } else {
+                        cellsAlreadyLoaded.push(cellId);
+                    }
+                }
+
+                if(cellsAlreadyLoaded.length > 0) {
+                    toastr.warning('I\'ve already loaded cell(s):' + cellsAlreadyLoaded, 'Cells already loaded!');
+                }
+
+                if(cellsToLoad.length > 0) {
+                    $scope.model.cellsLoading = true;
+                    $scope.model.cellsLoaded = false;
+                    volumeCells.loadCellIds(cellsToLoad).then(cellsLoadedSuccess, cellsLoadedFailure);
+                }
 
             } else {
 
