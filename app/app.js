@@ -464,6 +464,9 @@
                 $scope.model.masterCells.indexes.push(volumeCells.getCellIndex(cells[j]));
             }
 
+            // TODO: This should be somewhere else.
+            $scope.textAreaInput = "";
+
             $q.all(promises).then(cellChildrenSuccess, cellChildrenFailure);
 
         }
