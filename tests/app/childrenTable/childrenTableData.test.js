@@ -1,4 +1,4 @@
-fdescribe('VolumeHelpers service test', function () {
+describe('VolumeHelpers service test', function () {
 
     var volumeCells, volumeStructures, volumeHelpers, httpBackend, childrenTableData;
 
