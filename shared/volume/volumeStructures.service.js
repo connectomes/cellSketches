@@ -155,7 +155,7 @@
                     return currStructure.code;
                 }
             }
-            throw 'Asked for invalid structure type name';
+            throw 'Asked for invalid structure type name ' + id;
         }
 
         function getGroupAt(index) {

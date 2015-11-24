@@ -11,21 +11,8 @@ describe('VolumeStructures service test', function () {
         volumeStructures = _volumeStructures_;
         httpBackend = $httpBackend;
 
-        // Setup fake server responses.
-        var loadStructureTypes = 'http://websvc1.connectomes.utah.edu/RC1/OData/StructureTypes';
-        var loadLabelGroups = '../shared/volume/labelGroups.json';
+        TestUtils.setupStructures(volumeStructures, httpBackend);
 
-        httpBackend.when('GET', loadStructureTypes).respond(
-            readJSON('tests/mock/childStructureTypes.json')
-        );
-
-        httpBackend.when('GET', loadLabelGroups).respond(
-            readJSON('shared/volume/labelGroups.json')
-        );
-
-        // Initialize the structure.
-        volumeStructures.activate();
-        httpBackend.flush();
     }));
 
     it('Initializing volume structures', function () {
@@ -53,7 +40,7 @@ describe('VolumeStructures service test', function () {
         expect(groupName == 'Self').toBeTruthy();
     });
 
-    it('getChildTypeCode', function() {
+    it('getChildTypeCode', function () {
 
         expect(volumeStructures.getChildStructureTypeCode(28) == 'G').toBeTruthy();
         expect(volumeStructures.getChildStructureTypeCode(35) == 'PSD').toBeTruthy();

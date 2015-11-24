@@ -1,7 +1,7 @@
 (function () {
     'use strict';
 
-    var app = angular.module('app.csvUpload', ['app.volumeModule', 'ui.router', 'ui.select', 'ngSanitize', 'app.ioModule', 'app.visModule',
+    var app = angular.module('app.csvUpload', ['app.volumeModule', 'app.childrenTableModule', 'ui.router', 'ui.select', 'ngSanitize', 'app.ioModule', 'app.visModule',
         'ui.grid', 'ui.grid.resizeColumns', 'ui.grid.selection', 'ui.grid.cellNav', 'toastr']);
 
     app.config(function ($stateProvider, $urlRouterProvider) {
@@ -16,9 +16,9 @@
                 url: "/input",
                 templateUrl: "upload/route1.html",
                 controller: 'ExampleController'
-            }).state('route2', {
-                url: "/route2",
-                templateUrl: "vis/route2.html",
+            }).state('childrenTable', {
+                url: "/childrenTable",
+                templateUrl: "childrenTable/childrenTable.html",
                 controller: 'ExampleController'
             }).state('neighborTable', {
                 url: "/neighborTable",

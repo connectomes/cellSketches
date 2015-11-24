@@ -3,6 +3,7 @@ var TestUtils = (function () {
 
     return {
         setup: setup,
+        setupStructures: setupStructures,
         loadCellAndNeighbors: loadCellAndNeighbors
     };
 
@@ -53,6 +54,23 @@ var TestUtils = (function () {
         httpBackend.when('GET', 'tests/mock/volumeCells.6115.json').respond(
             readJSON('tests/mock/volumeCells.6115.json')
         );
+    }
+
+    function setupStructures(volumeStructures, httpBackend) {
+        // Setup fake server responses.
+        var loadStructureTypes = 'http://websvc1.connectomes.utah.edu/RC1/OData/StructureTypes';
+        var loadLabelGroups = '../shared/volume/labelGroups.json';
+
+        httpBackend.when('GET', loadStructureTypes).respond(
+            readJSON('tests/mock/childStructureTypes.json')
+        );
+
+        httpBackend.when('GET', loadLabelGroups).respond(
+            readJSON('shared/volume/labelGroups.json')
+        );
+
+        volumeStructures.activate();
+        httpBackend.flush();
     }
 
     function loadCellAndNeighbors(id, volumeCells, volumeStructures, httpBackend) {
