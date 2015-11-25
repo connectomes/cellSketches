@@ -27,33 +27,32 @@ describe('VolumeHelpers service test', function () {
         httpBackend.flush();
     }));
 
-    it('getHeaderData', function() {
+    it('getHeaderData', function () {
 
-        var expectedHeaderData =  ['id', 'label', 'R', 'PSD', 'G', 'A', 'BCS', 'MVB', 'U', 'NGadh', 'Endo', 'CPre'];
+        var expectedHeaderData = ['id', 'label', 'R', 'PSD', 'G', 'A', 'BCS', 'MVB', 'U', 'NGadh', 'Endo', 'CPre'];
 
         var headerData = childrenTableData.getHeaderData();
 
-        for(var i=0; i<headerData.length; ++i) {
+        for (var i = 0; i < headerData.length; ++i) {
             expect(headerData[i] == expectedHeaderData[i]).toBeTruthy();
         }
     });
 
-    it('getRowData', function() {
+    it('getRowData', function () {
         var cellIndexes = [0];
         var rowData = childrenTableData.getTableData(cellIndexes);
         var headerData = childrenTableData.getHeaderData();
 
         // Only one cell to check the row data for.
         row = rowData[0];
-
+        console.log(row);
         // First two columns are cell id and label.
         // Remaining columns are children corresponding to the header data.
-        row.forEach(function(rowValue, i) {
-            if(i == 0) {
-                expect(rowValue == 6115).toBeTruthy();
-            } else if (i==1) {
-                expect(rowValue == 'CBb5w').toBeTruthy();
-            } else {
+        expect(row['id'] == 6115).toBeTruthy();
+        expect(row['label'] == 'CBb5w').toBeTruthy();
+        headerData.forEach(function (columnName, i) {
+            if (i > 2) {
+                rowValue = row[columnName];
                 rowValue.forEach(function (childIndex) {
                     var child = volumeCells.getCellChildAt(0, childIndex);
                     var childType = child.type;
