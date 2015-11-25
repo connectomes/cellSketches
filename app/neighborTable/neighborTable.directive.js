@@ -187,6 +187,7 @@
                         column.sortingAlgorithm = sortColumn;
                     } else {
                         column.allowCellFocus = false;
+                        column.cellClass = 'overviewGridCell';
                     }
 
                     columnDefs.push(column);

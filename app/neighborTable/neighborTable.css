@@ -9,7 +9,7 @@
 }
 
 .cell rect{
-    fill: none;
+    fill: red;
 }
 
 .cell text{
@@ -23,6 +23,21 @@
     height: 250px;
 }
 
+.red {
+
+}
+
 .overviewGridCell {
     padding-top: 5px;
+    /*background-color: red;*/
+    width: 100%;
+    height: 100%;
+}
+
+.overviewGridCell:hover {
+    background-color: #FFC800;
+}
+
+.ui-grid-cell-focus {
+    background-color: #FF6400;
 }

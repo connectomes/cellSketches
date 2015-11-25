@@ -343,8 +343,7 @@
             function clearHighlighting() {
 
                 d3.selectAll('.bar')
-                    .style('fill', '#D0D0D0');
-
+                    .style('fill', '');
 
                 scope.model.ui.details.cellId = -1;
                 scope.model.ui.details.target = '';
@@ -361,7 +360,7 @@
                 scope.model.ui.details.target = d.name;
 
                 d3.select(this)
-                    .style('fill', '#b3c4c7');
+                    .style('fill', '#FF6400');
 
                 d3.event.stopPropagation();
 
