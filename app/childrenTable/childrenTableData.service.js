@@ -52,20 +52,21 @@
         function getTableData(cellIndexes) {
 
             var childTypes = volumeCells.getAllAvailableChildTypes();
-
+            var headerData = getHeaderData();
             var tableData = [];
 
             cellIndexes.forEach(function (cellIndex) {
-                var rowData = [];
+                var rowData = {};
                 var cell = volumeCells.getCellAt(cellIndex);
+                rowData['id'] = cell.id;
+                rowData['label'] = cell.label;
 
-                rowData.push(cell.id);
-                rowData.push(cell.label);
 
-                childTypes.forEach(function (childType) {
+                childTypes.forEach(function (childType, i) {
                     var children = volumeCells.getCellChildrenByTypeIndexes(cellIndex, childType);
-                    rowData.push(children);
+                    rowData[headerData[i + 2]] = children;
                 });
+
 
                 tableData.push(rowData)
             });

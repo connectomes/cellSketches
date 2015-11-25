@@ -1,6 +1,3 @@
-<h2>Cell child distance</h2>
-
-
 <div id="sidebar">
 
     <label>All cells:
@@ -47,11 +44,9 @@
 
 <div id="content">
 
-    <children-table></children-table>
+    <h3>Children Per Cell</h3>
 
-    <h3>Connectivity Overview</h3>
-
-    <div id="grid0" ui-grid="overviewGridOptions" ui-grid-cellNav class="grid"></div>
+    <children-table broadcast-change="broadcastChange()"></children-table>
 
     <br/>
 
@@ -61,7 +56,7 @@
 
     <div ng-show="model.ui.details.cellId != -1">
         <h3>Cell {{model.ui.details.cellId}} Children Connected with {{model.ui.details.target}}</h3>
-        <div id="grid1" ui-grid="gridOptions" class="grid" ui-grid-resize-columns ui-grid-selection></div>
+
     </div>
 
 </div>
