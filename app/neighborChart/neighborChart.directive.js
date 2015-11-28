@@ -13,13 +13,30 @@
             restrict: 'E'
         };
 
+        /**
+         * @name link for neighbor chart directive
+         * @param scope
+         * @param element
+         * @param attribute
+         * @desc creates bar charts for all of the selected cells!
+         *
+         * Chains of interaction:
+         * 1. Bar click
+         *      onBarClicked
+         *          calls onSelectionCleared
+         *          updates color of clicked bar
+         *          calls populateDetailsTableFromSelection
+         *
+         * 2. Details row hovered
+         *      onDetailsRowHovered -> onHighlightBarsWithCommonNeighbors or onHighlightingCleared
+         *
+         * 3. User clicks on svg -> onSelectionCleared
+         */
         function link(scope, element, attribute) {
             var self = {};
 
             $log.debug('neighborBarChart - link');
 
-            //self.svg = visUtils.createSvg(element[0]);
-            //self.mainGroup = visUtils.createMainGroup(self.svg);
             scope.$on('cellsChanged', cellsChanged);
 
             self.numSmallMultiplesPerRow = 3;
@@ -38,7 +55,7 @@
                 d3.select('#sidebar')
                     .append('html')
                     .html('<hr>' +
-                    '<button>Download</button>')
+                        '<button>Download</button>')
                     .on('click', downloadClicked);
             }
 
@@ -71,11 +88,9 @@
                 // Get min and max count of children. These will be used to scale the bars.
                 var results = volumeHelpers.getMinMaxCount(cellIndexes, childType, targets, useTargetLabelGroups);
                 var maxCount = results.maxCount;
-                $log.debug('maxCount', maxCount);
 
                 // Create the chart data.
                 var chartData = createChartData(cellIndexes, childType, useTargetLabelGroups, maxCount, onBarClicked);
-                $log.debug('chartData', chartData);
 
                 // Create the main group to hold all the charts
                 // Total height: numRows * heightPerRow
@@ -92,63 +107,27 @@
                 }
                 visUtils.clearGroup(self.mainGroup);
 
-                self.mainGroup.on('click', function () {
-                    clearHighlighting();
-                });
+                self.mainGroup.on('click', onSelectionCleared);
 
-                // foreach element in chart data
                 var offsets = new utils.Point2D(self.smallMultipleWidth, self.smallMultipleHeight);
+
+                // Create individual bar charts!
                 for (var i = 0; i < cellIndexes.length; ++i) {
                     var positionInGrid = visUtils.computeGridPosition(i, self.numSmallMultiplesPerRow);
                     var position = positionInGrid.multiply(offsets);
                     var totalPadding = positionInGrid.multiply(new utils.Point2D(self.smallMultiplePadding, self.smallMultiplePadding));
                     position = position.add(totalPadding);
-                    $log.debug(position.toString());
+
                     var group = self.mainGroup.append('g')
                         .attr('transform', 'translate' + position.toString());
 
-                    //visUtils.addOutlineToGroup(group, self.smallMultipleWidth, self.smallMultipleHeight);
-
                     var chart = new visBarChart.BarChartD3();
+
                     chart.activate(group, cells.ids[i], self.smallMultipleWidth, self.smallMultipleHeight, targets, chartData[i], maxCount, onBarClicked);
 
                 }
 
-                // create details table below the bar charts
                 createDetailsTable(scope);
-                //createDebuggingElements(cells, useTargetLabelGroups, useOnlySelectedTargets, selectedTargets, childType);
-            }
-
-            function createDebuggingElements(cells, useTargetLabelGroups, useOnlySelectedTargets, selectedTargets, childType) {
-                d3.select(element[0]).selectAll('div').remove();
-
-                d3.select(element[0]).append('div').html('<h4>cell indexes</h4>');
-                d3.select(element[0]).append('div').html(cells.ids);
-
-                d3.select(element[0]).append('div').html('<h4>selected labels</h4>');
-
-                if (!useOnlySelectedTargets) {
-                    d3.select(element[0]).append('div').html(selectedTargets);
-                } else {
-                    d3.select(element[0]).append('div').html('using all targets');
-                }
-
-                d3.select(element[0]).append('div').html('<h4>selected child types</h4>');
-                d3.select(element[0]).append('div').html(childType);
-
-                var cellIndexes = cells.indexes;
-                var targets = volumeHelpers.getAggregateChildTargetNames(cellIndexes, childType, useTargetLabelGroups);
-                d3.select(element[0]).append('div').html('<h4>all targets</h4>');
-                d3.select(element[0]).append('div').html(targets);
-
-                cellIndexes.forEach(function (cellIndex) {
-                    var results = volumeHelpers.getAggregateChildAttrGroupedByTarget([cellIndex], childType, useTargetLabelGroups, volumeHelpers.PerChildAttributes.CONFIDENCE, null, cellIndexes);
-                    d3.select(element[0]).append('div').html('<h4>results</h4>');
-                    d3.select(element[0]).append('div')
-                        .selectAll('body').data(results.valuesLists[0]).enter().append('p').text(function (d) {
-                            return d.cellIndex + ', ' + d.childIndex + ', ' + d.value;
-                        });
-                });
             }
 
             function createDetailsTable(scope) {
@@ -169,37 +148,12 @@
                     displayName: 'children'
                 }];
 
-                scope.gridOptions.onRegisterApi = function (gridApi) {
-                    scope.gridApi = gridApi;
-                    gridApi.selection.on.rowSelectionChanged(scope, function (row) {
-                        updateNeighborCells(row.entity.id, scope);
-                    });
-                };
+                scope.gridOptions.rowTemplate = 'common/rowTemplate.html';
+
+                scope.mouseOverDetailsRow = onDetailsRowHovered;
             }
 
-            function createColumnDefs(headerData, columnWidth) {
-                var columnDefs = [];
-                for (var i = 0; i < headerData.length; ++i) {
-                    var column = {
-                        field: headerData[i],
-                        width: columnWidth,
-                        displayName: headerData[i]
-                    };
-
-                    if (i > 1) {
-                        column.cellTemplate = 'neighborTable/neighborTableCell.html';
-                        column.sortingAlgorithm = sortColumn;
-                    } else {
-                        column.allowCellFocus = false;
-                    }
-
-                    columnDefs.push(column);
-                }
-
-                return columnDefs;
-            }
-
-            function createChartData(cellIndexes, childType, useTargetLabelGroups, maxCount, columnWidth, useBarsInTable) {
+            function createChartData(cellIndexes, childType, useTargetLabelGroups, maxCount) {
                 var data = [];
                 cellIndexes.forEach(function (cellIndex) {
                     var results = volumeHelpers.getAggregateChildAttrGroupedByTarget([cellIndex], childType, useTargetLabelGroups, volumeHelpers.PerChildAttributes.CONFIDENCE, null, cellIndexes);
@@ -271,7 +225,86 @@
                 scope.saveData(csv);
             }
 
-            function onCellClicked(valueList) {
+            function onBarClicked(d) {
+
+                onSelectionCleared();
+
+                console.log(d);
+
+                scope.model.ui.details.cellId = d.cellId;
+                scope.model.ui.details.target = d.name;
+
+                d3.select(this)
+                    .style('fill', '#FF6400');
+
+                d3.event.stopPropagation();
+
+                populateDetailsTableFromClickedCell(d.values.values);
+
+            }
+
+            function onDetailsRowHovered(column, rowScope, mouseOver) {
+                if (mouseOver) {
+                    onHighlightCellsWithCommonNeighbors(rowScope.$parent.row.entity.id, scope);
+                } else {
+                    onHighlightingCleared();
+                }
+            }
+
+            function onHighlightCellsWithCommonNeighbors(neighborId, scope) {
+
+                // All of the bars being rendered.
+                var bars = d3.selectAll('.bar');
+
+                // Find bars only with common neighbors.
+                var barsWithCommonNeighbor = bars.filter(function (d, i) {
+
+                    var values = d.values.values;
+
+                    // Do not change the color of the bar that the user clicked on.
+                    if (d.cellId == scope.model.ui.details.cellId) {
+                        return false;
+                    }
+
+                    // Check for neighbors equal to what the user has moused over.
+                    for (var j = 0; j < values.length; ++j) {
+                        var value = values[j];
+
+                        var otherNeighbor = volumeCells.getCellNeighborIdFromChildAndPartner(value.cellIndex,
+                            value.childIndex, value.partnerIndex);
+
+                        if (neighborId == otherNeighbor) {
+                            return true;
+                        }
+
+                    }
+
+                    return false;
+                });
+
+                // Update highlighting.
+                barsWithCommonNeighbor.style('fill', '#FFC800');
+
+            }
+
+            function onHighlightingCleared() {
+                // Remove highlighting from bars except what the user already clicked on!
+                d3.selectAll('.bar').filter(function (d) {
+                    return d.cellId != scope.model.ui.details.cellId;
+                }).style('fill', '');
+            }
+
+            function onSelectionCleared() {
+
+                d3.selectAll('.bar')
+                    .style('fill', '');
+
+                scope.model.ui.details.cellId = -1;
+                scope.model.ui.details.target = '';
+                scope.$apply();
+            }
+
+            function populateDetailsTableFromClickedCell(valueList) {
                 var uniqueTargets = [];
                 var childrenPerTarget = [];
                 var numChildrenPerTarget = [];
@@ -304,69 +337,6 @@
                 scope.$apply();
             }
 
-            function sortColumn(a, b, rowA, rowB, direction) {
-                var aData = a.values.length;
-                var bData = b.values.length;
-                if (aData < bData) {
-                    return -1;
-                } else if (aData == bData) {
-                    return 0;
-                } else {
-                    return 1;
-                }
-            }
-
-            function updateNeighborCells(neighborId, scope) {
-
-                /*
-                 clearHighlighting(scope);
-
-
-                 var neighborCell = volumeCells.getCell(neighborId);
-                 var neighborLabel = neighborCell.label;
-                 for (var i = 0; i < scope.overviewGridOptions.data.length; ++i) {
-                 var row = scope.overviewGridOptions.data[i];
-                 var cellValues = row[neighborLabel].values;
-                 for (var j = 0; j < cellValues.length; ++j) {
-                 var value = cellValues[j];
-                 var otherNeighbor = volumeCells.getCellNeighborIdFromChildAndPartner(value.cellIndex, value.childIndex, value.partnerIndex);
-                 if (otherNeighbor == neighborCell.id) {
-                 row[neighborLabel].highlight = true;
-                 scope.highlightList.push({row: i, label: neighborLabel});
-                 }
-                 }
-                 }
-                 scope.$apply();
-                 */
-            }
-
-            function clearHighlighting() {
-
-                d3.selectAll('.bar')
-                    .style('fill', '');
-
-                scope.model.ui.details.cellId = -1;
-                scope.model.ui.details.target = '';
-                scope.$apply();
-            }
-
-            function onBarClicked(d) {
-
-                clearHighlighting();
-
-                console.log(d);
-
-                scope.model.ui.details.cellId = d.cellId;
-                scope.model.ui.details.target = d.name;
-
-                d3.select(this)
-                    .style('fill', '#FF6400');
-
-                d3.event.stopPropagation();
-
-                onCellClicked(d.values.values);
-
-            }
         }
     }
 })();

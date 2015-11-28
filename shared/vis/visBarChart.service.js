@@ -62,7 +62,8 @@
                     })
                     .attr('height', function (d) {
                         return self.yScale.rangeBand() - 4;
-                    }).attr('rx', 3)
+                    })
+                    .attr('rx', 3)
                     .on('click', clickCallbackFn);
 
             };

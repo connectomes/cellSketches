@@ -29,6 +29,7 @@
   },
   "devDependencies": {
     "angular-toastr": "~1.6.0",
-    "angular-ui-grid": "ui-grid#~3.0.7"
+    "angular-ui-grid": "ui-grid#~3.0.7",
+    "filesaver": "*"
   }
 }
