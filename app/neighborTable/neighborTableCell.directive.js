@@ -27,17 +27,28 @@
             scope.$watch('highlight', onHighlightChanged, true);
             var self = {};
 
+
             var svg = d3.select(element[0]).append('svg');
+
             if (scope.values.length > 0) {
-               drawRects(scope, horizontalPadding, valueBarFill, nonZeroFill);
+                drawRects(scope, horizontalPadding, valueBarFill, nonZeroFill);
             }
 
             function onHighlightChanged(newValue, oldValue) {
-                console.log('highlight changed');
-                if(newValue) {
-                    self.fill.style('fill', '#101010');
-                } else if(oldValue) {
-                    self.fill.style('fill', valueBarFill);
+
+                if (newValue) {
+
+                    if (d3.select(element[0].parentNode)
+                            .style('background-color') != 'rgb(255, 100, 0)') {
+
+                        d3.select(element[0].parentNode)
+                            .style('background-color', '#FFC800');
+
+                    }
+                } else if (oldValue) {
+
+                    d3.select(element[0].parentNode)
+                        .style('background-color', '');
                 }
             }
 
@@ -49,6 +60,7 @@
             }
 
             function drawRects(scope, horizontalPadding, valueBarFill, nonZeroFill) {
+
                 var rect = svg.append('rect')
                     .attr('width', scope.width - horizontalPadding * 2)
                     .attr('height', 20)
@@ -58,7 +70,7 @@
                     .style('ry', 2);
 
                 self.fill = svg.append('rect')
-                    .attr('width',  2 + (scope.width - (horizontalPadding * 2) - 2) * scope.fraction)
+                    .attr('width', 2 + (scope.width - (horizontalPadding * 2) - 2) * scope.fraction)
                     .attr('height', 20)
                     .style('fill', valueBarFill)
                     .attr('x', horizontalPadding)

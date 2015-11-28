@@ -13,7 +13,28 @@
             restrict: 'E'
         };
 
+        /**
+         * @desc - interaction that this sets up.
+         * 1. User clicks on cell in overview table
+         *      onOverViewCellClicked ->
+         *          onHighlightingCleared
+         *          populateDetailsTableFromClickedCell
+         *          Update scope.model.ui.details.
+         *
+         * 2. User hovers over details row
+         *      onDetailsRowHovered ->
+         *          onHighlightCellsWithCommonNeighbors
+         *          onHighlightingCleared
+         *          Update scope.highlightList
+         *          Update row[neighborLabel].highlight - cell directives watch this value
+         *
+         *  3. User moves mouse away from details row
+         *      onDetailsRowHovered ->
+         *          onHighlightingCleared
+         *
+         */
         function link(scope, element, attribute) {
+
             var self = {};
 
             $log.debug('neighborBarChart - link');
@@ -85,21 +106,7 @@
                 // Register API for interaction.
                 scope.overviewGridOptions.onRegisterApi = function (gridApi) {
                     scope.gridApi = gridApi;
-
-                    gridApi.cellNav.on.navigate(scope, function (newRowCol, oldRowCol) {
-
-                        var nameOfColumn = newRowCol.col.colDef.name;
-                        var values = newRowCol.row.entity[nameOfColumn].values;
-                        clearHighlighting(scope);
-                        onCellClicked(values);
-
-                        scope.model.ui.details.cellId = newRowCol.row.entity['id'];
-                        scope.model.ui.details.target = nameOfColumn;
-
-
-                        //scope.model.ui.details.cellId;
-
-                    });
+                    gridApi.cellNav.on.navigate(scope, onOverviewCellClicked);
                 };
 
                 // Find min and max values
@@ -111,8 +118,6 @@
 
                 // Done with the overview table. Now create the details table.
                 createDetailsTable(scope);
-
-                //createDebuggingElements(cells, useOnlySelectedTargets, selectedTargets, childType);
             }
 
             function createDebuggingElements(cells, useTargetLabelGroups, useOnlySelectedTargets, selectedTargets, childType) {
@@ -165,12 +170,9 @@
                     displayName: 'children'
                 }];
 
-                scope.gridOptions.onRegisterApi = function (gridApi) {
-                    scope.gridApi = gridApi;
-                    gridApi.selection.on.rowSelectionChanged(scope, function (row) {
-                        updateNeighborCells(row.entity.id, scope);
-                    });
-                };
+                scope.gridOptions.rowTemplate = 'common/rowTemplate.html';
+
+                scope.mouseOverDetailsRow = onDetailsRowHovered;
             }
 
             function createColumnDefs(headerData, columnWidth) {
@@ -227,7 +229,7 @@
                 self.cells.indexes.forEach(function (cellIndex) {
 
                     var results = volumeHelpers.getPerChildAttrGroupedByTypeAndTarget([cellIndex], self.childType, self.useTargetLabelGroups, volumeHelpers.PerChildAttributes.CONFIDENCE, null, self.cells.indexes);
-                    $log.debug(results);
+
                     if (header.length == 0) {
 
                         header.push('id');
@@ -238,11 +240,10 @@
 
                             if (targetIndex != -1) {
                                 var currColumnHeader = label + ' (' + volumeStructures.getChildStructureTypeCode(results.childTypes[i]) + ')';
-                                $log.debug(currColumnHeader);
                                 header[i + 2] = currColumnHeader
                             }
                         });
-                        $log.debug(header);
+
                     }
 
                     var rowData = [];
@@ -270,10 +271,57 @@
                 scope.saveData(csv);
             }
 
-            function onCellClicked(valueList) {
+            function onDetailsRowHovered(column, rowScope, mouseOver) {
+                if(mouseOver) {
+                    onHighlightCellsWithCommonNeighbors(rowScope.$parent.row.entity.id, scope);
+                } else {
+                    onHighlightingCleared(scope);
+                }
+            }
+
+            function onHighlightCellsWithCommonNeighbors(neighborId, scope) {
+
+                onHighlightingCleared(scope);
+
+                var neighborCell = volumeCells.getCell(neighborId);
+                var neighborLabel = neighborCell.label;
+                for(var i=0; i<scope.overviewGridOptions.data.length; ++i) {
+                    var row = scope.overviewGridOptions.data[i];
+                    var cellValues = row[neighborLabel].values;
+                    for(var j=0; j<cellValues.length; ++j) {
+                        var value = cellValues[j];
+                        var otherNeighbor = volumeCells.getCellNeighborIdFromChildAndPartner(value.cellIndex, value.childIndex, value.partnerIndex);
+                        if(otherNeighbor == neighborCell.id) {
+                            row[neighborLabel].highlight = true;
+                            scope.highlightList.push({row: i, label: neighborLabel});
+                        }
+                    }
+                }
+            }
+
+            function onHighlightingCleared(scope) {
+                for(var i=0; i<scope.highlightList.length; ++i) {
+                    var cell = scope.highlightList[i];
+                    scope.overviewGridOptions.data[cell.row][cell.label].highlight = false;
+                }
+                scope.highlightList = [];
+            }
+
+            function onOverviewCellClicked(newRowCol, oldRowCol) {
+                var nameOfColumn = newRowCol.col.colDef.name;
+                var values = newRowCol.row.entity[nameOfColumn].values;
+                onHighlightingCleared(scope);
+                populateDetailsTableFromClickedCell(values);
+
+                scope.model.ui.details.cellId = newRowCol.row.entity['id'];
+                scope.model.ui.details.target = nameOfColumn;
+            }
+
+            function populateDetailsTableFromClickedCell(valueList) {
                 var uniqueTargets = [];
                 var childrenPerTarget = [];
                 var numChildrenPerTarget = [];
+
                 valueList.forEach(function (value) {
                     var id = volumeCells.getCellNeighborIdFromChildAndPartner(value.cellIndex, value.childIndex, value.partnerIndex);
                     var child = volumeCells.getCellChildAt(value.cellIndex, value.childIndex);
@@ -291,6 +339,7 @@
                 });
 
                 scope.gridOptions.data = [];
+
                 uniqueTargets.forEach(function (target, i) {
                     scope.gridOptions.data.push({
                         id: target,
@@ -315,34 +364,8 @@
                 }
             }
 
-            function updateNeighborCells(neighborId, scope) {
-                clearHighlighting(scope);
-                console.log(scope.overviewGridOptions.data);
-                var neighborCell = volumeCells.getCell(neighborId);
-                var neighborLabel = neighborCell.label;
-                for(var i=0; i<scope.overviewGridOptions.data.length; ++i) {
-                    var row = scope.overviewGridOptions.data[i];
-                    var cellValues = row[neighborLabel].values;
-                    for(var j=0; j<cellValues.length; ++j) {
-                        var value = cellValues[j];
-                        var otherNeighbor = volumeCells.getCellNeighborIdFromChildAndPartner(value.cellIndex, value.childIndex, value.partnerIndex);
-                        if(otherNeighbor == neighborCell.id) {
-                            row[neighborLabel].highlight = true;
-                            scope.highlightList.push({row: i, label: neighborLabel});
-                        }
-                    }
-                }
-                scope.$apply();
-            }
-
-            function clearHighlighting(scope) {
-                for(var i=0; i<scope.highlightList.length; ++i) {
-                    var cell = scope.highlightList[i];
-                    scope.overviewGridOptions.data[cell.row][cell.label].highlight = false;
-                }
-                scope.highlightList = [];
-                scope.$apply();
-            }
         }
     }
+
+
 })();
