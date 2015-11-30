@@ -10,7 +10,12 @@
 
         return {
             link: link,
-            restrict: 'E'
+            restrict: 'E',
+            templateUrl: 'neighborTable/neighborTable.directive.html',
+            scope: {
+                broadcastChange: '&',
+                model: '='
+            }
         };
 
         /**
@@ -78,8 +83,10 @@
                 $log.debug(' useBarsInTable', useBarsInTable);
 
                 // Reset user selection
-                scope.model.ui.details.cellId = -1;
-                scope.model.ui.details.target = '';
+                //scope.model = {};
+                //scope.model.ui.details = {};
+                //scope.model.ui.details.cellId = -1;
+                //scope.model.ui.details.target = '';
 
                 // Copy to member variables
                 self.cells = cells;
