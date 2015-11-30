@@ -13,6 +13,7 @@ describe('VolumeCells service test', function () {
         httpBackend = $httpBackend;
 
         TestUtils.setup(httpBackend);
+        TestUtils.setupForCell514(httpBackend);
 
     }));
 
@@ -483,5 +484,53 @@ describe('VolumeCells service test', function () {
         expect(volumeCells.isCellCompletelyLoaded(6115)).toBeTruthy();
 
         expect(!volumeCells.isCellCompletelyLoaded(8577)).toBeTruthy();
+    });
+
+    /**
+     * This test checks the functionality of loading triad synapses. By default, the volumeCells does not allow cell
+     * children to be both sources and targets of links. If a cell child is both a source and a target then its links
+     * will be ignored and the user will be told via toast.
+     *
+     * The exception to this rule is if a child is type 85. These type of children are bidirectional links and are
+     * allowed to be both sources and targets. The user will not be told when these get parsed.
+     *
+     * This test loads two children of cell 514. One is a child that is both a source and target, but is not type 85.
+     * This child's links get ignored. The second is a child that is type 85 and both a source and target. This child's
+     * should have two neighbors.
+     */
+    it('triad synapse test', function() {
+
+        volumeCells.loadCellId(514);
+        httpBackend.flush();
+
+        expect(volumeCells.getCellAt(0).id == 514).toBeTruthy();
+
+        volumeCells.loadCellChildrenAt(0);
+        httpBackend.flush();
+
+        expect(volumeCells.getNumCellChildrenAt(0) == 2).toBeTruthy();
+
+        volumeCells.loadCellChildPartnersAt(0);
+        httpBackend.flush();
+
+        // Check the bad child links
+        var partners = volumeCells.getCellChildPartnerAt(0, 0);
+        expect(partners.neighborIds.length == 0).toBeTruthy();
+        expect(partners.childIds.length == 0).toBeTruthy();
+        expect(partners.bidirectional.length == 0).toBeTruthy();
+
+        // Check the good child links
+        partners = volumeCells.getCellChildPartnerAt(0, 1);
+        expect(partners.neighborIds.length == 2).toBeTruthy();
+        expect(partners.childIds.length == 2).toBeTruthy();
+        expect(partners.bidirectional.length == 2).toBeTruthy();
+
+        // Check the neighbors
+        var neighbors = volumeCells.getCellNeighborIdsAt(0);
+        expect(neighbors[0] == 61231).toBeTruthy();
+        expect(neighbors[1] == 5017).toBeTruthy();
+
+        // Make sure we only have two partners stored for this cell b/c there are only two children!
+        expect(volumeCells.getCellChildPartnerAt(0, 2) == undefined).toBeTruthy();
     });
 });

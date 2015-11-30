@@ -464,7 +464,7 @@
 
             var cellIndex = getCellIndex(cellId);
 
-            if(cellIndex == -1) {
+            if (cellIndex == -1) {
                 return false;
             }
 
@@ -497,11 +497,18 @@
                         var childIsSource = sources.length > 0;
                         var childIsTarget = targets.length > 0;
 
+                        // This is allowed if the cell is an adherense junction
+
+
                         if (childIsTarget && childIsSource) {
-                            var title = 'Child is both source and target';
-                            var message = 'Cell: ' + values[i].ParentID + ' child: ' + values[i].ID;
-                            toastr.warning(message, title);
-                            $log.warn('VolumeCells - found child that is both a source and target', values[i]);
+                            if (values[i].TypeID != 85) {
+                                var title = 'Child is both source and target';
+                                var message = 'Cell: ' + values[i].ParentID + ' child: ' + values[i].ID;
+                                toastr.warning(message, title);
+                                $log.warn('VolumeCells - found child that is both a source and target', values[i]);
+                                orderedPartners.push(new utils.CellPartner([], [], []));
+                                continue;
+                            }
                         }
 
                         if (values[i].ParentID != cellId) {
@@ -553,7 +560,9 @@
 
                             }
 
-                        } else if (childIsTarget) {
+                        }
+
+                        if (childIsTarget) {
 
                             for (j = 0; j < targets.length; ++j) {
 

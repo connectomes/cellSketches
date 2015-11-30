@@ -1,0 +1,89 @@
+{
+  "@odata.context": "http://websvc1.connectomes.utah.edu/RC1/OData/$metadata#Structures(SourceOfLinks(Target(ParentID)),TargetOfLinks(Source(ParentID)))",
+  "value": [
+    {
+      "ID": 1,
+      "TypeID": 73,
+      "Notes": "",
+      "Verified": false,
+      "Tags": null,
+      "Confidence": 0.5,
+      "Version": "AAAAAAaBnAI=",
+      "ParentID": 514,
+      "Created": "2013-11-13T20:52:41.097-08:00",
+      "Label": "",
+      "Username": "CLSigulinsky    ",
+      "LastModified": "2015-11-24T16:12:33.107-08:00",
+      "SourceOfLinks": [
+        {
+          "SourceID": 1,
+          "TargetID": 2,
+          "Bidirectional": true,
+          "Tags": null,
+          "Username": "u0795653        ",
+          "Created": "2013-11-13T20:52:43.23-08:00",
+          "LastModified": "2013-11-13T20:52:43.23-08:00",
+          "Target": {
+            "ParentID": 61231
+          }
+        }
+      ],
+      "TargetOfLinks": [
+        {
+          "SourceID": 3,
+          "TargetID": 1,
+          "Bidirectional": true,
+          "Tags": null,
+          "Username": "u0795653        ",
+          "Created": "2013-11-13T20:53:01.46-08:00",
+          "LastModified": "2013-11-13T20:53:01.46-08:00",
+          "Source": {
+            "ParentID": 5017
+          }
+        }
+      ]
+    },
+    {
+      "ID": 61239,
+      "TypeID": 85,
+      "Notes": "",
+      "Verified": false,
+      "Tags": null,
+      "Confidence": 0.5,
+      "Version": "AAAAAAaBnAI=",
+      "ParentID": 514,
+      "Created": "2013-11-13T20:52:41.097-08:00",
+      "Label": "",
+      "Username": "CLSigulinsky    ",
+      "LastModified": "2015-11-24T16:12:33.107-08:00",
+      "SourceOfLinks": [
+        {
+          "SourceID": 61239,
+          "TargetID": 61238,
+          "Bidirectional": true,
+          "Tags": null,
+          "Username": "u0795653        ",
+          "Created": "2013-11-13T20:52:43.23-08:00",
+          "LastModified": "2013-11-13T20:52:43.23-08:00",
+          "Target": {
+            "ParentID": 61231
+          }
+        }
+      ],
+      "TargetOfLinks": [
+        {
+          "SourceID": 61240,
+          "TargetID": 61239,
+          "Bidirectional": true,
+          "Tags": null,
+          "Username": "u0795653        ",
+          "Created": "2013-11-13T20:53:01.46-08:00",
+          "LastModified": "2013-11-13T20:53:01.46-08:00",
+          "Source": {
+            "ParentID": 5017
+          }
+        }
+      ]
+    }
+  ]
+}

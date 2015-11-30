@@ -1,0 +1,19 @@
+{
+  "@odata.context": "http://websvc1.connectomes.utah.edu/RC1/OData/$metadata#Structures",
+  "value": [
+    {
+      "ID": 514,
+      "TypeID": 1,
+      "Notes": "Aii AC\nConnected to C476 (another Aii)\nat X: 45000.17\tY: 47862.36\tZ: 266\nG 3220.514 = G 2463.476\n\nat X: 37100.21\tY: 49557.04\tZ: 293 \n\nX: 49303.34\tY: 46481.77\tZ: 250\nG3252.514 = G2473.476\nUnfinished at:\nX: 48698 Y: 49400 Z: 140\n\nDOES NOT MERGE WITH 95701",
+      "Verified": true,
+      "Tags": "",
+      "Confidence": 1.0,
+      "Version": "AAAAAAYMLAE=",
+      "ParentID": null,
+      "Created": "2009-08-05T00:51:15.34-07:00",
+      "Label": "GAC Aii",
+      "Username": "u0284607        ",
+      "LastModified": "2015-06-04T14:35:22.383-07:00"
+    }
+  ]
+}

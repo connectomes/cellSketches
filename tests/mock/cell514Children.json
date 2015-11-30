@@ -1,0 +1,54 @@
+{
+  "@odata.context": "http://websvc1.connectomes.utah.edu/RC1/OData/$metadata#Structures(Locations(Radius,VolumeX,VolumeY,Z,ParentID,ID))",
+  "value": [
+    {
+      "ID": 1,
+      "TypeID": 73,
+      "Notes": "",
+      "Verified": false,
+      "Tags": null,
+      "Confidence": 0.5,
+      "Version": "AAAAAAaBnAI=",
+      "ParentID": 514,
+      "Created": "2013-11-13T20:52:41.097-08:00",
+      "Label": "",
+      "Username": "CLSigulinsky    ",
+      "LastModified": "2015-11-24T16:12:33.107-08:00",
+      "Locations": [
+        {
+          "Radius": 44.104157666223493,
+          "VolumeX": 42707.719278551551,
+          "VolumeY": 35934.398711016052,
+          "Z": 259.0,
+          "ParentID": 61239,
+          "ID": 798006
+        }
+      ]
+    },
+    {
+      "ID": 61239,
+      "TypeID": 85,
+      "Notes": "",
+      "Verified": false,
+      "Tags": null,
+      "Confidence": 0.5,
+      "Version": "AAAAAAaBnAI=",
+      "ParentID": 514,
+      "Created": "2013-11-13T20:52:41.097-08:00",
+      "Label": "",
+      "Username": "CLSigulinsky    ",
+      "LastModified": "2015-11-24T16:12:33.107-08:00",
+      "Locations": [
+        {
+          "Radius": 44.104157666223493,
+          "VolumeX": 42707.719278551551,
+          "VolumeY": 35934.398711016052,
+          "Z": 259.0,
+          "ParentID": 61239,
+          "ID": 798006
+        }
+      ]
+    }
+
+    ]
+}

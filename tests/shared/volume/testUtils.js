@@ -3,6 +3,7 @@ var TestUtils = (function () {
 
     return {
         setup: setup,
+        setupForCell514: setupForCell514,
         setupStructures: setupStructures,
         loadCellAndNeighbors: loadCellAndNeighbors
     };
@@ -53,6 +54,24 @@ var TestUtils = (function () {
 
         httpBackend.when('GET', 'tests/mock/volumeCells.6115.json').respond(
             readJSON('tests/mock/volumeCells.6115.json')
+        );
+    }
+
+    function setupForCell514(httpBackend) {
+        var loadCell514 = 'http://websvc1.connectomes.utah.edu/RC1/OData/Structures?$filter=(ID eq 514)';
+        var loadCell514Children = 'http://websvc1.connectomes.utah.edu/RC1/OData/Structures?$filter=(ParentID eq 514)&$expand=Locations($select=Radius,VolumeX,VolumeY,Z,ParentID,ID)';
+        var loadCell514ChildrenEdges = 'http://websvc1.connectomes.utah.edu/RC1/OData/Structures(514)/Children?$expand=SourceOfLinks($expand=Target($select=ParentID)),TargetOfLinks($expand=Source($select=ParentID))';
+
+        httpBackend.when('GET', loadCell514).respond(
+            readJSON('tests/mock/cell514.json')
+        );
+
+        httpBackend.when('GET', loadCell514Children).respond(
+            readJSON('tests/mock/cell514Children.json')
+        );
+
+        httpBackend.when('GET', loadCell514ChildrenEdges).respond(
+            readJSON('tests/mock/cell514ChildrenEdges.json')
         );
     }
 

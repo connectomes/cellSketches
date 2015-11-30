@@ -45,7 +45,7 @@ describe('VolumeHelpers service test', function () {
 
         // Only one cell to check the row data for.
         row = rowData[0];
-        console.log(row);
+
         // First two columns are cell id and label.
         // Remaining columns are children corresponding to the header data.
         expect(row['id'] == 6115).toBeTruthy();
