@@ -21,7 +21,7 @@
             getHeaderData: getHeaderData,
             getTableAsCsv: getTableAsCsv,
             getTableData: getTableData,
-            getTableDataBounds: getTableDataBounds
+            getTableDataMaxValue: getTableDataMaxValue
         };
 
         service.Grouping = self.Grouping;
@@ -141,7 +141,6 @@
          * @name getTableData
          * @returns Array of Lists containing values for childrenTable.
          */
-        // TODO: Move fraction and showTest to the directive's scope.
         function getTableData(cellIndexes, childTypes, useTargetLabelGroups, useOnlySelectedTargets, selectedTargets, childrenGrouping, maxCount, columnWidth, useBarsInTable) {
 
             var table = [];
@@ -192,6 +191,7 @@
                             var childTypeCode = volumeStructures.getChildStructureTypeCode(childType);
                             row[childTypeCode] = {};
                             row[childTypeCode].values = volumeHelpers.createCellChildValues(cellIndex, children);
+                            row[childTypeCode].width = columnWidth;
                         });
                     } else {
                         var allAvailableChildTypes = volumeCells.getAllAvailableChildTypes();
@@ -200,8 +200,10 @@
                             var childTypeCode = volumeStructures.getChildStructureTypeCode(childType);
                             row[childTypeCode] = {};
                             row[childTypeCode].values = volumeHelpers.createCellChildValues(cellIndex, children);
+                            row[childTypeCode].width = columnWidth;
                         });
                     }
+
                     table.push(row)
                 });
             }
@@ -210,11 +212,22 @@
         }
 
         /**
-         * @name getTableDataBounds
-         * @returns Object{minValue, maxValue} that appear in the table data.
+         * @name getTableDataMaxValue
+         * @returns maxValue in the table - ignore the two most left columns.
          */
-        function getTableDataBounds(cellIndexes) {
+        function getTableDataMaxValue(header, table) {
+            var maxValue = 0;
+            table.forEach(function (row) {
 
+                header.forEach(function (column, i) {
+
+                    if (i > 1) {
+                        maxValue = Math.max(maxValue, row[column].values.length);
+                    }
+                });
+            });
+            $log.error(maxValue);
+            return maxValue;
         }
 
     }

@@ -97,7 +97,8 @@
                 var cellIndexes = cells.indexes;
 
                 // Create column defs from targets.
-                var childrenGrouping = neighborTableData.Grouping.TARGETLABEL;
+                //var childrenGrouping = neighborTableData.Grouping.TARGETLABEL;
+                var childrenGrouping = neighborTableData.Grouping.CHILDTYPE;
                 var headerData = neighborTableData.getHeaderData(cellIndexes, childType, useTargetLabelGroups, self.useOnlySelectedTargets, selectedTargets, childrenGrouping);
 
                 self.targets = headerData.slice(2);
@@ -119,12 +120,13 @@
                 };
 
                 // Find min and max values
-                var results = volumeHelpers.getMinMaxCount(cellIndexes, childType, targets, useTargetLabelGroups);
-                var maxCount = results.maxCount;
-                scope.maxCount = results.maxCount;
+
+                scope.overviewGridOptions.data = neighborTableData.getTableData(cellIndexes, childType, useTargetLabelGroups, self.useOnlySelectedTargets, self.selectedTargets, childrenGrouping, 0, columnWidth, 0);
+                $log.error('data', scope.overviewGridOptions.data);
+                var maxCount = neighborTableData.getTableDataMaxValue(headerData, scope.overviewGridOptions.data);
+                scope.maxCount = maxCount;
 
                 // Create row data.
-                scope.overviewGridOptions.data = neighborTableData.getTableData(cellIndexes, childType, useTargetLabelGroups, self.useOnlySelectedTargets, self.selectedTargets, childrenGrouping, maxCount, columnWidth, useBarsInTable);
 
                 // Done with the overview table. Now create the details table.
                 createDetailsTable(scope);
