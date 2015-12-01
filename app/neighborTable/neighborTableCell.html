@@ -1,7 +1,7 @@
 <div class="overviewGridCell">
-    <neighbor-table-cell ng-show="!COL_FIELD.showText" highlight="COL_FIELD.highlight" values="COL_FIELD.values"
-                         fraction="COL_FIELD.fraction" width="COL_FIELD.width">
+    <neighbor-table-cell ng-show="grid.appScope.model.ui.useBarsInTable" highlight="COL_FIELD.highlight" values="COL_FIELD.values"
+                         fraction="COL_FIELD.values.length / grid.appScope.maxCount" width="COL_FIELD.width">
 
     </neighbor-table-cell>
-    <div ng-show="COL_FIELD.showText" style="padding-left: 5px;">{{COL_FIELD.values.length}}</div>
+    <div ng-show="!grid.appScope.model.ui.useBarsInTable" style="padding-left: 5px;">{{COL_FIELD.values.length}}</div>
 </div>

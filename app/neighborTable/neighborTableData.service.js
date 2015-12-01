@@ -162,18 +162,14 @@
                             if (selectedTargets.indexOf(currTarget) != -1) {
                                 row[currTarget] = {
                                     values: values,
-                                    fraction: (values.length / maxCount),
                                     width: columnWidth,
-                                    showText: !useBarsInTable,
                                     highlight: false
                                 };
                             }
                         } else {
                             row[currTarget] = {
                                 values: values,
-                                fraction: (values.length / maxCount),
                                 width: columnWidth,
-                                showText: !useBarsInTable,
                                 highlight: false
                             };
                         }

@@ -121,6 +121,7 @@
                 // Find min and max values
                 var results = volumeHelpers.getMinMaxCount(cellIndexes, childType, targets, useTargetLabelGroups);
                 var maxCount = results.maxCount;
+                scope.maxCount = results.maxCount;
 
                 // Create row data.
                 scope.overviewGridOptions.data = neighborTableData.getTableData(cellIndexes, childType, useTargetLabelGroups, self.useOnlySelectedTargets, self.selectedTargets, childrenGrouping, maxCount, columnWidth, useBarsInTable);
