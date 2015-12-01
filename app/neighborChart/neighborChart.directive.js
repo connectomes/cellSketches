@@ -74,7 +74,7 @@
                 self.cells = cells;
                 self.childType = childType;
                 self.useTargetLabelGroups = useTargetLabelGroups;
-                self.useOnlySelectedTargets = useOnlySelectedTargets;
+                self.useOnlySelectedTargets = !useOnlySelectedTargets; //TODO: this should be switched
                 self.selectedTargets = selectedTargets;
 
                 scope.model.ui.details.cellId = -1;
@@ -82,7 +82,7 @@
 
                 // Get list of targets. These will be bars in the small multiples.
                 var cellIndexes = cells.indexes;
-                var targets = volumeHelpers.getCellChildTargets(cellIndexes, childType, useTargetLabelGroups, useOnlySelectedTargets, selectedTargets);
+                var targets = volumeHelpers.getCellChildTargets(cellIndexes, childType, useTargetLabelGroups, !useOnlySelectedTargets, selectedTargets);
                 self.targets = targets;
 
                 // Get min and max count of children. These will be used to scale the bars.

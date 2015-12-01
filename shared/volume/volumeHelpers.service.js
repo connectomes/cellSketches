@@ -23,6 +23,7 @@
         };
 
         var service = {
+            createCellChildValues: createCellChildValues,
             getCellChildTargets: getCellChildTargets,
             getChildAttr: getChildAttr,
             getAggregateChildTargetNames: getAggregateChildTargetNames,
@@ -35,6 +36,20 @@
         service.Units = self.Units;
 
         return service;
+
+        /**
+         * @name createCellChildValues
+         * @param cellIndex - parent of current children
+         * @param children - indexes of children
+         * @returns List of cell child values with undefined target and values.
+         */
+        function createCellChildValues(cellIndex, children) {
+            var cellChildValues = [];
+            children.forEach(function(child) {
+                cellChildValues.push(new utils.CellChildValue(cellIndex, child, undefined, undefined));
+            });
+            return cellChildValues;
+        }
 
         function getChildAttr(cellIndex, childIndex, attribute, units) {
             var value;
@@ -130,7 +145,7 @@
         function getCellChildTargets(cellIndexes, childType, useTargetLabelGroups, useOnlySelectedTargets, selectedTargets) {
 
             var targets;
-            if (!useOnlySelectedTargets) {
+            if (useOnlySelectedTargets) {
                 targets = selectedTargets;
             } else {
                 targets = getAggregateChildTargetNames(cellIndexes, childType, useTargetLabelGroups);

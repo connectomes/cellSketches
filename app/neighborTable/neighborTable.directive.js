@@ -1,12 +1,12 @@
 (function () {
     'use strict';
 
-    angular.module('app.csvUpload')
+    angular.module('app.neighborTableModule')
         .directive('neighborTable', neighborTable);
 
-    neighborTable.$inject = ['$log', 'volumeCells', 'volumeStructures', 'volumeHelpers', 'visUtils', 'visTable'];
+    neighborTable.$inject = ['$log', 'volumeCells', 'volumeStructures', 'volumeHelpers', 'visUtils', 'visTable', 'neighborTableData'];
 
-    function neighborTable($log, volumeCells, volumeStructures, volumeHelpers, visUtils, visTable) {
+    function neighborTable($log, volumeCells, volumeStructures, volumeHelpers, visUtils, visTable, neighborTableData) {
 
         return {
             link: link,
@@ -92,17 +92,19 @@
                 self.cells = cells;
                 self.childType = childType;
                 self.useTargetLabelGroups = useTargetLabelGroups;
-                self.useOnlySelectedTargets = useOnlySelectedTargets;
+                self.useOnlySelectedTargets = !useOnlySelectedTargets; // TODO: This is flipped.
                 self.selectedTargets = selectedTargets;
                 var cellIndexes = cells.indexes;
 
                 // Create column defs from targets.
-                var targets = volumeHelpers.getCellChildTargets(cellIndexes, childType, useTargetLabelGroups, useOnlySelectedTargets, selectedTargets);
-                self.targets = targets;
-                var headerData = ['id', 'label'];
-                headerData = headerData.concat(targets);
+                var childrenGrouping = neighborTableData.Grouping.TARGETLABEL;
+                var headerData = neighborTableData.getHeaderData(cellIndexes, childType, useTargetLabelGroups, self.useOnlySelectedTargets, selectedTargets, childrenGrouping);
+
+                self.targets = headerData.slice(2);
+                var targets = self.targets;
+
                 var columnWidth = 100;
-                var columnDefs = createColumnDefs(headerData, columnWidth);
+                var columnDefs = neighborTableData.getColumnDefs(headerData, sortColumn);
 
                 // Create overview grid options
                 scope.overviewGridOptions = {};
@@ -121,7 +123,7 @@
                 var maxCount = results.maxCount;
 
                 // Create row data.
-                scope.overviewGridOptions.data = createRowData(cellIndexes, childType, useTargetLabelGroups, maxCount, columnWidth, useBarsInTable);
+                scope.overviewGridOptions.data = neighborTableData.getTableData(cellIndexes, childType, useTargetLabelGroups, self.useOnlySelectedTargets, self.selectedTargets, childrenGrouping, maxCount, columnWidth, useBarsInTable);
 
                 // Done with the overview table. Now create the details table.
                 createDetailsTable(scope);
@@ -180,52 +182,6 @@
                 scope.gridOptions.rowTemplate = 'common/rowTemplate.html';
 
                 scope.mouseOverDetailsRow = onDetailsRowHovered;
-            }
-
-            function createColumnDefs(headerData, columnWidth) {
-                var columnDefs = [];
-                for (var i = 0; i < headerData.length; ++i) {
-                    var column = {
-                        field: headerData[i],
-                        width: columnWidth,
-                        displayName: headerData[i]
-                    };
-
-                    if (i > 1) {
-                        column.cellTemplate = 'neighborTable/neighborTableCell.html';
-                        column.sortingAlgorithm = sortColumn;
-                    } else {
-                        column.allowCellFocus = false;
-                        column.cellClass = 'overviewGridCell';
-                    }
-
-                    columnDefs.push(column);
-                }
-
-                return columnDefs;
-            }
-
-            function createRowData(cellIndexes, childType, useTargetLabelGroups, maxCount, columnWidth, useBarsInTable) {
-                var data = [];
-                cellIndexes.forEach(function (cellIndex) {
-                    var results = volumeHelpers.getAggregateChildAttrGroupedByTarget([cellIndex], childType, useTargetLabelGroups, volumeHelpers.PerChildAttributes.CONFIDENCE, null, cellIndexes);
-                    var rowData = {};
-                    rowData.id = volumeCells.getCellAt(cellIndex).id;
-                    rowData.label = volumeCells.getCellAt(cellIndex).label;
-
-                    results.valuesLists.forEach(function (values, i) {
-                        var currTarget = results.labels[i];
-                        rowData[currTarget] = {
-                            values: values,
-                            fraction: (values.length / maxCount),
-                            width: columnWidth,
-                            showText: !useBarsInTable,
-                            highlight: false
-                        };
-                    });
-                    data.push(rowData);
-                });
-                return data;
             }
 
             function downloadClicked() {

@@ -1,7 +1,7 @@
 (function () {
     'use strict';
 
-    angular.module('app.csvUpload')
+    angular.module('app.neighborTableModule')
         .directive('neighborTableCell', neighborTableCell);
 
     function neighborTableCell() {
