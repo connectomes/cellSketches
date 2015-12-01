@@ -37,7 +37,20 @@
                     details: {
                         cellId: -1,
                         targetLabel: ''
-                    }
+                    },
+
+                    availableModes: [
+                        {
+                            name: 'Children Overview',
+                            value: 1
+                        },
+                        {
+                            name: 'Children By Target Label',
+                            value: 0
+                        }
+                    ],
+
+                    selectedMode: {}
                 },
 
                 // all available cells to be displayed
@@ -81,6 +94,9 @@
 
             // Allow only one activation
             if (!$scope.model.isActivated) {
+
+                $scope.model.ui.selectedMode = $scope.model.ui.availableModes[0];
+
                 $scope.model.isActivated = true;
 
                 // TODO: Error handling here.
@@ -326,6 +342,19 @@
                 }
             }
             $scope.broadcastChange();
+        };
+
+        /**
+         * @name $scope.selectedCellsChanged
+         * @desc Updates $scope.model.cells.* to use what the user has selected. Then broadcasts the change.
+         */
+        $scope.selectedModeChanged = function () {
+
+            $scope.model.ui.usingChildrenByTargetLabel = ($scope.model.ui.selectedMode.value == 0);
+
+            $scope.broadcastChange();
+
+
         };
 
         /**

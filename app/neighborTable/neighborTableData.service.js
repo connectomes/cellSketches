@@ -48,8 +48,12 @@
                     column.cellTemplate = 'neighborTable/neighborTableCell.html';
                     column.sortingAlgorithm = sortFunction;
                 } else {
+                    if(i==0) {
+                        column.enableHiding = false;
+                    }
                     column.allowCellFocus = false;
                     column.cellClass = 'overviewGridCell';
+                    column.pinnedLeft = true;
                 }
 
                 columns.push(column);
@@ -233,3 +237,4 @@
     }
 
 })();
+

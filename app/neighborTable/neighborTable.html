@@ -1,9 +1,28 @@
 <div id="sidebar">
 
+
+    <label>
+        <ui-select ng-model="model.ui.selectedMode"
+                   theme="select2"
+                   search-enabled="false"
+                   style="width: 80%;"
+                   ng-change="selectedModeChanged()">
+
+            <ui-select-match placeholder="Click to select">
+                {{model.ui.selectedMode.name}}
+            </ui-select-match>
+
+            <ui-select-choices repeat="id in model.ui.availableModes">
+                <div ng-bind-html="id.name">{{id.name}}</div>
+            </ui-select-choices>
+
+        </ui-select>
+    </label>
+
+    <!---
     <label>All cells:
         <input type="checkbox" ng-model="model.ui.allCellsChecked" ng-change="selectionChanged()">
     </label>
-
     <label ng-show="!model.ui.allCellsChecked"><br>Cells:
         <ui-select multiple ng-model="model.ui.selectedCells" theme="select2" style="width: 220px;"
                    ng-change="selectedCellsChanged()">
@@ -11,30 +30,19 @@
             <ui-select-choices repeat="id in model.masterCells.ids | filter:$select.search">{{id}}</ui-select-choices>
         </ui-select>
     </label>
+    --->
 
-    <hr>
-    <label>Children:
-        <ui-select multiple ng-model="model.ui.selectedChildTypes" theme="select2" style="width: 196px;"
-                   ng-change="selectedChildTypesChanged()">
-            <ui-select-match placeholder="Click to select">{{$item}}</ui-select-match>
-            <ui-select-choices repeat="name in model.masterChildTypes.names | filter:$select.search">{{name}}
-            </ui-select-choices>
-        </ui-select>
-    </label>
-
-    <hr>
-    <label>All neighbor labels:
-        <input type="checkbox" ng-model="model.ui.allNeighborLabelsChecked" ng-change="selectedNeighborLabelsChanged()">
-    </label><br/>
-
-    <label ng-show="!model.ui.allNeighborLabelsChecked">Labels:
-        <ui-select multiple ng-model="model.ui.selectedNeighborLabels" theme="select2" style="width: 220px;"
-                   ng-change="selectedNeighborLabelsChanged()">
-            <ui-select-match placeholder="Click to select">{{$item}}</ui-select-match>
-            <ui-select-choices repeat="label in model.ui.neighborLabels | filter:$select.search">{{label}}
-            </ui-select-choices>
-        </ui-select>
-    </label>
+    <div ng-show="model.ui.usingChildrenByTargetLabel" class="animate-show">
+        <hr>
+        <label>Children:
+            <ui-select multiple ng-model="model.ui.selectedChildTypes" theme="select2" style="width: 196px;"
+                       ng-change="selectedChildTypesChanged()">
+                <ui-select-match placeholder="Click to select">{{$item}}</ui-select-match>
+                <ui-select-choices repeat="name in model.masterChildTypes.names | filter:$select.search">{{name}}
+                </ui-select-choices>
+            </ui-select>
+        </label>
+    </div>
 
     <hr>
     <label>Use bars:

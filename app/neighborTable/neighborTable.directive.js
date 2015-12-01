@@ -90,16 +90,25 @@
 
                 // Copy to member variables
                 self.cells = cells;
-                self.childType = childType;
+
                 self.useTargetLabelGroups = useTargetLabelGroups;
                 self.useOnlySelectedTargets = !useOnlySelectedTargets; // TODO: This is flipped.
                 self.selectedTargets = selectedTargets;
+
+
+                //childType = undefined;
+                //self.childType = undefined;
                 var cellIndexes = cells.indexes;
 
                 // Create column defs from targets.
                 //var childrenGrouping = neighborTableData.Grouping.TARGETLABEL;
-                var childrenGrouping = neighborTableData.Grouping.CHILDTYPE;
-                var headerData = neighborTableData.getHeaderData(cellIndexes, childType, useTargetLabelGroups, self.useOnlySelectedTargets, selectedTargets, childrenGrouping);
+                var childrenGrouping = scope.model.ui.selectedMode.value;
+                if (childrenGrouping == neighborTableData.Grouping.CHILDTYPE) {
+                    self.childType = undefined;
+                } else {
+                    self.childType = childType;
+                }
+                var headerData = neighborTableData.getHeaderData(cellIndexes, self.childType, useTargetLabelGroups, self.useOnlySelectedTargets, selectedTargets, childrenGrouping);
 
                 self.targets = headerData.slice(2);
                 var targets = self.targets;
@@ -112,6 +121,7 @@
                 scope.overviewGridOptions.columnDefs = columnDefs;
                 scope.overviewGridOptions.multiSelect = false;
                 scope.overviewGridOptions.data = [];
+                scope.overviewGridOptions.enableGridMenu = true;
                 scope.highlightList = [];
                 // Register API for interaction.
                 scope.overviewGridOptions.onRegisterApi = function (gridApi) {
@@ -121,7 +131,7 @@
 
                 // Find min and max values
 
-                scope.overviewGridOptions.data = neighborTableData.getTableData(cellIndexes, childType, useTargetLabelGroups, self.useOnlySelectedTargets, self.selectedTargets, childrenGrouping, 0, columnWidth, 0);
+                scope.overviewGridOptions.data = neighborTableData.getTableData(cellIndexes, self.childType, useTargetLabelGroups, self.useOnlySelectedTargets, self.selectedTargets, childrenGrouping, 0, columnWidth, 0);
                 $log.error('data', scope.overviewGridOptions.data);
                 var maxCount = neighborTableData.getTableDataMaxValue(headerData, scope.overviewGridOptions.data);
                 scope.maxCount = maxCount;
