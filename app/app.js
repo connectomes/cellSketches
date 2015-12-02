@@ -100,7 +100,7 @@
                 $scope.model.isActivated = true;
 
                 // TODO: Error handling here.
-                volumeStructures.activate().then(parseMasterChildTypes);
+                volumeStructures.activate(!$scope.model.usingRemote).then(parseMasterChildTypes);
             }
 
             function parseMasterChildTypes() {

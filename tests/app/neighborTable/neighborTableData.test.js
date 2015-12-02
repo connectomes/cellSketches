@@ -1,4 +1,4 @@
-fdescribe('neighborTableData service test', function () {
+describe('neighborTableData service test', function () {
 
     var volumeCells, volumeStructures, volumeHelpers, httpBackend, neighborTableData;
 

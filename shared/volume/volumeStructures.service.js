@@ -42,14 +42,14 @@
 
         return service;
 
-        function activate() {
+        function activate(usingLocal) {
             var promises = [];
             promises.push(loadCellLabelGroups());
-            promises.push(loadStructureTypes());
+            promises.push(loadStructureTypes(usingLocal));
             return $q.all(promises);
         }
 
-        function loadStructureTypes() {
+        function loadStructureTypes(usingLocal) {
 
             var deferred = $q.defer();
 
@@ -84,7 +84,11 @@
                 deferred.resolve();
             }
 
-            volumeOData.request(request).then(parseResults);
+            if(!usingLocal) {
+                volumeOData.request(request).then(parseResults);
+            } else {
+                $http.get('../tests/mock/childStructureTypes.json').then(parseResults);
+            }
 
             return deferred.promise;
         }
