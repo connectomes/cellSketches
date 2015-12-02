@@ -54,7 +54,7 @@
             self.smallMultipleWidth = (visUtils.getSvgWidth() - (self.numSmallMultiplesPerRow * self.smallMultiplePadding)) / self.numSmallMultiplesPerRow;
             self.smallMultipleHeight = 200;
             self.smallMultipleOffsets = new utils.Point2D(self.smallMultiplePadding + self.smallMultipleWidth, self.smallMultiplePadding + self.smallMultipleHeight);
-            scope.broadcastChange();
+
             addDownloadButton();
 
             // Data is either attribute or count
@@ -99,6 +99,8 @@
             scope.model.ui.modes.selectedCountMode = scope.CountEncodingModes[0];
             scope.model.ui.modes.selectedAttributeMode = scope.AttributeModes[0];
 
+            scope.broadcastChange();
+
             /**
              * @name addDownLoadButton
              * @desc adds a download button to the div id #sidebar.
@@ -113,6 +115,8 @@
 
             function cellsChanged(slot, cells, childType, useTargetLabelGroups, useOnlySelectedTargets, selectedTargets, convertToNm, useRadius) {
 
+                scope.model.ui.useBarsInTable = scope.model.ui.modes.selectedCountMode.name == "Bars";
+
                 var useBarsInTable = scope.model.ui.useBarsInTable;
                 $log.debug('neighborBarChart - cells changed');
                 $log.debug(' cellIndexes', cells);
@@ -125,26 +129,15 @@
                 $log.debug(' convertToNm', useRadius);
                 $log.debug(' useBarsInTable', useBarsInTable);
 
-                // Reset user selection
-                //scope.model = {};
-                //scope.model.ui.details = {};
-                //scope.model.ui.details.cellId = -1;
-                //scope.model.ui.details.target = '';
-
                 // Copy to member variables
                 self.cells = cells;
-
                 self.useTargetLabelGroups = useTargetLabelGroups;
                 self.useOnlySelectedTargets = !useOnlySelectedTargets; // TODO: This is flipped.
                 self.selectedTargets = selectedTargets;
 
-
-                //childType = undefined;
-                //self.childType = undefined;
                 var cellIndexes = cells.indexes;
 
                 // Create column defs from targets.
-                //var childrenGrouping = neighborTableData.Grouping.TARGETLABEL;
                 var childrenGrouping = scope.model.ui.selectedMode.value;
                 if (childrenGrouping == neighborTableData.Grouping.CHILDTYPE) {
                     self.childType = undefined;

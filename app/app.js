@@ -30,7 +30,8 @@
                     useNeighborGroups: false,
 
                     // TODO: These fields are accessed by directives without explicit communication from controller.
-                    // They should be refactored.
+                    // They should be refactored. This is accessed by neighborTableCell.html - it is used to show/hide
+                    // the svg that contains the bar encoding.
                     useBarsInTable: true,
 
                     // TODO: This should be specific to each directive...
