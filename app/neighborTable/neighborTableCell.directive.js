@@ -27,8 +27,19 @@
             scope.$watch('highlight', onHighlightChanged, true);
             var self = {};
 
-
             var svg = d3.select(element[0]).append('svg');
+
+            svg.on('mouseover', function() {
+                if (self.text) {
+                    self.text.style('display', 'block');
+                }
+            });
+
+            svg.on('mouseout', function() {
+               if(self.text) {
+                   self.text.style('display', 'none');
+               }
+            });
 
             if (scope.values.length > 0) {
                 drawRects(scope, horizontalPadding, valueBarFill, nonZeroFill);
@@ -77,8 +88,14 @@
                     .style('rx', 2)
                     .style('ry', 2);
 
-                svg.append('text')
-                    .text(scope.values.length);
+                self.text = svg.append('text')
+                    .text(scope.values.length)
+                    .style('text-anchor', 'middle')
+                    .style('alignment-baseline', 'hanging')
+                    .attr('x', scope.width / 2)
+                    .attr('y', 5)
+                    .style('fill', 'white')
+                    .style('display', 'none');
             }
         }
     }

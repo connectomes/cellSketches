@@ -1,4 +1,95 @@
-<h3>Connectivity Overview</h3>
+<!-- Controls for the mode - children grouped by target or type --->
+<span style="width:30%;">Display
+    <ui-select ng-model="model.ui.selectedMode"
+               theme="select2"
+               search-enabled="false"
+               style="width: 25%;"
+               ng-change="selectedModeChanged()">
+
+        <ui-select-match placeholder="Click to select">
+            {{model.ui.selectedMode.name}}
+        </ui-select-match>
+
+        <ui-select-choices repeat="id in model.ui.availableModes">
+            <div ng-bind-html="id.name">{{id.name}}</div>
+        </ui-select-choices>
+    </ui-select>
+</span>
+
+<!--- Controls for the dataMode - attribute or count --->
+<span style="width:30%; margin-left: 5%;">
+    Data
+    <ui-select ng-model="model.ui.modes.selectedDataMode"
+               theme="select2"
+               search-enabled="false"
+               ng-change="broadcastChange()"
+               style="width: 25%;">
+
+        <ui-select-match placeholder="Click to select">
+            {{model.ui.modes.selectedDataMode.name}}
+        </ui-select-match>
+
+        <ui-select-choices repeat="id in DataModes">
+            <div ng-bind-html="id.name">{{id.name}}</div>
+        </ui-select-choices>
+    </ui-select>
+</span>
+
+<!--- Controls for the countMode encoding - bars or text -->
+<span style="width:30%; margin-left: 5%;"
+      ng-show="model.ui.modes.selectedDataMode.name == 'Count'">
+
+    Encoding
+    <ui-select ng-model="model.ui.modes.selectedCountMode"
+               theme="select2"
+               search-enabled="false"
+               style="width: 20%;"
+               ng-change="broadcastChange()">
+
+        <ui-select-match placeholder="Click to select">
+            {{model.ui.modes.selectedCountMode.name}}
+        </ui-select-match>
+
+        <ui-select-choices repeat="id in CountEncodingModes">
+            <div ng-bind-html="id.name">{{id.name}}</div>
+        </ui-select-choices>
+    </ui-select>
+</span>
+
+<!--- Controls for the attribute mode - distance or diameter --->
+<span style="width:30%; margin-left: 5%;"
+      ng-show="model.ui.modes.selectedDataMode.name == 'Attribute'">
+
+    Attribute
+    <ui-select ng-model="model.ui.modes.selectedAttributeMode"
+               theme="select2"
+               search-enabled="false"
+               style="width: 20%;"
+               ng-change="broadcastChange()">
+
+        <ui-select-match placeholder="Click to select">
+            {{model.ui.modes.selectedAttributeMode.name}}
+        </ui-select-match>
+
+        <ui-select-choices repeat="id in AttributeModes">
+            <div ng-bind-html="id.name">{{id.name}}</div>
+        </ui-select-choices>
+    </ui-select>
+</span>
+
+
+<div ng-show="debugingGui">
+    <br/>
+    <br/>
+    Selected data mode: {{model.ui.modes.selectedDataMode}}
+    <br/>
+    Selected count encoding: {{model.ui.modes.selectedCountMode}}
+    <br/>
+    Selected attribute mode: {{model.ui.modes.selectedAttributeMode}}
+</div>
+<br/>
+<br/>
+
 <div id="grid0" ui-grid="overviewGridOptions" ui-grid-cellNav ui-grid-pinning class="grid"></div>
 
 <br/>
@@ -9,5 +100,6 @@
 
 <div ng-show="model.ui.details.cellId != -1">
     <h3>Cell {{model.ui.details.cellId}} Children Connected with {{model.ui.details.target}}</h3>
+
     <div id="grid1" ui-grid="gridOptions" class="grid" ui-grid-resize-columns></div>
 </div>

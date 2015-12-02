@@ -1,23 +1,7 @@
 <div id="sidebar">
 
 
-    <label>
-        <ui-select ng-model="model.ui.selectedMode"
-                   theme="select2"
-                   search-enabled="false"
-                   style="width: 80%;"
-                   ng-change="selectedModeChanged()">
 
-            <ui-select-match placeholder="Click to select">
-                {{model.ui.selectedMode.name}}
-            </ui-select-match>
-
-            <ui-select-choices repeat="id in model.ui.availableModes">
-                <div ng-bind-html="id.name">{{id.name}}</div>
-            </ui-select-choices>
-
-        </ui-select>
-    </label>
 
     <!---
     <label>All cells:
@@ -52,6 +36,6 @@
 
 <div id="content">
 
-    <neighbor-table broadcast-change="broadcastChange()" model="model"></neighbor-table>
+    <neighbor-table broadcast-change="broadcastChange()" selected-mode-changed="selectedModeChanged()" model="model"></neighbor-table>
 
 </div>

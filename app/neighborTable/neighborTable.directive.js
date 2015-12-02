@@ -14,7 +14,8 @@
             templateUrl: 'neighborTable/neighborTable.directive.html',
             scope: {
                 broadcastChange: '&',
-                model: '='
+                model: '=',
+                selectedModeChanged: '&'
             }
         };
 
@@ -56,6 +57,48 @@
             scope.broadcastChange();
             addDownloadButton();
 
+            // Data is either attribute or count
+            scope.DataModes = [
+                {
+                    name: 'Count',
+                    id: 0
+                },
+                {
+                    name: 'Attribute',
+                    id: 1
+                }
+            ];
+
+            // Count encoding is either bar or text
+            scope.CountEncodingModes = [
+                {
+                    name: 'Bars',
+                    id: 0
+                },
+                {
+                    name: 'Text',
+                    id: 1
+                }
+            ];
+
+            // Attributes are either distance or diameter
+            scope.AttributeModes = [
+                {
+                    name: 'Distance',
+                    id: 0
+                },
+                {
+                    name: 'Area',
+                    id: 1
+
+                }
+            ];
+
+            scope.model.ui.modes = {};
+            scope.model.ui.modes.selectedDataMode = scope.DataModes[0];
+            scope.model.ui.modes.selectedCountMode = scope.CountEncodingModes[0];
+            scope.model.ui.modes.selectedAttributeMode = scope.AttributeModes[0];
+
             /**
              * @name addDownLoadButton
              * @desc adds a download button to the div id #sidebar.
@@ -64,7 +107,7 @@
                 d3.select('#sidebar')
                     .append('html')
                     .html('<hr>' +
-                    '<button>Download</button>')
+                        '<button>Download</button>')
                     .on('click', downloadClicked);
             }
 
@@ -169,8 +212,8 @@
                     d3.select(element[0]).append('div').html('<h4>results</h4>');
                     d3.select(element[0]).append('div')
                         .selectAll('body').data(results.valuesLists[0]).enter().append('p').text(function (d) {
-                            return d.cellIndex + ', ' + d.childIndex + ', ' + d.value;
-                        });
+                        return d.cellIndex + ', ' + d.childIndex + ', ' + d.value;
+                    });
                 });
             }
 
@@ -248,7 +291,7 @@
             }
 
             function onDetailsRowHovered(column, rowScope, mouseOver) {
-                if(mouseOver) {
+                if (mouseOver) {
                     onHighlightCellsWithCommonNeighbors(rowScope.$parent.row.entity.id, scope);
                 } else {
                     onHighlightingCleared(scope);
@@ -261,13 +304,13 @@
 
                 var neighborCell = volumeCells.getCell(neighborId);
                 var neighborLabel = neighborCell.label;
-                for(var i=0; i<scope.overviewGridOptions.data.length; ++i) {
+                for (var i = 0; i < scope.overviewGridOptions.data.length; ++i) {
                     var row = scope.overviewGridOptions.data[i];
                     var cellValues = row[neighborLabel].values;
-                    for(var j=0; j<cellValues.length; ++j) {
+                    for (var j = 0; j < cellValues.length; ++j) {
                         var value = cellValues[j];
                         var otherNeighbor = volumeCells.getCellNeighborIdFromChildAndPartner(value.cellIndex, value.childIndex, value.partnerIndex);
-                        if(otherNeighbor == neighborCell.id) {
+                        if (otherNeighbor == neighborCell.id) {
                             row[neighborLabel].highlight = true;
                             scope.highlightList.push({row: i, label: neighborLabel});
                         }
@@ -276,7 +319,7 @@
             }
 
             function onHighlightingCleared(scope) {
-                for(var i=0; i<scope.highlightList.length; ++i) {
+                for (var i = 0; i < scope.highlightList.length; ++i) {
                     var cell = scope.highlightList[i];
                     scope.overviewGridOptions.data[cell.row][cell.label].highlight = false;
                 }
