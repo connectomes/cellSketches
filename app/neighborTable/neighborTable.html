@@ -1,8 +1,5 @@
 <div id="sidebar">
 
-
-
-
     <!---
     <label>All cells:
         <input type="checkbox" ng-model="model.ui.allCellsChecked" ng-change="selectionChanged()">
@@ -28,14 +25,11 @@
         </label>
     </div>
 
-    <hr>
-    <label>Use bars:
-        <input type="checkbox" ng-model="model.ui.useBarsInTable" ng-change="broadcastChange()">
-    </label>
 </div>
 
 <div id="content">
 
-    <neighbor-table broadcast-change="broadcastChange()" selected-mode-changed="selectedModeChanged()" model="model"></neighbor-table>
+    <neighbor-table broadcast-change="broadcastChange()" selected-mode-changed="selectedModeChanged()"
+                    model="model"></neighbor-table>
 
 </div>

@@ -34,7 +34,7 @@
          * @param sortFunction - applied to the columns
          * @returns List columns
          */
-        function getColumnDefs(header, sortFunction) {
+        function getColumnDefs(header, sortFunction, attribute) {
             var columns = [];
 
             for (var i = 0; i < header.length; ++i) {
@@ -45,10 +45,14 @@
                 };
 
                 if (i > 1) {
-                    column.cellTemplate = 'neighborTable/neighborTableCell.html';
-                    column.sortingAlgorithm = sortFunction;
+                    if(attribute == undefined) {
+                        column.cellTemplate = 'neighborTable/neighborTableCell.html';
+                        column.sortingAlgorithm = sortFunction;
+                    } else {
+                        column.cellTemplate = '';
+                    }
                 } else {
-                    if(i==0) {
+                    if (i == 0) {
                         column.enableHiding = false;
                     }
                     column.allowCellFocus = false;
@@ -145,14 +149,14 @@
          * @name getTableData
          * @returns Array of Lists containing values for childrenTable.
          */
-        function getTableData(cellIndexes, childTypes, useTargetLabelGroups, useOnlySelectedTargets, selectedTargets, childrenGrouping, maxCount, columnWidth, useBarsInTable) {
+        function getTableData(cellIndexes, childTypes, useTargetLabelGroups, useOnlySelectedTargets, selectedTargets, childrenGrouping, maxCount, columnWidth, useBarsInTable, attribute) {
 
             var table = [];
 
             if (childrenGrouping == self.Grouping.TARGETLABEL) {
                 cellIndexes.forEach(function (cellIndex) {
 
-                    var results = volumeHelpers.getAggregateChildAttrGroupedByTarget([cellIndex], childTypes, useTargetLabelGroups, volumeHelpers.PerChildAttributes.CONFIDENCE, null, cellIndexes);
+                    var results = volumeHelpers.getAggregateChildAttrGroupedByTarget([cellIndex], childTypes, useTargetLabelGroups, attribute, volumeHelpers.Units.PIXELS, cellIndexes);
                     var row = {};
                     var cell = volumeCells.getCellAt(cellIndex);
                     row.id = cell.id;
@@ -194,7 +198,7 @@
                             var children = volumeCells.getCellChildrenByTypeIndexes(cellIndex, childType);
                             var childTypeCode = volumeStructures.getChildStructureTypeCode(childType);
                             row[childTypeCode] = {};
-                            row[childTypeCode].values = volumeHelpers.createCellChildValues(cellIndex, children);
+                            row[childTypeCode].values = volumeHelpers.createCellChildValues(cellIndex, children, attribute);
                             row[childTypeCode].width = columnWidth;
                         });
                     } else {
@@ -203,7 +207,7 @@
                             var children = volumeCells.getCellChildrenByTypeIndexes(cellIndex, childType);
                             var childTypeCode = volumeStructures.getChildStructureTypeCode(childType);
                             row[childTypeCode] = {};
-                            row[childTypeCode].values = volumeHelpers.createCellChildValues(cellIndex, children);
+                            row[childTypeCode].values = volumeHelpers.createCellChildValues(cellIndex, children, attribute);
                             row[childTypeCode].width = columnWidth;
                         });
                     }
