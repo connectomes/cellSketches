@@ -1,4 +1,4 @@
-fdescribe('neighborTableData service test', function () {
+describe('neighborTableData service test', function () {
 
     var volumeCells, volumeStructures, volumeHelpers, httpBackend, neighborTableData;
 
@@ -139,7 +139,7 @@ fdescribe('neighborTableData service test', function () {
 
             //TODO: change this to use correct cell template.
             if (i > 1) {
-                expect(columnDef.cellTemplate == '').toBeTruthy();
+                expect(columnDef.cellTemplate == 'neighborTable/neighborTableHistogramCell.directive.html').toBeTruthy();
             }
         });
     });

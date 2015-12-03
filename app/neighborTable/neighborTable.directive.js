@@ -85,20 +85,20 @@
             scope.AttributeModes = [
                 {
                     name: 'Distance',
-                    id: 0
+                    id: volumeHelpers.PerChildAttributes.DISTANCE
                 },
                 {
-                    name: 'Area',
-                    id: 1
+                    name: 'Diameter',
+                    id: volumeHelpers.PerChildAttributes.DIAMETER
 
                 }
             ];
 
             scope.model.ui.modes = {};
-            scope.model.ui.modes.selectedDataMode = scope.DataModes[0];
+            scope.model.ui.modes.selectedDataMode = scope.DataModes[1];
             scope.model.ui.modes.selectedCountMode = scope.CountEncodingModes[0];
             scope.model.ui.modes.selectedAttributeMode = scope.AttributeModes[0];
-
+            scope.overviewGridOptions = {};
             scope.broadcastChange();
 
             /**
@@ -135,6 +135,11 @@
                 self.useOnlySelectedTargets = !useOnlySelectedTargets; // TODO: This is flipped.
                 self.selectedTargets = selectedTargets;
 
+                var selectedAttribute = undefined;
+                if (scope.model.ui.modes.selectedDataMode.name == 'Attribute') {
+                    selectedAttribute = scope.model.ui.modes.selectedAttributeMode.id;
+                }
+
                 var cellIndexes = cells.indexes;
 
                 // Create column defs from targets.
@@ -147,32 +152,28 @@
                 var headerData = neighborTableData.getHeaderData(cellIndexes, self.childType, useTargetLabelGroups, self.useOnlySelectedTargets, selectedTargets, childrenGrouping);
 
                 self.targets = headerData.slice(2);
-                var targets = self.targets;
 
                 var columnWidth = 100;
-                var columnDefs = neighborTableData.getColumnDefs(headerData, sortColumn);
+                var columnDefs = neighborTableData.getColumnDefs(headerData, sortColumn, selectedAttribute);
 
-                // Create overview grid options
-                scope.overviewGridOptions = {};
+                // Create overview grid options. Here we want to keep the old grid options - this is because the old
+                // grid options have some internal state that needs to be preserved.
+                angular.extend(scope.overviewGridOptions, neighborTableData.getDefaultGridOptions(selectedAttribute));
+
+                // Update the columns and data.
                 scope.overviewGridOptions.columnDefs = columnDefs;
-                scope.overviewGridOptions.multiSelect = false;
                 scope.overviewGridOptions.data = [];
-                scope.overviewGridOptions.enableGridMenu = true;
                 scope.highlightList = [];
+
                 // Register API for interaction.
                 scope.overviewGridOptions.onRegisterApi = function (gridApi) {
                     scope.gridApi = gridApi;
                     gridApi.cellNav.on.navigate(scope, onOverviewCellClicked);
                 };
 
-                // Find min and max values
-
+                // Max count is used by the bars to fill appropriately.
                 scope.overviewGridOptions.data = neighborTableData.getTableData(cellIndexes, self.childType, useTargetLabelGroups, self.useOnlySelectedTargets, self.selectedTargets, childrenGrouping, 0, columnWidth, 0);
-                $log.error('data', scope.overviewGridOptions.data);
-                var maxCount = neighborTableData.getTableDataMaxValue(headerData, scope.overviewGridOptions.data);
-                scope.maxCount = maxCount;
-
-                // Create row data.
+                scope.maxCount = neighborTableData.getTableDataMaxValue(headerData, scope.overviewGridOptions.data);
 
                 // Done with the overview table. Now create the details table.
                 createDetailsTable(scope);

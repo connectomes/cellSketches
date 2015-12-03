@@ -16,8 +16,13 @@
             CHILDTYPE: 1
         };
 
+        self.histogramRowHeight = 100;
+        self.histogramRowWidth = 200;
+        self.defaultRowHeight = 30;
+
         var service = {
             getColumnDefs: getColumnDefs,
+            getDefaultGridOptions: getDefaultGridOptions,
             getHeaderData: getHeaderData,
             getTableAsCsv: getTableAsCsv,
             getTableData: getTableData,
@@ -45,11 +50,12 @@
                 };
 
                 if (i > 1) {
-                    if(attribute == undefined) {
+                    if (attribute == undefined) {
                         column.cellTemplate = 'neighborTable/neighborTableCell.html';
                         column.sortingAlgorithm = sortFunction;
                     } else {
-                        column.cellTemplate = '';
+                        column.width = self.histogramRowWidth;
+                        column.cellTemplate = 'neighborTable/neighborTableHistogramCell.directive.html';
                     }
                 } else {
                     if (i == 0) {
@@ -67,8 +73,30 @@
         }
 
         /**
+         * @name getDefaultGridOptions
+         * @param attribute - either distance or diameter - this will cause the rowHeight to be larger
+         * @returns Object of grid options.
+         */
+        function getDefaultGridOptions(attribute) {
+
+            var rowHeight = self.defaultRowHeight;
+            if (attribute != undefined) {
+                rowHeight = self.histogramRowHeight;
+            }
+
+            var gridOptions = {
+                rowHeight: rowHeight,
+                multiSelect: false,
+                enableGridMenu: true
+            };
+
+            return gridOptions;
+        }
+
+        /**
          * @name getHeaderData
          * @returns List of strings to appear in the table of cell children.
+
          */
         function getHeaderData(cellIndexes, childTypes, useTargetLabelGroups, useOnlySelectedTargets, selectedTargets, childrenGrouping) {
 
@@ -225,6 +253,7 @@
          */
         function getTableDataMaxValue(header, table) {
             var maxValue = 0;
+
             table.forEach(function (row) {
 
                 header.forEach(function (column, i) {
@@ -234,7 +263,7 @@
                     }
                 });
             });
-            $log.error(maxValue);
+
             return maxValue;
         }
 
