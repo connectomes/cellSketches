@@ -1,3 +1,6 @@
 <div class="overviewGridCell">
-    <div style="padding-left: 5px;">{{COL_FIELD.values}}</div>
+    <neighbor-table-histogram-cell values="COL_FIELD.values"
+                                   max-value="grid.appScope.maxCount"
+                                   histogram="grid.appScope.histogram">
+    </neighbor-table-histogram-cell>
 </div>

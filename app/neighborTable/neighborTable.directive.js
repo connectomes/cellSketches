@@ -172,8 +172,17 @@
                 };
 
                 // Max count is used by the bars to fill appropriately.
-                scope.overviewGridOptions.data = neighborTableData.getTableData(cellIndexes, self.childType, useTargetLabelGroups, self.useOnlySelectedTargets, self.selectedTargets, childrenGrouping, 0, columnWidth, 0);
-                scope.maxCount = neighborTableData.getTableDataMaxValue(headerData, scope.overviewGridOptions.data);
+                scope.overviewGridOptions.data = neighborTableData.getTableData(cellIndexes, self.childType, useTargetLabelGroups, self.useOnlySelectedTargets, self.selectedTargets, childrenGrouping, 0, columnWidth, 0, selectedAttribute);
+                scope.maxCount = neighborTableData.getTableDataMaxValue(headerData, scope.overviewGridOptions.data, selectedAttribute);
+
+                var numBins = 10;
+                scope.histogram = {
+                    numBins: numBins,
+                    xAxisDomain: [0, scope.maxCount],
+                    xAxisRange: [0, neighborTableData.histogramRowWidth]
+                };
+                var maxYValue = neighborTableData.getHistogramMaxYValueFromTable(scope.overviewGridOptions.data, headerData, numBins, scope.histogram.xAxisDomain, scope.histogram.xAxisRange);
+                scope.histogram.yAxisDomain = [0, maxYValue];
 
                 // Done with the overview table. Now create the details table.
                 createDetailsTable(scope);
