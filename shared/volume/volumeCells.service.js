@@ -130,12 +130,27 @@
             return self.cellChildren[cellIndex][childIndex];
         }
 
+        /**
+         * @name getCellChildCentroid
+         * @desc - If child has more than two locations, returns the center of the cell child's 2D convex hull. If the
+         *         child has only two locations, return their average. If the child has one location just return that.
+         * @returns Object of cell's child indexes that are connected to partnerIndexes and of the specified type.
+         */
         function getCellChildCentroidAt(cellIndex, childIndex) {
-            // Get locations, convert to convex hull, return centroid of the hull.
             var locations = getCellChildLocationsAt(cellIndex, childIndex);
-            var hull = getConvexHullFromLocations(locations);
-            var centroid = hull.centroid();
-            return new utils.Point2D(centroid[0], centroid[1]);
+            if(locations.length > 2) {
+                var hull = getConvexHullFromLocations(locations);
+                var centroid = hull.centroid();
+                return new utils.Point2D(centroid[0], centroid[1]);
+            } else if (locations.length == 2) {
+                var point = new utils.Point2D(locations[0].position.x, locations[0].position.y);
+                point = point.add(new utils.Point2D(locations[1].position.x, locations[1].position.y));
+                point = point.multiply(0.5);
+                return point;
+            } else if (locations.length == 1) {
+                return new utils.Point2D(locations[0].position.x, locations[0].position.y);
+            }
+
         }
 
         function getCellChildLocationsAt(cellIndex, childIndex) {

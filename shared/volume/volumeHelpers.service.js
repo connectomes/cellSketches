@@ -5,9 +5,9 @@
         .module('app.volumeModule')
         .factory('volumeHelpers', volumeHelpers);
 
-    volumeHelpers.$inject = ['volumeCells', 'volumeStructures'];
+    volumeHelpers.$inject = ['volumeCells', 'volumeStructures', '$log'];
 
-    function volumeHelpers(volumeCells, volumeStructures) {
+    function volumeHelpers(volumeCells, volumeStructures, $log) {
 
         var self = this;
 
@@ -45,10 +45,20 @@
          */
         function createCellChildValues(cellIndex, children, attribute) {
             var cellChildValues = [];
-            children.forEach(function(child) {
+
+            children.forEach(function (child) {
                 var value = getChildAttr(cellIndex, child, attribute, self.Units.PIXELS);
                 cellChildValues.push(new utils.CellChildValue(cellIndex, child, undefined, value));
             });
+
+            if(attribute != undefined) {
+                cellChildValues.forEach(function (value) {
+                    if (isNaN(value.value)) {
+                        $log.error('Found invalid cell child value: ', value);
+                    }
+                });
+            }
+
             return cellChildValues;
         }
 
@@ -59,7 +69,7 @@
             } else if (attribute == self.PerChildAttributes.DISTANCE) {
                 var cellCentroid = volumeCells.getCellCentroidAt(cellIndex);
                 var childCentroid = volumeCells.getCellChildCentroidAt(cellIndex, childIndex);
-                value = cellCentroid.distance(childCentroid);
+                value = childCentroid.distance(cellCentroid);
             } else if (attribute == self.PerChildAttributes.CONFIDENCE) {
                 return volumeCells.getCellChildAt(cellIndex, childIndex).confidence;
             }
