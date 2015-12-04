@@ -1,4 +1,6 @@
-describe('neighborTableData service test', function () {
+fdescribe('neighborTableData service test', function () {
+
+    'use strict';
 
     var volumeCells, volumeStructures, volumeHelpers, httpBackend, neighborTableData;
 
@@ -116,7 +118,7 @@ describe('neighborTableData service test', function () {
         });
     });
 
-    it('getColumnDefs - grouping by target label with attribute distance', function () {
+    it('getColumnDefs - grouping by target label with attribute diameter', function () {
 
         var cellIndexes = [0];
         var childType = undefined;
@@ -193,7 +195,7 @@ describe('neighborTableData service test', function () {
         expect(data[0]['CBb4w'] == undefined).toBeTruthy();
     });
 
-    it('getTableData - grouping by child type with attribute distance', function () {
+    it('getTableData - grouping by child type with attribute diameter', function () {
 
         var cellIndexes = [0];
         var childType = undefined;
@@ -214,10 +216,10 @@ describe('neighborTableData service test', function () {
         // 35.66.. is the diameter of the first gap junction child of 6115.
         expect(data[0]['G'].values[0].value - (2 * 35.66166476045741)).toBeCloseTo(0);
 
-        header.forEach(function(column, i) {
+        header.forEach(function (column, i) {
             if (i > 1) {
-                data[0][column].values.forEach(function(value) {
-                   expect(Number.isNaN(value.value)).toBeFalsy();
+                data[0][column].values.forEach(function (value) {
+                    expect(Number.isNaN(value.value)).toBeFalsy();
                 });
             }
         });
@@ -309,15 +311,99 @@ describe('neighborTableData service test', function () {
         expect(data == expectedData).toBeTruthy();
     });
 
+    // TODO: fill this in
     it('getTableDataAsCsv - grouping by target label with attribute distance', function () {
 
     });
 
+    // TODO: fill this in
     it('getTableMaxValue - grouping by child type', function () {
 
     });
 
+    // TODO: fill this in
     it('getTableDataMaxValue - attribute distance', function () {
 
+    });
+
+    it('getHistogramValuesFromList', function () {
+
+        var cellIndexes = [0];
+        var childType = undefined;
+        var useTargetLabelGroups = false;
+        var useOnlySelectedTargets = false;
+        var selectedTargets = undefined;
+        var childrenGrouping = neighborTableData.Grouping.CHILDTYPE;
+        var attribute = volumeHelpers.PerChildAttributes.DIAMETER;
+
+        var header = neighborTableData.getHeaderData(cellIndexes, childType, useTargetLabelGroups, useOnlySelectedTargets, selectedTargets, childrenGrouping);
+
+        var data = neighborTableData.getTableData(cellIndexes, childType, useTargetLabelGroups, useOnlySelectedTargets, selectedTargets, childrenGrouping, 0, 100, true, attribute);
+
+        var numBins = 5;
+        var xAxisRange = [0, neighborTableData.histogramRowWidth];
+        var xAxisDomain = [0, neighborTableData.getTableDataMaxValue(header, data, attribute)];
+
+        // These are all the values in the first histogram bin.
+        var expectedHistogramBin = [47.95950156181473, 32.85048309472224, 41.00786000632123, 38.290688208949774,
+            43.81339167584409, 38.005255400154134, 38.42534901602577, 47.68056178121411, 49.112980805683144,
+            34.577742882744516, 40.79576058911822, 42.12556570786024, 39.910689566869166, 48.45407105822542,
+            46.233381423279695, 43.83995524587313, 49.55003315110674, 40.559750415648054, 31.362609465959977,
+            42.043841534942715, 49.199975549522236, 47.22881417297261, 43.90410732921413, 38.50784205841522,
+            43.74884884167198, 33.76828336977374, 37.165677108099025, 39.62854228404138, 41.910252048645205,
+            35.33662439245822, 31.54498479265642, 28.75755138568101, 35.66799919294022, 41.30886822443062,
+            49.66009090768645, 45.73717765364576, 37.58384452130472, 48.42961466645964, 27.670188568683503,
+            39.95018926881312, 30.380567122726607, 38.41672072257779, 31.703492300413867, 40.66068478194503,
+            49.497663431069256, 40.88720309667475, 35.84431350334957, 33.870243337581414, 44.49459293108306];
+
+        var histogramValues = neighborTableData.getHistogramValues(data[0][header[2]].values, numBins, xAxisRange, xAxisDomain);
+
+        expectedHistogramBin.forEach(function(d, i) {
+           expect(histogramValues[0][i] - d).toBeCloseTo(0);
+        });
+
+    });
+
+    it('getHistogramMaxYValueFromValues', function () {
+
+        var cellIndexes = [0];
+        var childType = undefined;
+        var useTargetLabelGroups = false;
+        var useOnlySelectedTargets = false;
+        var selectedTargets = undefined;
+        var childrenGrouping = neighborTableData.Grouping.CHILDTYPE;
+        var attribute = volumeHelpers.PerChildAttributes.DIAMETER;
+        var header = neighborTableData.getHeaderData(cellIndexes, childType, useTargetLabelGroups, useOnlySelectedTargets, selectedTargets, childrenGrouping);
+        var data = neighborTableData.getTableData(cellIndexes, childType, useTargetLabelGroups, useOnlySelectedTargets, selectedTargets, childrenGrouping, 0, 100, true, attribute);
+
+        var numBins = 5;
+        var xAxisRange = [0, neighborTableData.histogramRowWidth];
+        var xAxisDomain = [0, neighborTableData.getTableDataMaxValue(header, data, attribute)];
+
+        var maxYValue = neighborTableData.getHistogramMaxYValueFromValues(data[0][header[2]].values, numBins, xAxisRange, xAxisDomain);
+
+        expect(maxYValue == 127).toBeTruthy();
+    });
+
+    it('getHistogramMaxYValueFromTable', function () {
+
+        var cellIndexes = [0];
+        var childType = undefined;
+        var useTargetLabelGroups = false;
+        var useOnlySelectedTargets = false;
+        var selectedTargets = undefined;
+        var childrenGrouping = neighborTableData.Grouping.CHILDTYPE;
+        var attribute = volumeHelpers.PerChildAttributes.DIAMETER;
+        var header = neighborTableData.getHeaderData(cellIndexes, childType, useTargetLabelGroups, useOnlySelectedTargets, selectedTargets, childrenGrouping);
+        var data = neighborTableData.getTableData(cellIndexes, childType, useTargetLabelGroups, useOnlySelectedTargets, selectedTargets, childrenGrouping, 0, 100, true, attribute);
+
+        var numBins = 5;
+        var xAxisRange = [0, neighborTableData.histogramRowWidth];
+        var xAxisDomain = [0, neighborTableData.getTableDataMaxValue(header, data, attribute)];
+
+        var maxYValue = neighborTableData.getHistogramMaxYValueFromTable(data, header, numBins, xAxisRange, xAxisDomain);
+
+        // 136 is max size of histogram bins for this cell.s
+        expect(maxYValue == 136).toBeTruthy();
     });
 });

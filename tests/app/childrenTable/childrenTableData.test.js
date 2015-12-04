@@ -1,4 +1,5 @@
 describe('VolumeHelpers service test', function () {
+    'use strict';
 
     var volumeCells, volumeStructures, volumeHelpers, httpBackend, childrenTableData;
 
@@ -44,7 +45,7 @@ describe('VolumeHelpers service test', function () {
         var headerData = childrenTableData.getHeaderData();
 
         // Only one cell to check the row data for.
-        row = rowData[0];
+        var row = rowData[0];
 
         // First two columns are cell id and label.
         // Remaining columns are children corresponding to the header data.
@@ -52,7 +53,7 @@ describe('VolumeHelpers service test', function () {
         expect(row['label'] == 'CBb5w').toBeTruthy();
         headerData.forEach(function (columnName, i) {
             if (i > 2) {
-                rowValue = row[columnName];
+                var rowValue = row[columnName];
                 rowValue.forEach(function (childIndex) {
                     var child = volumeCells.getCellChildAt(0, childIndex);
                     var childType = child.type;

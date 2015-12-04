@@ -24,12 +24,16 @@
             getColumnDefs: getColumnDefs,
             getDefaultGridOptions: getDefaultGridOptions,
             getHeaderData: getHeaderData,
+            getHistogramMaxYValueFromTable: getHistogramMaxYValueFromTable,
+            getHistogramMaxYValueFromValues: getHistogramMaxYValueFromValues,
+            getHistogramValues: getHistogramValues,
             getTableAsCsv: getTableAsCsv,
             getTableData: getTableData,
             getTableDataMaxValue: getTableDataMaxValue
         };
 
         service.Grouping = self.Grouping;
+        service.histogramRowWidth = self.histogramRowWidth;
 
         return service;
 
@@ -96,7 +100,6 @@
         /**
          * @name getHeaderData
          * @returns List of strings to appear in the table of cell children.
-
          */
         function getHeaderData(cellIndexes, childTypes, useTargetLabelGroups, useOnlySelectedTargets, selectedTargets, childrenGrouping) {
 
@@ -126,6 +129,78 @@
             }
 
             return header;
+        }
+
+        /**
+         * @name getHistogramMaxYValueFromTable
+         * @param table
+         * @param header
+         * @param numBins - number of bins that the xAxisRange will be divided into
+         * @param xAxisDomain - [0, maxValue]
+         * @param xAxisRange - [0, width]
+         * @returns Number - max length of histogram bin
+         */
+        function getHistogramMaxYValueFromTable(table, header, numBins, xAxisDomain, xAxisRange) {
+
+            var maxYValue = 0;
+
+            table.forEach(function(row) {
+               header.forEach(function(column, i) {
+                   if (i > 1) {
+                       maxYValue = Math.max(getHistogramMaxYValueFromValues(row[column].values, numBins, xAxisDomain, xAxisRange), maxYValue);
+                   }
+               });
+            });
+
+            return maxYValue;
+        }
+
+        /**
+         * @name getHistogramMaxYValueFromValues
+         * @param values - list of CellChildValues
+         * @param numBins - number of bins that the xAxisRange will be divided into
+         * @param xAxisDomain - [0, maxValue]
+         * @param xAxisRange - [0, width]
+         * @returns Number - max length of histogram bin
+         */
+        function getHistogramMaxYValueFromValues(values, numBins, xAxisDomain, xAxisRange) {
+
+            // Create bins.
+            var histogram = getHistogramValues(values, numBins, xAxisDomain, xAxisRange);
+
+            var maxYValue = -1;
+
+            // Find max sized bin
+            histogram.forEach(function(bin) {
+                    maxYValue = Math.max(maxYValue, bin.length);
+            });
+
+            return maxYValue;
+
+        }
+
+        /**
+         * @name getHistogramValues
+         * @param values - list of CellChildValues
+         * @param numBins - number of bins that the xAxisRange will be divided into
+         * @param xAxisDomain - [0, maxValue]
+         * @param xAxisRange - [0, width]
+         * @returns String csv of the current table (header + data).
+         */
+        function getHistogramValues(values, numBins, xAxisDomain, xAxisRange) {
+
+            var x = d3.scale.linear()
+                .domain(xAxisDomain)
+                .range(xAxisRange);
+
+            var justValues = values.map(function (d) {
+                return d.value;
+            });
+
+            return d3.layout.histogram()
+                .range(xAxisDomain)
+                .bins(x.ticks(numBins))
+                (justValues);
         }
 
         /**
@@ -251,7 +326,7 @@
          * @name getTableDataMaxValue
          * @returns maxValue in the table - ignore the two most left columns.
          */
-        function getTableDataMaxValue(header, table) {
+        function getTableDataMaxValue(header, table, attribute) {
             var maxValue = 0;
 
             table.forEach(function (row) {
@@ -259,7 +334,14 @@
                 header.forEach(function (column, i) {
 
                     if (i > 1) {
-                        maxValue = Math.max(maxValue, row[column].values.length);
+                        if(attribute == undefined) {
+                            maxValue = Math.max(maxValue, row[column].values.length);
+                        } else {
+                            var values = row[column].values;
+                            values.forEach(function(value) {
+                                maxValue = Math.max(maxValue, value.value);
+                            });
+                        }
                     }
                 });
             });
