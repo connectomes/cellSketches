@@ -107,7 +107,7 @@
                 .call(xAxis);
 
             // Create bars.
-            var bar = svg.selectAll(".bar")
+            var bar = svg.selectAll(".histogramBar")
                 .data(data)
                 .enter()
                 .append("g")
@@ -121,7 +121,7 @@
                 .attr('height', function (d) {
                     return height - y(d.y);
                 })
-                .attr("class", "bar")
+                .attr("class", "histogramBar")
                 .on('click', null);
 
             /*
