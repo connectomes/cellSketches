@@ -20,13 +20,26 @@
 
 .grid {
     width: 1350px;
-    height: 250px;
+    height: 500px;
 }
 
 .overviewGridCell {
     padding-top: 5px;
     width: 100%;
     height: 100%;
+}
+
+.sidebarControls {
+    margin-left: 5%;
+    width: 90%;
+}
+
+.sidebarHeading {
+    margin-top: 15px;
+}
+
+.sidebarMultiSelect {
+    width: 100%;
 }
 
 .overviewGridCell:hover {

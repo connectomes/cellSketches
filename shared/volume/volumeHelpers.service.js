@@ -43,11 +43,15 @@
          * @param children - indexes of children
          * @returns Array of cell child values with undefined target and values.
          */
-        function createCellChildValues(cellIndex, children, attribute) {
+        function createCellChildValues(cellIndex, children, attribute, units) {
             var cellChildValues = [];
 
+            if(units == undefined) {
+                units = self.Units.PIXELS;
+            }
+
             children.forEach(function (child) {
-                var value = getChildAttr(cellIndex, child, attribute, self.Units.PIXELS);
+                var value = getChildAttr(cellIndex, child, attribute, units);
                 cellChildValues.push(new utils.CellChildValue(cellIndex, child, undefined, value));
             });
 

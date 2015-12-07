@@ -107,17 +107,14 @@
          * @returns Array of column defs
          */
         function getDetailsColumnDefs(grouping, attribute) {
-
             if (grouping == self.Grouping.TARGETLABEL && attribute == undefined) {
 
                 return [{
                     field: 'targetId',
-                    displayName: 'target id',
-                    width: 75
+                    displayName: 'target id'
                 }, {
                     field: 'count',
-                    displayName: 'count',
-                    width: 75
+                    displayName: 'count'
                 }, {
                     field: 'childIds',
                     displayName: 'child ids'
@@ -128,12 +125,10 @@
 
                 return [{
                     field: 'childId',
-                    displayName: 'child id',
-                    width: 75
+                    displayName: 'child id'
                 }, {
                     field: 'targetId',
-                    displayName: 'target id',
-                    width: 75
+                    displayName: 'target id'
                 }, {
                     field: 'childValue',
                     displayName: 'child value'
@@ -144,31 +139,27 @@
 
                 return [{
                     field: 'childId',
-                    displayName: 'child id',
-                    width: 75
-                }, {
-                    field: 'targetId',
-                    displayName: 'target id',
-                    width: 75
+                    displayName: 'child id'
                 }, {
                     field: 'targetLabel',
                     displayName: 'target label'
-                }];
 
+                }, {
+                    field: 'targetId',
+                    displayName: 'target id'
+                }];
             }
             else if (grouping == self.Grouping.CHILDTYPE && attribute != undefined) {
 
                 return [{
                     field: 'childId',
-                    displayName: 'child id',
-                    width: 75
-                }, {
-                    field: 'targetId',
-                    displayName: 'target id',
-                    width: 75
+                    displayName: 'child id'
                 }, {
                     field: 'targetLabel',
                     displayName: 'target label'
+                }, {
+                    field: 'targetId',
+                    displayName: 'target id'
                 }, {
                     field: 'childValue',
                     displayName: 'child value'
@@ -198,6 +189,8 @@
          */
         function getDetailsData(attribute, grouping, values) {
 
+            $log.debug('getDetailsData', grouping, attribute);
+
             var details = [];
 
             if (grouping == self.Grouping.TARGETLABEL && attribute == undefined) {
@@ -224,9 +217,9 @@
 
                 uniqueTargets.forEach(function (target, i) {
                     details.push({
-                        id: target,
+                        targetId: target,
                         count: numChildrenPerTarget[i],
-                        children: childrenPerTarget[i]
+                        childIds: childrenPerTarget[i]
                     });
                 });
 
@@ -235,7 +228,7 @@
 
                 values.forEach(function (value) {
                     var targetId = volumeCells.getCellNeighborIdFromChildAndPartner(value.cellIndex, value.childIndex, value.partnerIndex);
-                    var childId = volumeCells.getCellChildAt(value.cellIndex, value.childIndex);
+                    var childId = volumeCells.getCellChildAt(value.cellIndex, value.childIndex).id;
                     var childValue = value.value;
 
                     details.push({
@@ -270,10 +263,15 @@
 
                         });
 
+                        if (targetId == '') {
+                            targetId = 'none';
+                            targetLabels = 'none';
+                        }
+
                         details.push({
                             childId: volumeCells.getCellChildAt(value.cellIndex, value.childIndex).id,
                             targetId: targetId,
-                            targetLabels: targetLabels
+                            targetLabel: targetLabels
                         });
                     }
 
@@ -306,10 +304,15 @@
 
                         });
 
+                        if (targetId == '') {
+                            targetId = 'none';
+                            targetLabels = 'none';
+                        }
+
                         details.push({
                             childId: volumeCells.getCellChildAt(value.cellIndex, value.childIndex).id,
                             targetId: targetId,
-                            targetLabels: targetLabels,
+                            targetLabel: targetLabels,
                             childValue: value.value
                         });
                     }
@@ -320,7 +323,7 @@
 
             }
             else {
-                throw 'getDetailsColumnDefs is fucked!';
+                throw 'getDetailsData is fucked!';
             }
 
             return details;
@@ -481,14 +484,14 @@
          * @name getTableData
          * @returns Array of Lists containing values for childrenTable.
          */
-        function getTableData(cellIndexes, childTypes, useTargetLabelGroups, useOnlySelectedTargets, selectedTargets, childrenGrouping, maxCount, columnWidth, useBarsInTable, attribute) {
+        function getTableData(cellIndexes, childTypes, useTargetLabelGroups, useOnlySelectedTargets, selectedTargets, childrenGrouping, maxCount, columnWidth, useBarsInTable, attribute, units) {
 
             var table = [];
 
             if (childrenGrouping == self.Grouping.TARGETLABEL) {
                 cellIndexes.forEach(function (cellIndex) {
 
-                    var results = volumeHelpers.getAggregateChildAttrGroupedByTarget([cellIndex], childTypes, useTargetLabelGroups, attribute, volumeHelpers.Units.PIXELS, cellIndexes);
+                    var results = volumeHelpers.getAggregateChildAttrGroupedByTarget([cellIndex], childTypes, useTargetLabelGroups, attribute, units, cellIndexes);
                     var row = {};
                     var cell = volumeCells.getCellAt(cellIndex);
                     row.id = cell.id;
@@ -530,7 +533,7 @@
                             var children = volumeCells.getCellChildrenByTypeIndexes(cellIndex, childType);
                             var childTypeCode = volumeStructures.getChildStructureTypeCode(childType);
                             row[childTypeCode] = {};
-                            row[childTypeCode].values = volumeHelpers.createCellChildValues(cellIndex, children, attribute);
+                            row[childTypeCode].values = volumeHelpers.createCellChildValues(cellIndex, children, attribute, units);
                             row[childTypeCode].width = columnWidth;
                         });
                     } else {
@@ -539,7 +542,7 @@
                             var children = volumeCells.getCellChildrenByTypeIndexes(cellIndex, childType);
                             var childTypeCode = volumeStructures.getChildStructureTypeCode(childType);
                             row[childTypeCode] = {};
-                            row[childTypeCode].values = volumeHelpers.createCellChildValues(cellIndex, children, attribute);
+                            row[childTypeCode].values = volumeHelpers.createCellChildValues(cellIndex, children, attribute, units);
                             row[childTypeCode].width = columnWidth;
                         });
                     }

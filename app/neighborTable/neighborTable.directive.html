@@ -1,105 +1,188 @@
-<!-- Controls for the mode - children grouped by target or type --->
-<span style="width:30%;">Display
-    <ui-select ng-model="model.ui.selectedMode"
-               theme="select2"
-               search-enabled="false"
-               style="width: 25%;"
-               ng-change="selectedModeChanged()">
+<div id="sidebar">
 
-        <ui-select-match placeholder="Click to select">
-            {{model.ui.selectedMode.name}}
-        </ui-select-match>
+    <!-- Controls for the cells --->
+    <div>
+        <div class="sidebarHeading">
+            <b>Cells</b>
+        </div>
 
-        <ui-select-choices repeat="id in model.ui.availableModes">
-            <div ng-bind-html="id.name">{{id.name}}</div>
-        </ui-select-choices>
-    </ui-select>
-</span>
+        <div class="sidebarControls">
+            <label>All:
+                <input type="checkbox" ng-model="model.ui.allCellsChecked" ng-change="selectedCellsChanged()">
+            </label>
+            <label ng-show="!model.ui.allCellsChecked"><br>Cells:
+                <ui-select multiple ng-model="model.ui.selectedCells" theme="select2" style="width: 220px;"
+                           ng-change="selectedCellsChanged()">
+                    <ui-select-match placeholder="Click to select">{{$item}}</ui-select-match>
+                    <ui-select-choices repeat="id in model.masterCells.ids | filter:$select.search">{{id}}
+                    </ui-select-choices>
+                </ui-select>
+            </label>
+        </div>
+    </div>
 
-<!--- Controls for the dataMode - attribute or count --->
-<span style="width:30%; margin-left: 5%;">
-    Data
-    <ui-select ng-model="model.ui.modes.selectedDataMode"
-               theme="select2"
-               search-enabled="false"
-               ng-change="broadcastChange()"
-               style="width: 25%;">
+    <!-- Controls for the mode - children grouped by target or type --->
+    <div>
+        <div class="sidebarHeading">
+            <b>Display mode</b>
+        </div>
 
-        <ui-select-match placeholder="Click to select">
-            {{model.ui.modes.selectedDataMode.name}}
-        </ui-select-match>
+        <div class="sidebarControls">
+            <ui-select ng-model="model.ui.selectedMode"
+                       theme="select2"
+                       class="sidebarMultiSelect"
+                       search-enabled="false"
+                       ng-change="selectedModeChanged()">
 
-        <ui-select-choices repeat="id in DataModes">
-            <div ng-bind-html="id.name">{{id.name}}</div>
-        </ui-select-choices>
-    </ui-select>
-</span>
+                <ui-select-match placeholder="Click to select">
+                    {{model.ui.selectedMode.name}}
+                </ui-select-match>
 
-<!--- Controls for the countMode encoding - bars or text -->
-<span style="width:30%; margin-left: 5%;"
-      ng-show="model.ui.modes.selectedDataMode.name == 'Count'">
+                <ui-select-choices repeat="id in model.ui.availableModes">
+                    <div ng-bind-html="id.name">{{id.name}}</div>
+                </ui-select-choices>
+            </ui-select>
+        </div>
+    </div>
 
-    Encoding
-    <ui-select ng-model="model.ui.modes.selectedCountMode"
-               theme="select2"
-               search-enabled="false"
-               style="width: 20%;"
-               ng-change="broadcastChange()">
+    <!-- Controls for the child type -->
+    <div ng-show="model.ui.usingChildrenByTargetLabel" class="animate-show">
+        <div class="sidebarHeading">
+            <b>Child type</b>
+        </div>
+        <div class="sidebarControls">
+            <ui-select multiple ng-model="model.ui.selectedChildTypes" theme="select2" class="sidebarMultiSelect"
+                       ng-change="selectedChildTypesChanged()">
+                <ui-select-match placeholder="Click to select">{{$item}}</ui-select-match>
+                <ui-select-choices repeat="name in model.masterChildTypes.names | filter:$select.search">{{name}}
+                </ui-select-choices>
+            </ui-select>
+        </div>
+    </div>
 
-        <ui-select-match placeholder="Click to select">
-            {{model.ui.modes.selectedCountMode.name}}
-        </ui-select-match>
+    <!-- Controls for data -- attribute or count-->
+    <div>
+        <div class="sidebarHeading">
+            <b>Data in table</b>
+        </div>
 
-        <ui-select-choices repeat="id in CountEncodingModes">
-            <div ng-bind-html="id.name">{{id.name}}</div>
-        </ui-select-choices>
-    </ui-select>
-</span>
+        <div class="sidebarControls">
+            <ui-select ng-model="model.ui.modes.selectedDataMode"
+                       theme="select2"
+                       search-enabled="false"
+                       ng-change="broadcastChange()"
+                       class="sidebarMultiSelect">
 
-<!--- Controls for the attribute mode - distance or diameter --->
-<span style="width:30%; margin-left: 5%;"
-      ng-show="model.ui.modes.selectedDataMode.name == 'Attribute'">
+                <ui-select-match placeholder="Click to select">
+                    {{model.ui.modes.selectedDataMode.name}}
+                </ui-select-match>
 
-    Attribute
-    <ui-select ng-model="model.ui.modes.selectedAttributeMode"
-               theme="select2"
-               search-enabled="false"
-               style="width: 20%;"
-               ng-change="broadcastChange()">
+                <ui-select-choices repeat="id in DataModes">
+                    <div ng-bind-html="id.name">{{id.name}}</div>
+                </ui-select-choices>
+            </ui-select>
+        </div>
+    </div>
 
-        <ui-select-match placeholder="Click to select">
-            {{model.ui.modes.selectedAttributeMode.name}}
-        </ui-select-match>
+    <!--- Controls for the countMode encoding - bars or text -->
+    <div>
+        <div ng-show="model.ui.modes.selectedDataMode.name == 'Count'">
 
-        <ui-select-choices repeat="id in AttributeModes">
-            <div ng-bind-html="id.name">{{id.name}}</div>
-        </ui-select-choices>
-    </ui-select>
-</span>
+            <div class="sidebarHeading">
+                <b>Encoding</b>
+            </div>
+            <div class="sidebarControls">
+                <ui-select ng-model="model.ui.modes.selectedCountMode"
+                           theme="select2"
+                           search-enabled="false"
+                           class="sidebarMultiSelect"
+                           ng-change="broadcastChange()">
 
+                    <ui-select-match placeholder="Click to select">
+                        {{model.ui.modes.selectedCountMode.name}}
+                    </ui-select-match>
 
-<div ng-show="debugingGui">
-    <br/>
-    <br/>
-    Selected data mode: {{model.ui.modes.selectedDataMode}}
-    <br/>
-    Selected count encoding: {{model.ui.modes.selectedCountMode}}
-    <br/>
-    Selected attribute mode: {{model.ui.modes.selectedAttributeMode}}
+                    <ui-select-choices repeat="id in CountEncodingModes">
+                        <div ng-bind-html="id.name">{{id.name}}</div>
+                    </ui-select-choices>
+                </ui-select>
+            </div>
+
+        </div>
+    </div>
+
+    <!--- Controls for the attribute mode and distance - distance or diameter --->
+    <div ng-show="model.ui.modes.selectedDataMode.name == 'Attribute (histogram)'">
+
+        <div class="sidebarHeading">
+            <b>Attribute</b>
+        </div>
+
+        <div class="sidebarControls">
+            <ui-select ng-model="model.ui.modes.selectedAttributeMode"
+                       theme="select2"
+                       search-enabled="false"
+                       class="sidebarMultiSelect"
+                       ng-change="broadcastChange()">
+
+                <ui-select-match placeholder="Click to select">
+                    {{model.ui.modes.selectedAttributeMode.name}}
+                </ui-select-match>
+
+                <ui-select-choices repeat="id in AttributeModes">
+                    <div ng-bind-html="id.name">{{id.name}}</div>
+                </ui-select-choices>
+            </ui-select>
+        </div>
+
+        <div class="sidebarHeading">
+            <b>Units</b>
+        </div>
+        <div class="sidebarControls">
+            <ui-select ng-model="model.ui.modes.selectedUnitMode"
+                       theme="select2"
+                       search-enabled="false"
+                       class="sidebarMultiSelect"
+                       ng-change="broadcastChange()">
+
+                <ui-select-match placeholder="Click to select">
+                    {{model.ui.modes.selectedUnitMode.name}}
+                </ui-select-match>
+
+                <ui-select-choices repeat="id in UnitModes">
+                    <div ng-bind-html="id.name">{{id.name}}</div>
+                </ui-select-choices>
+            </ui-select>
+        </div>
+    </div>
+
 </div>
-<br/>
-<br/>
 
-<div id="grid0" ui-grid="overviewGridOptions" ui-grid-cellNav ui-grid-pinning class="grid"></div>
+<div id="content">
 
-<br/>
+    <div ng-show="debugingGui">
+        <br/>
+        <br/>
+        Selected data mode: {{model.ui.modes.selectedDataMode}}
+        <br/>
+        Selected count encoding: {{model.ui.modes.selectedCountMode}}
+        <br/>
+        Selected attribute mode: {{model.ui.modes.selectedAttributeMode}}
+    </div>
 
-<div ng-show="model.ui.details.cellId == -1">
-    <h3>Click on a cell for details</h3>
-</div>
+    <div id="grid0" ui-grid="overviewGridOptions" ui-grid-cellNav ui-grid-pinning class="grid"></div>
 
-<div ng-show="model.ui.details.cellId != -1">
-    <h3>Cell {{model.ui.details.cellId}} Children Connected with {{model.ui.details.target}}</h3>
+    <br/>
 
-    <div id="grid1" ui-grid="gridOptions" class="grid" ui-grid-resize-columns></div>
+    <div ng-show="model.ui.details.cellId == -1">
+        <h3>Click on a cell for details</h3>
+    </div>
+
+    <!--- <div ng-show="model.ui.details.cellId != -1"> --->
+    <div ng-show="true">
+        <h3>Cell {{model.ui.details.cellId}} Children Connected with {{model.ui.details.target}}</h3>
+
+        <div id="grid1" ui-grid="gridOptions" class="grid" ui-grid-resize-columns></div>
+    </div>
+
 </div>

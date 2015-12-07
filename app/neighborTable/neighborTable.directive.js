@@ -15,7 +15,9 @@
             scope: {
                 broadcastChange: '&',
                 model: '=',
-                selectedModeChanged: '&'
+                selectedModeChanged: '&',
+                selectedCellsChanged: '&',
+                selectedChildTypesChanged: '&'
             }
         };
 
@@ -55,8 +57,6 @@
             self.smallMultipleHeight = 200;
             self.smallMultipleOffsets = new utils.Point2D(self.smallMultiplePadding + self.smallMultipleWidth, self.smallMultiplePadding + self.smallMultipleHeight);
 
-            addDownloadButton();
-
             // Data is either attribute or count
             scope.DataModes = [
                 {
@@ -64,7 +64,7 @@
                     id: 0
                 },
                 {
-                    name: 'Attribute',
+                    name: 'Attribute (histogram)',
                     id: 1
                 }
             ];
@@ -90,7 +90,17 @@
                 {
                     name: 'Diameter',
                     id: volumeHelpers.PerChildAttributes.DIAMETER
+                }
+            ];
 
+            scope.UnitModes = [
+                {
+                    name: 'px',
+                    id: volumeHelpers.Units.PIXELS
+                },
+                {
+                    name: 'nm',
+                    id: volumeHelpers.Units.NM
                 }
             ];
 
@@ -98,20 +108,9 @@
             scope.model.ui.modes.selectedDataMode = scope.DataModes[1];
             scope.model.ui.modes.selectedCountMode = scope.CountEncodingModes[0];
             scope.model.ui.modes.selectedAttributeMode = scope.AttributeModes[0];
+            scope.model.ui.modes.selectedUnitMode = scope.UnitModes[1];
             scope.overviewGridOptions = {};
             scope.broadcastChange();
-
-            /**
-             * @name addDownLoadButton
-             * @desc adds a download button to the div id #sidebar.
-             */
-            function addDownloadButton() {
-                d3.select('#sidebar')
-                    .append('html')
-                    .html('<hr>' +
-                        '<button>Download</button>')
-                    .on('click', downloadClicked);
-            }
 
             function cellsChanged(slot, cells, childType, useTargetLabelGroups, useOnlySelectedTargets, selectedTargets, convertToNm, useRadius) {
 
@@ -136,7 +135,7 @@
                 self.selectedTargets = selectedTargets;
 
                 var selectedAttribute = undefined;
-                if (scope.model.ui.modes.selectedDataMode.name == 'Attribute') {
+                if (scope.model.ui.modes.selectedDataMode.name == 'Attribute (histogram)') {
                     selectedAttribute = scope.model.ui.modes.selectedAttributeMode.id;
                 }
 
@@ -171,8 +170,13 @@
                     gridApi.cellNav.on.navigate(scope, onOverviewCellClicked);
                 };
 
+                scope.overviewGridSettings = {};
+                scope.overviewGridSettings.selectedAttribute = selectedAttribute;
+                scope.overviewGridSettings.selectedGrouping = childrenGrouping;
+                scope.overviewGridSettings.selectedUnits = scope.model.ui.modes.selectedUnitMode.id;
                 // Max count is used by the bars to fill appropriately.
-                scope.overviewGridOptions.data = neighborTableData.getTableData(cellIndexes, self.childType, useTargetLabelGroups, self.useOnlySelectedTargets, self.selectedTargets, childrenGrouping, 0, columnWidth, 0, selectedAttribute);
+                scope.overviewGridOptions.data = neighborTableData.getTableData(cellIndexes, self.childType, useTargetLabelGroups, self.useOnlySelectedTargets, self.selectedTargets, childrenGrouping, 0, columnWidth, 0, selectedAttribute,
+                    scope.overviewGridSettings.selectedUnits);
                 scope.maxCount = neighborTableData.getTableDataMaxValue(headerData, scope.overviewGridOptions.data, selectedAttribute);
 
                 var numBins = 10;
@@ -185,7 +189,7 @@
                 scope.histogram.yAxisDomain = [0, maxYValue];
 
                 // Done with the overview table. Now create the details table.
-                createDetailsTable(scope);
+                createDetailsTable(scope, childrenGrouping, selectedAttribute);
             }
 
             function createDebuggingElements(cells, useTargetLabelGroups, useOnlySelectedTargets, selectedTargets, childType) {
@@ -220,25 +224,13 @@
                 });
             }
 
-            function createDetailsTable(scope) {
+            function createDetailsTable(scope, grouping, attribute) {
+
                 // Create the details grid.
-                scope.gridOptions = {};
-                scope.gridOptions.multiSelect = false;
-                scope.gridOptions.columnDefs = [{
-                    field: 'id',
-                    displayName: 'id',
-                    width: 75
-                }, {
-                    field: 'count',
-                    displayName: 'count',
-                    width: 75
-                }, {
-                    field: 'children',
-                    displayName: 'children'
-                }];
+                scope.gridOptions = neighborTableData.getDetailsGridOptions(grouping, attribute);
 
-                scope.gridOptions.rowTemplate = 'common/rowTemplate.html';
-
+                scope.gridOptions.columnDefs = neighborTableData.getDetailsColumnDefs(grouping, attribute);
+                scope.gridOptions.data = [];
                 scope.mouseOverDetailsRow = onDetailsRowHovered;
             }
 
@@ -339,36 +331,10 @@
             }
 
             function populateDetailsTableFromClickedCell(valueList) {
-                var uniqueTargets = [];
-                var childrenPerTarget = [];
-                var numChildrenPerTarget = [];
 
-                valueList.forEach(function (value) {
-                    var id = volumeCells.getCellNeighborIdFromChildAndPartner(value.cellIndex, value.childIndex, value.partnerIndex);
-                    var child = volumeCells.getCellChildAt(value.cellIndex, value.childIndex);
-                    var currIndex = uniqueTargets.indexOf(id);
-                    if (currIndex == -1) {
-                        uniqueTargets.push(id);
-                        currIndex = uniqueTargets.length - 1;
-                        childrenPerTarget[currIndex] = '';
-                        childrenPerTarget[currIndex] += child.id;
-                        numChildrenPerTarget[currIndex] = 1;
-                    } else {
-                        childrenPerTarget[currIndex] += ', ' + child.id;
-                        numChildrenPerTarget[currIndex] += 1;
-                    }
-                });
-
-                scope.gridOptions.data = [];
-
-                uniqueTargets.forEach(function (target, i) {
-                    scope.gridOptions.data.push({
-                        id: target,
-                        count: numChildrenPerTarget[i],
-                        children: childrenPerTarget[i]
-
-                    });
-                });
+                $log.debug(scope);
+                scope.gridOptions.data = neighborTableData.getDetailsData(scope.overviewGridSettings.selectedAttribute,
+                    scope.overviewGridSettings.selectedGrouping, valueList);
 
                 scope.$apply();
             }

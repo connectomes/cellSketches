@@ -235,7 +235,7 @@ fdescribe('neighborTableData service test', function () {
         var childrenGrouping = neighborTableData.Grouping.TARGETLABEL;
         var attribute = volumeHelpers.PerChildAttributes.DIAMETER;
 
-        var data = neighborTableData.getTableData(cellIndexes, childType, useTargetLabelGroups, useOnlySelectedTargets, selectedTargets, childrenGrouping, 0, 100, true, attribute);
+        var data = neighborTableData.getTableData(cellIndexes, childType, useTargetLabelGroups, useOnlySelectedTargets, selectedTargets, childrenGrouping, 0, 100, true, attribute, volumeHelpers.Units.PIXELS);
 
         // Check the row data. We expect there to be 4 children connected to itself. 6 children connected to GAC Aii.
         expect(data.length == 1).toBeTruthy();
@@ -430,12 +430,12 @@ fdescribe('neighborTableData service test', function () {
 
         attribute = undefined;
         grouping = neighborTableData.Grouping.CHILDTYPE;
-        expectedDisplayNames = ['child id', 'target id', 'target label'];
+        expectedDisplayNames = ['child id', 'target label', 'target id'];
         columnDefs = neighborTableData.getDetailsColumnDefs(grouping, attribute);
         checkExpectedValues(columnDefs, expectedDisplayNames);
 
         attribute = volumeHelpers.PerChildAttributes.DIAMETER;
-        expectedDisplayNames = ['child id', 'target id', 'target label', 'child value'];
+        expectedDisplayNames = ['child id', 'target label', 'target id', 'child value'];
         columnDefs = neighborTableData.getDetailsColumnDefs(grouping, attribute);
         checkExpectedValues(columnDefs, expectedDisplayNames);
     });
@@ -462,8 +462,8 @@ fdescribe('neighborTableData service test', function () {
         var data = neighborTableData.getTableData(cellIndexes, childType, useTargetLabelGroups, useOnlySelectedTargets, selectedTargets, grouping, 0, 100, true);
         var details = neighborTableData.getDetailsData(attribute, grouping, data[0]['GAC Aii'].values);
         details.forEach(function(row) {
-            expect(volumeCells.getCell(row.id).label == 'GAC Aii').toBeTruthy();
-            expect(row.count == row.children.split(', ').length).toBeTruthy();
+            expect(volumeCells.getCell(row.targetId).label == 'GAC Aii').toBeTruthy();
+            expect(row.count == row.childIds.split(', ').length).toBeTruthy();
         });
 
         // Diameter, grouping by target label
