@@ -223,7 +223,6 @@
             function createDetailsTable(scope) {
                 // Create the details grid.
                 scope.gridOptions = {};
-                scope.gridOptions.enableFullRowSelection = true;
                 scope.gridOptions.multiSelect = false;
                 scope.gridOptions.columnDefs = [{
                     field: 'id',
