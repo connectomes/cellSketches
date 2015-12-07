@@ -89,7 +89,7 @@
             };
 
         // Set this to false for loading local json of cell data.
-        $scope.model.usingRemote = false;
+        $scope.model.usingRemote = true;
 
         $scope.activate = function () {
 
@@ -181,20 +181,18 @@
          */
         $scope.loadCells = function (cells) {
 
-
-
             if ($scope.model.usingRemote) {
                 var cellsToLoad = [];
                 var cellsAlreadyLoaded = [];
 
                 // User entered list of cell IDs stored in cells.
                 // Check that they haven't already been loaded. VolumeCells will not do check this for us.
-                for(var i=0; i<cells.length; ++i) {
+                for (var i = 0; i < cells.length; ++i) {
                     var cellId = cells[i];
-                    if(!volumeCells.isCellCompletelyLoaded(cellId)) {
+                    if (!volumeCells.isCellCompletelyLoaded(cellId)) {
 
                         // Check that the user didn't ask for duplicate cell ids.
-                        if(cellsToLoad.indexOf(cellId) == -1) {
+                        if (cellsToLoad.indexOf(cellId) == -1) {
                             cellsToLoad.push(cellId);
                         } else {
                             toastr.warning('I will still try to load this id:' + cellId + '!', 'You asked for the same cell ID twice.');
@@ -205,13 +203,15 @@
                     }
                 }
 
-                if(cellsAlreadyLoaded.length > 0) {
+                if (cellsAlreadyLoaded.length > 0) {
                     toastr.warning('I\'ve already loaded cell(s):' + cellsAlreadyLoaded, 'Cells already loaded!');
                 }
 
-                if(cellsToLoad.length > 0) {
+                if (cellsToLoad.length > 0) {
                     $scope.model.cellsLoading = true;
                     $scope.model.cellsLoaded = false;
+
+                    $scope.loadingCellToast = toastr.success('These cell ids will be loaded:' + cellsToLoad, 'Loading started');
                     volumeCells.loadCellIds(cellsToLoad).then(cellsLoadedSuccess, cellsLoadedFailure);
                 }
 
@@ -294,7 +294,7 @@
         };
 
 
-        $scope.saveData = function(data) {
+        $scope.saveData = function (data) {
             var blob = new Blob([data], {type: "text"});
             saveAs(blob, 'data.csv');
         };
@@ -558,6 +558,8 @@
                 $log.debug('MainCtrl - cell neighbors loaded successfully:', results);
             }
 
+            toastr.clear($scope.loadingCellToast);
+
             cellsFinished();
         }
 
@@ -572,9 +574,10 @@
 
             $scope.updateAvailableNeighborLabelsFromNames($scope.model.masterCells.indexes, $scope.model.ui.selectedChildTypes);
 
-            if(self.dumpVolumeCells) {
+            if (self.dumpVolumeCells) {
                 volumeCells.saveAsFile('volumeCells.json');
             }
+
 
             $scope.broadcastChange();
         }
