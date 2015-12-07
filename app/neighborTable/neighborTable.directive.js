@@ -114,6 +114,7 @@
 
             function cellsChanged(slot, cells, childType, useTargetLabelGroups, useOnlySelectedTargets, selectedTargets, convertToNm, useRadius) {
 
+                scope.model.ui.details.cellId = -1;
                 scope.model.ui.useBarsInTable = scope.model.ui.modes.selectedCountMode.name == "Bars";
 
                 var useBarsInTable = scope.model.ui.useBarsInTable;
@@ -190,6 +191,7 @@
 
                 // Done with the overview table. Now create the details table.
                 createDetailsTable(scope, childrenGrouping, selectedAttribute);
+
             }
 
             function createDebuggingElements(cells, useTargetLabelGroups, useOnlySelectedTargets, selectedTargets, childType) {
@@ -328,6 +330,16 @@
 
                 scope.model.ui.details.cellId = newRowCol.row.entity['id'];
                 scope.model.ui.details.target = nameOfColumn;
+
+                var selectedChildTypes = '';
+                for(var i=0; i<self.childType.length; ++i) {
+                    if(i>0) {
+                        selectedChildTypes += ', ';
+                    }
+                    selectedChildTypes += volumeStructures.getChildStructureTypeCode(self.childType[i]);
+                }
+
+                scope.model.ui.details.selectedChildTypes = selectedChildTypes;
             }
 
             function populateDetailsTableFromClickedCell(valueList) {

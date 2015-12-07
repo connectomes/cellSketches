@@ -170,17 +170,52 @@
         Selected attribute mode: {{model.ui.modes.selectedAttributeMode}}
     </div>
 
+    <div ng-show="model.ui.selectedMode.name == 'Children By Type'">
+        <div ng-show="model.ui.modes.selectedDataMode.name=='Attribute (histogram)'">
+            <h4>Cell Children Grouped by Type - Histogram of {{model.ui.modes.selectedAttributeMode.name}}</h4>
+        </div>
+        <div ng-show="model.ui.modes.selectedDataMode.name=='Count'">
+            <h4>Cell Children Grouped by Type - Count</h4>
+        </div>
+    </div>
+
+    <div ng-show="model.ui.selectedMode.name == 'Children By Target Label'">
+        <div ng-show="model.ui.modes.selectedDataMode.name=='Attribute (histogram)'">
+            <h4>Cell Children Grouped by Target Label - Histogram of {{model.ui.modes.selectedAttributeMode.name}}</h4>
+        </div>
+        <div ng-show="model.ui.modes.selectedDataMode.name=='Count'">
+            <h4>Cell Children Grouped by Target Label - Count</h4>
+        </div>
+    </div>
+
     <div id="grid0" ui-grid="overviewGridOptions" ui-grid-cellNav ui-grid-pinning class="grid"></div>
 
     <br/>
 
     <div ng-show="model.ui.details.cellId == -1">
-        <h3>Click on a cell for details</h3>
+        <h4>Click on a Grid Cell for Details</h4>
     </div>
 
-    <!--- <div ng-show="model.ui.details.cellId != -1"> --->
-    <div ng-show="true">
-        <h3>Cell {{model.ui.details.cellId}} Children Connected with {{model.ui.details.target}}</h3>
+    <div ng-show="model.ui.details.cellId != -1">
+        <div ng-show="model.ui.selectedMode.name == 'Children By Type'">
+            <div ng-show="model.ui.modes.selectedDataMode.name=='Attribute (histogram)'">
+                <h4>Cell {{model.ui.details.cellId}} Children ({{model.ui.details.target}})
+                    {{model.ui.modes.selectedAttributeMode.name}}</h4>
+            </div>
+            <div ng-show="model.ui.modes.selectedDataMode.name=='Count'">
+                <h4>Cell {{model.ui.details.cellId}} Children ({{model.ui.details.target}})</h4>
+            </div>
+        </div>
+
+        <div ng-show="model.ui.selectedMode.name == 'Children By Target Label'">
+            <div ng-show="model.ui.modes.selectedDataMode.name=='Attribute (histogram)'">
+                <h4>Cell {{model.ui.details.cellId}} Children ({{model.ui.details.selectedChildTypes}}) {{model.ui.modes.selectedAttributeMode.name}}
+                    Targeting {{model.ui.details.target}}</h4>
+            </div>
+            <div ng-show="model.ui.modes.selectedDataMode.name=='Count'">
+                <h4>Cell {{model.ui.details.cellId}} </h4>
+            </div>
+        </div>
 
         <div id="grid1" ui-grid="gridOptions" class="grid" ui-grid-resize-columns></div>
     </div>
