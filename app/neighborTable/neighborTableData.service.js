@@ -23,6 +23,9 @@
         var service = {
             getColumnDefs: getColumnDefs,
             getDefaultGridOptions: getDefaultGridOptions,
+            getDetailsColumnDefs: getDetailsColumnDefs,
+            getDetailsGridOptions: getDetailsGridOptions,
+            getDetailsData: getDetailsData,
             getHeaderData: getHeaderData,
             getHistogramMaxYValueFromTable: getHistogramMaxYValueFromTable,
             getHistogramMaxYValueFromValues: getHistogramMaxYValueFromValues,
@@ -98,6 +101,232 @@
         }
 
         /**
+         * @name getDetailsColumnDefs
+         * @param grouping
+         * @param attribute
+         * @returns Array of column defs
+         */
+        function getDetailsColumnDefs(grouping, attribute) {
+
+            if (grouping == self.Grouping.TARGETLABEL && attribute == undefined) {
+
+                return [{
+                    field: 'targetId',
+                    displayName: 'target id',
+                    width: 75
+                }, {
+                    field: 'count',
+                    displayName: 'count',
+                    width: 75
+                }, {
+                    field: 'childIds',
+                    displayName: 'child ids'
+                }];
+
+            }
+            else if (grouping == self.Grouping.TARGETLABEL && attribute != undefined) {
+
+                return [{
+                    field: 'childId',
+                    displayName: 'child id',
+                    width: 75
+                }, {
+                    field: 'targetId',
+                    displayName: 'target id',
+                    width: 75
+                }, {
+                    field: 'childValue',
+                    displayName: 'child value'
+                }];
+
+            }
+            else if (grouping == self.Grouping.CHILDTYPE && attribute == undefined) {
+
+                return [{
+                    field: 'childId',
+                    displayName: 'child id',
+                    width: 75
+                }, {
+                    field: 'targetId',
+                    displayName: 'target id',
+                    width: 75
+                }, {
+                    field: 'targetLabel',
+                    displayName: 'target label'
+                }];
+
+            }
+            else if (grouping == self.Grouping.CHILDTYPE && attribute != undefined) {
+
+                return [{
+                    field: 'childId',
+                    displayName: 'child id',
+                    width: 75
+                }, {
+                    field: 'targetId',
+                    displayName: 'target id',
+                    width: 75
+                }, {
+                    field: 'targetLabel',
+                    displayName: 'target label'
+                }, {
+                    field: 'childValue',
+                    displayName: 'child value'
+                }];
+
+            }
+            else {
+                throw 'getDetailsColumnDefs is fucked!';
+            }
+        }
+
+        /**
+         * @name getDetailsGridOptions
+         * @returns Object of grid options with custom row template.
+         */
+        function getDetailsGridOptions() {
+            var gridOptions = {};
+            gridOptions.rowTemplate = 'common/rowTemplate.html';
+            return gridOptions;
+        }
+
+        /**
+         * @name getTableDetailsData
+         * @param attribute
+         * @param grouping
+         * @param values
+         */
+        function getDetailsData(attribute, grouping, values) {
+
+            var details = [];
+
+            if (grouping == self.Grouping.TARGETLABEL && attribute == undefined) {
+
+                var uniqueTargets = [];
+                var childrenPerTarget = [];
+                var numChildrenPerTarget = [];
+
+                values.forEach(function (value) {
+                    var id = volumeCells.getCellNeighborIdFromChildAndPartner(value.cellIndex, value.childIndex, value.partnerIndex);
+                    var child = volumeCells.getCellChildAt(value.cellIndex, value.childIndex);
+                    var currIndex = uniqueTargets.indexOf(id);
+                    if (currIndex == -1) {
+                        uniqueTargets.push(id);
+                        currIndex = uniqueTargets.length - 1;
+                        childrenPerTarget[currIndex] = '';
+                        childrenPerTarget[currIndex] += child.id;
+                        numChildrenPerTarget[currIndex] = 1;
+                    } else {
+                        childrenPerTarget[currIndex] += ', ' + child.id;
+                        numChildrenPerTarget[currIndex] += 1;
+                    }
+                });
+
+                uniqueTargets.forEach(function (target, i) {
+                    details.push({
+                        id: target,
+                        count: numChildrenPerTarget[i],
+                        children: childrenPerTarget[i]
+                    });
+                });
+
+            }
+            else if (grouping == self.Grouping.TARGETLABEL && attribute != undefined) {
+
+                values.forEach(function (value) {
+                    var targetId = volumeCells.getCellNeighborIdFromChildAndPartner(value.cellIndex, value.childIndex, value.partnerIndex);
+                    var childId = volumeCells.getCellChildAt(value.cellIndex, value.childIndex);
+                    var childValue = value.value;
+
+                    details.push({
+                        childId: childId,
+                        targetId: targetId,
+                        childValue: childValue
+                    });
+                });
+
+            }
+            else if (grouping == self.Grouping.CHILDTYPE && attribute == undefined) {
+
+
+                values.forEach(function (value) {
+
+                    var targetId = '';
+                    var targetLabels = '';
+                    if (value.partnerIndex == undefined) {
+
+                        var partner = volumeCells.getCellChildPartnerAt(value.cellIndex, value.childIndex);
+
+                        partner.neighborIds.forEach(function (neighborId, i) {
+
+                            if (i == 0) {
+                                targetId += neighborId;
+                                targetLabels += volumeCells.getCell(neighborId).label;
+                            } else {
+                                targetId += ', ' + neighborId;
+                                targetLabels += ', ' + volumeCells.getCell(neighborId).label;
+                            }
+
+
+                        });
+
+                        details.push({
+                            childId: volumeCells.getCellChildAt(value.cellIndex, value.childIndex).id,
+                            targetId: targetId,
+                            targetLabels: targetLabels
+                        });
+                    }
+
+                });
+
+                return details;
+
+            }
+            else if (grouping == self.Grouping.CHILDTYPE && attribute != undefined) {
+
+                values.forEach(function (value) {
+
+                    var targetId = '';
+                    var targetLabels = '';
+
+                    if (value.partnerIndex == undefined) {
+
+                        var partner = volumeCells.getCellChildPartnerAt(value.cellIndex, value.childIndex);
+
+                        partner.neighborIds.forEach(function (neighborId, i) {
+
+                            if (i == 0) {
+                                targetId += neighborId;
+                                targetLabels += volumeCells.getCell(neighborId).label;
+                            } else {
+                                targetId += ', ' + neighborId;
+                                targetLabels += ', ' + volumeCells.getCell(neighborId).label;
+                            }
+
+
+                        });
+
+                        details.push({
+                            childId: volumeCells.getCellChildAt(value.cellIndex, value.childIndex).id,
+                            targetId: targetId,
+                            targetLabels: targetLabels,
+                            childValue: value.value
+                        });
+                    }
+
+                });
+
+                return details;
+
+            }
+            else {
+                throw 'getDetailsColumnDefs is fucked!';
+            }
+
+            return details;
+        }
+
+        /**
          * @name getHeaderData
          * @returns List of strings to appear in the table of cell children.
          */
@@ -144,12 +373,12 @@
 
             var maxYValue = 0;
 
-            table.forEach(function(row) {
-               header.forEach(function(column, i) {
-                   if (i > 1) {
-                       maxYValue = Math.max(getHistogramMaxYValueFromValues(row[column].values, numBins, xAxisDomain, xAxisRange), maxYValue);
-                   }
-               });
+            table.forEach(function (row) {
+                header.forEach(function (column, i) {
+                    if (i > 1) {
+                        maxYValue = Math.max(getHistogramMaxYValueFromValues(row[column].values, numBins, xAxisDomain, xAxisRange), maxYValue);
+                    }
+                });
             });
 
             return maxYValue;
@@ -171,8 +400,8 @@
             var maxYValue = -1;
 
             // Find max sized bin
-            histogram.forEach(function(bin) {
-                    maxYValue = Math.max(maxYValue, bin.length);
+            histogram.forEach(function (bin) {
+                maxYValue = Math.max(maxYValue, bin.length);
             });
 
             return maxYValue;
@@ -334,11 +563,11 @@
                 header.forEach(function (column, i) {
 
                     if (i > 1) {
-                        if(attribute == undefined) {
+                        if (attribute == undefined) {
                             maxValue = Math.max(maxValue, row[column].values.length);
                         } else {
                             var values = row[column].values;
-                            values.forEach(function(value) {
+                            values.forEach(function (value) {
                                 maxValue = Math.max(maxValue, value.value);
                             });
                         }

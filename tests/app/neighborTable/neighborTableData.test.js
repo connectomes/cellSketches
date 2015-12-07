@@ -406,4 +406,90 @@ fdescribe('neighborTableData service test', function () {
         // 136 is max size of histogram bins for this cell.s
         expect(maxYValue == 136).toBeTruthy();
     });
+
+    it('getDetailsColumnDefs', function() {
+
+        function checkExpectedValues(columnDefs, expectedDisplayNames) {
+            expect(columnDefs.length == expectedDisplayNames.length).toBeTruthy();
+            columnDefs.forEach(function(column, i) {
+               expect(column.displayName == expectedDisplayNames[i]).toBeTruthy();
+            });
+        }
+
+        var grouping = neighborTableData.Grouping.TARGETLABEL;
+        var attribute = undefined;
+
+        var expectedDisplayNames = ['target id', 'count', 'child ids'];
+        var columnDefs = neighborTableData.getDetailsColumnDefs(grouping, attribute);
+        checkExpectedValues(columnDefs, expectedDisplayNames);
+
+        attribute = volumeHelpers.PerChildAttributes.DIAMETER;
+        expectedDisplayNames = ['child id', 'target id', 'child value'];
+        columnDefs = neighborTableData.getDetailsColumnDefs(grouping, attribute);
+        checkExpectedValues(columnDefs, expectedDisplayNames);
+
+        attribute = undefined;
+        grouping = neighborTableData.Grouping.CHILDTYPE;
+        expectedDisplayNames = ['child id', 'target id', 'target label'];
+        columnDefs = neighborTableData.getDetailsColumnDefs(grouping, attribute);
+        checkExpectedValues(columnDefs, expectedDisplayNames);
+
+        attribute = volumeHelpers.PerChildAttributes.DIAMETER;
+        expectedDisplayNames = ['child id', 'target id', 'target label', 'child value'];
+        columnDefs = neighborTableData.getDetailsColumnDefs(grouping, attribute);
+        checkExpectedValues(columnDefs, expectedDisplayNames);
+    });
+
+    it('getDetailsGridOptions', function() {
+
+        var detailsGridOptions = neighborTableData.getDetailsGridOptions();
+
+        expect(detailsGridOptions.rowTemplate == 'common/rowTemplate.html').toBeTruthy();
+
+    });
+
+    it('getDetailsData', function() {
+
+        var cellIndexes = [0];
+        var childType = undefined;
+        var useTargetLabelGroups = false;
+        var useOnlySelectedTargets = false;
+        var selectedTargets = undefined;
+
+        // No attribute, grouping by target label
+        var grouping = neighborTableData.Grouping.TARGETLABEL;
+        var attribute = undefined;
+        var data = neighborTableData.getTableData(cellIndexes, childType, useTargetLabelGroups, useOnlySelectedTargets, selectedTargets, grouping, 0, 100, true);
+        var details = neighborTableData.getDetailsData(attribute, grouping, data[0]['GAC Aii'].values);
+        details.forEach(function(row) {
+            expect(volumeCells.getCell(row.id).label == 'GAC Aii').toBeTruthy();
+            expect(row.count == row.children.split(', ').length).toBeTruthy();
+        });
+
+        // Diameter, grouping by target label
+        attribute = volumeHelpers.PerChildAttributes.DIAMETER;
+        grouping = neighborTableData.Grouping.TARGETLABEL;
+        data = neighborTableData.getTableData(cellIndexes, childType, useTargetLabelGroups, useOnlySelectedTargets, selectedTargets, grouping, 0, 100, true, attribute);
+        details = neighborTableData.getDetailsData(attribute, grouping, data[0]['GAC Aii'].values);
+        expect(details.length == 15).toBeTruthy();
+
+        // No attribute, grouping by child type
+        attribute = undefined;
+        grouping = neighborTableData.Grouping.CHILDTYPE;
+        data = neighborTableData.getTableData(cellIndexes, childType, useTargetLabelGroups, useOnlySelectedTargets, selectedTargets, grouping, 0, 100, true, attribute);
+        details = neighborTableData.getDetailsData(attribute, grouping, data[0]['G'].values);
+        expect(details.length == 25).toBeTruthy();
+
+        // Diameter, grouping by child type
+        attribute = volumeHelpers.PerChildAttributes.DIAMETER;
+        grouping = neighborTableData.Grouping.CHILDTYPE;
+        data = neighborTableData.getTableData(cellIndexes, childType, useTargetLabelGroups, useOnlySelectedTargets, selectedTargets, grouping, 0, 100, true, attribute);
+        details = neighborTableData.getDetailsData(attribute, grouping, data[0]['G'].values);
+        expect(details.length == 25).toBeTruthy();
+        details.forEach(function(row) {
+            expect(!isNaN(row.childValue)).toBeTruthy();
+        });
+
+    });
+
 });
