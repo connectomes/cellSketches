@@ -31,6 +31,7 @@
             getHistogramMaxYValueFromValues: getHistogramMaxYValueFromValues,
             getHistogramValues: getHistogramValues,
             getTableAsCsv: getTableAsCsv,
+            getTableAsCsvOfChildren: getTableAsCsvOfChildren,
             getTableData: getTableData,
             getTableDataMaxValue: getTableDataMaxValue
         };
@@ -234,7 +235,7 @@
                     details.push({
                         childId: childId,
                         targetId: targetId,
-                        childValue: childValue
+                        childValue: childValue.toFixed(2)
                     });
                 });
 
@@ -313,7 +314,7 @@
                             childId: volumeCells.getCellChildAt(value.cellIndex, value.childIndex).id,
                             targetId: targetId,
                             targetLabel: targetLabels,
-                            childValue: value.value
+                            childValue: value.value.toFixed(2)
                         });
                     }
 
@@ -439,22 +440,34 @@
          * @name getTableAsCsv
          * @returns String csv of the current table (header + data).
          */
-        function getTableAsCsv(cellIndexes, childTypes, useTargetLabelGroups, useOnlySelectedTargets, selectedTargets, childrenGrouping) {
+        function getTableAsCsv(cellIndexes, childTypes, useTargetLabelGroups, useOnlySelectedTargets, selectedTargets, childrenGrouping, attribute) {
             var csv = '';
 
             var header = getHeaderData(cellIndexes, childTypes, useTargetLabelGroups, useOnlySelectedTargets, selectedTargets, childrenGrouping);
 
             header.forEach(function (column, i) {
 
-                csv += column;
-
-                if (i != header.length - 1) {
-                    csv += ', ';
+                // Add id, label
+                if (i < 2) {
+                    csv += column + ', ';
                 } else {
-                    csv += '\n'
+                    if (childrenGrouping == self.Grouping.TARGETLABEL) {
+                        // Add child counts grouped by type
+                        childTypes.forEach(function (childType, j) {
+                            var code = volumeStructures.getChildStructureTypeCode(childType);
+                            csv += column + ' (' + code + ')' + ', ';
+                        });
+
+                    } else if (childrenGrouping == self.Grouping.CHILDTYPE) {
+                        csv += column + ', ';
+                    }
                 }
 
             });
+
+            // Chop of last comma and space
+            csv = csv.substring(0, csv.length - 2);
+            csv += '\n';
 
             var table = getTableData(cellIndexes, childTypes, useTargetLabelGroups, useOnlySelectedTargets, selectedTargets, childrenGrouping);
 
@@ -469,7 +482,39 @@
                     if (i == 0 || i == 1) {
                         csv += row[column];
                     } else {
-                        csv += row[column].values.length;
+
+                        if (childrenGrouping == self.Grouping.TARGETLABEL) {
+
+                            if (childTypes.length == 1) {
+
+                                csv += row[column].values.length;
+
+                            } else {
+
+                                childTypes.forEach(function (childType, j) {
+                                    var count = 0;
+
+                                    row[column].values.forEach(function (value) {
+
+                                        var currChildType = volumeCells.getCellChildAt(value.cellIndex, value.childIndex).type;
+                                        if (currChildType == childType) {
+                                            count++;
+                                        }
+                                    });
+
+                                    csv += count;
+
+                                    if (j != childTypes.length - 1) {
+                                        csv += ', ';
+                                    }
+
+                                });
+                            }
+
+                        } else if (childrenGrouping == self.Grouping.CHILDTYPE) {
+
+                            csv += row[column].values.length;
+                        }
                     }
                 });
 
@@ -480,6 +525,65 @@
 
         }
 
+        function getTableAsCsvOfChildren(cellIndexes, childTypes, useTargetLabelGroups, useOnlySelectedTargets, selectedTargets, grouping) {
+
+            var csv = 'cell id, child id, child type, confidence, distance (px), distance (nm), target id, target label, diameter (px), diameter (nm)\n';
+
+            cellIndexes.forEach(function (cellIndex) {
+
+                var children = volumeCells.getCellChildrenByTypeIndexes(cellIndex, childTypes);
+
+                children.forEach(function (childIndex) {
+
+                    var cellId = volumeCells.getCellAt(cellIndex).id;
+                    var child = volumeCells.getCellChildAt(cellIndex, childIndex);
+
+                    var distancePx = volumeHelpers.getChildAttr(cellIndex, childIndex, volumeHelpers.PerChildAttributes.DISTANCE, volumeHelpers.Units.PIXELS);
+                    var distanceNm = volumeHelpers.getChildAttr(cellIndex, childIndex, volumeHelpers.PerChildAttributes.DISTANCE, volumeHelpers.Units.NM);
+                    var diameterPx = volumeHelpers.getChildAttr(cellIndex, childIndex, volumeHelpers.PerChildAttributes.DIAMETER, volumeHelpers.Units.PIXELS);
+                    var diameterNm = volumeHelpers.getChildAttr(cellIndex, childIndex, volumeHelpers.PerChildAttributes.DIAMETER, volumeHelpers.Units.NM);
+
+                    var partner = volumeCells.getCellChildPartnerAt(cellIndex, childIndex);
+                    if (partner.neighborIds.length > 0) {
+                        partner.neighborIds.forEach(function (neighborId) {
+                            if (partner.parentId != -1) {
+                                var partnerCell = volumeCells.getCell(neighborId);
+                            } else {
+                                partnerCell = {id: -1, label: 'undefined'};
+                            }
+                            csv = csv + cellId + ', ' + child.id + ', ' + child.type + ', ' + child.confidence + ',' + distancePx + ', ' + distanceNm + ', ' + partnerCell.id + ', ' + partnerCell.label + ', ' + diameterPx + ', ' + diameterNm + '\n'
+                        });
+                    } else {
+                        var partnerCell = {id: -1, label: 'undefined'};
+                        csv = csv + cellId + ', ' + child.id + ', ' + child.type + ', ' + child.confidence + ',' + distancePx + ', ' + distanceNm + ', ' + partnerCell.id + ', ' + partnerCell.label + ', ' + diameterPx + ', ' + diameterNm + '\n'
+                    }
+
+                });
+
+            });
+            csv = csv.substring(0, csv.length - 1);
+            return csv;
+        }
+
+        /**
+         * @name $scope.saveCurrentCellChildrenData
+         * @desc XXX - untested
+         */
+        /*
+         $scope.saveCurrentCellChildrenData = function (indexes, childTypes) {
+
+         var data = "parent id, child id, child type, child confidence, distance (px), distance (nm), child target id, child target label, max diameter (px), max diameter (nm)\n";
+
+         var numIndexes = indexes.length;
+         for (var i = 0; i < numIndexes; ++i) {
+         data = data + $scope.saveCellNeighborsAsCsv(volumeCells.getCellAt(indexes[i]).id, childTypes);
+         }
+
+         var blob = new Blob([data], {type: "text"});
+
+         saveAs(blob, 'data.csv');
+         };
+         */
         /**
          * @name getTableData
          * @returns Array of Lists containing values for childrenTable.

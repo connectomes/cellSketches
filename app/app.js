@@ -228,71 +228,6 @@
             }
         };
 
-        /**
-         * @name $scope.saveCellNeighborsAsCsv
-         * @desc XXX - untested
-         */
-        $scope.saveCellNeighborsAsCsv = function (cellId) {
-            var index = volumeCells.getCellIndex(cellId);
-            var children = volumeCells.getCellChildrenByTypeIndexes(index, $scope.model.childType);
-
-            // centroid is center of cell's convex hull
-            var centroid = volumeCells.getCellConvexHullAt(index).centroid();
-            centroid = new utils.Point2D(centroid[0], centroid[1]);
-
-            var str = "";
-            var numChildren = children.length;
-            for (var i = 0; i < numChildren; ++i) {
-                var child = volumeCells.getCellChildAt(index, children[i]);
-                var locations = volumeCells.getCellChildLocationsAt(index, i);
-                var childCenter = new utils.Point2D(0.0, 0.0);
-
-                // child center is average of child locations
-                for (var j = 0; j < locations.length; ++j) {
-                    childCenter = childCenter.add(locations[j].position.getAs2D());
-                }
-
-                childCenter = childCenter.multiply(1.0 / locations.length);
-                if (locations.length > 1) {
-                    var distancePx = childCenter.distance(centroid);
-                    var distanceNm = childCenter.distance(centroid) * utils.nmPerPixel;
-                    var diameterPx = volumeCells.getCellChildRadiusAt(index, children[i]) * 2;
-                    var diameterNm = diameterPx * utils.nmPerPixel;
-                } else {
-                    distancePx = 'null';
-                    distanceNm = 'null';
-                    diameterPx = 'null';
-                    diameterNm = 'null';
-                }
-                var partner = volumeCells.getCellChildPartnerAt(index, children[i]);
-
-                if (partner.parentId != -1) {
-                    var partnerCell = volumeCells.getCell(partner.parentId);
-                } else {
-                    partnerCell = {id: -1, label: 'undefined'};
-                }
-                str = str + cellId + ', ' + child.id + ', ' + child.type + ', ' + child.confidence + ',' + distancePx + ', ' + distanceNm + ', ' + partnerCell.id + ', ' + partnerCell.label + ', ' + diameterPx + ', ' + diameterNm + '\n'
-            }
-            return str;
-        };
-
-        /**
-         * @name $scope.saveCurrentCellChildrenData
-         * @desc XXX - untested
-         */
-        $scope.saveCurrentCellChildrenData = function () {
-            var indexes = $scope.model.cells.indexes;
-            var data = "parent id, child id, child type, child confidence, distance (px), distance (nm), child target id, child target label, max diameter (px), max diameter (nm)\n";
-
-            var numIndexes = indexes.length;
-            for (var i = 0; i < numIndexes; ++i) {
-                data = data + $scope.saveCellNeighborsAsCsv(volumeCells.getCellAt(indexes[i]).id);
-            }
-            var blob = new Blob([data], {type: "text"});
-
-            saveAs(blob, 'data.csv');
-        };
-
 
         $scope.saveData = function (data) {
             var blob = new Blob([data], {type: "text"});
@@ -354,7 +289,6 @@
             $scope.model.ui.usingChildrenByTargetLabel = ($scope.model.ui.selectedMode.value == 0);
 
             $scope.broadcastChange();
-
 
         };
 

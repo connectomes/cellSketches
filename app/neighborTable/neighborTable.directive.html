@@ -2,7 +2,7 @@
 
     <!-- Controls for the cells --->
     <div>
-        <div class="sidebarHeading">
+        <div>
             <b>Cells</b>
         </div>
 
@@ -156,6 +156,10 @@
         </div>
     </div>
 
+    <br>
+    <input type="button" value="Download" ng-click="onDownloadClicked()"></input>
+
+
 </div>
 
 <div id="content">
@@ -209,7 +213,8 @@
 
         <div ng-show="model.ui.selectedMode.name == 'Children By Target Label'">
             <div ng-show="model.ui.modes.selectedDataMode.name=='Attribute (histogram)'">
-                <h4>Cell {{model.ui.details.cellId}} Children ({{model.ui.details.selectedChildTypes}}) {{model.ui.modes.selectedAttributeMode.name}}
+                <h4>Cell {{model.ui.details.cellId}} Children ({{model.ui.details.selectedChildTypes}})
+                    {{model.ui.modes.selectedAttributeMode.name}}
                     Targeting {{model.ui.details.target}}</h4>
             </div>
             <div ng-show="model.ui.modes.selectedDataMode.name=='Count'">

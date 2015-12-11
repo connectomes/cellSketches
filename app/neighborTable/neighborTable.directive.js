@@ -110,6 +110,8 @@
             scope.model.ui.modes.selectedAttributeMode = scope.AttributeModes[0];
             scope.model.ui.modes.selectedUnitMode = scope.UnitModes[1];
             scope.overviewGridOptions = {};
+
+            scope.onDownloadClicked = onDownloadClicked;
             scope.broadcastChange();
 
             function cellsChanged(slot, cells, childType, useTargetLabelGroups, useOnlySelectedTargets, selectedTargets, convertToNm, useRadius) {
@@ -236,54 +238,17 @@
                 scope.mouseOverDetailsRow = onDetailsRowHovered;
             }
 
-            function downloadClicked() {
+            function onDownloadClicked() {
 
-                var data = [];
-                var header = [];
+                var csv = '';
+                if (scope.model.ui.modes.selectedDataMode.name == 'Attribute (histogram)') {
+                    csv = neighborTableData.getTableAsCsvOfChildren(self.cells.indexes, self.childType, self.useTargetLabelGroups, self.useOnlySelectedTargets, self.selectedTargets, scope.overviewGridSettings.selectedGrouping);
+                } else {
+                    csv = neighborTableData.getTableAsCsv(self.cells.indexes, self.childType, self.useTargetLabelGroups, self.useOnlySelectedTargets, self.selectedTargets, scope.overviewGridSettings.selectedGrouping);
+                }
 
-                self.cells.indexes.forEach(function (cellIndex) {
-
-                    var results = volumeHelpers.getPerChildAttrGroupedByTypeAndTarget([cellIndex], self.childType, self.useTargetLabelGroups, volumeHelpers.PerChildAttributes.CONFIDENCE, null, self.cells.indexes);
-
-                    if (header.length == 0) {
-
-                        header.push('id');
-                        header.push('label');
-
-                        results.labels.forEach(function (label, i) {
-                            var targetIndex = self.targets.indexOf(label);
-
-                            if (targetIndex != -1) {
-                                var currColumnHeader = label + ' (' + volumeStructures.getChildStructureTypeCode(results.childTypes[i]) + ')';
-                                header[i + 2] = currColumnHeader
-                            }
-                        });
-
-                    }
-
-                    var rowData = [];
-
-                    var cell = volumeCells.getCellAt(cellIndex);
-                    rowData.push(cell.id);
-                    rowData.push(cell.label);
-
-                    results.valuesLists.forEach(function (values, i) {
-                        var targetsIndex = self.targets.indexOf(results.labels[i]);
-                        if (targetsIndex != -1) {
-                            rowData[i + 2] = (values.length);
-                        }
-                    });
-
-                    data.push(rowData);
-                });
-
-                var csv = utils.dataToText(header);
-
-                data.forEach(function (row) {
-                    csv += utils.dataToText(row);
-                });
-
-                scope.saveData(csv);
+                var blob = new Blob([csv], {type: "text"});
+                saveAs(blob, 'data.csv');
             }
 
             function onDetailsRowHovered(column, rowScope, mouseOver) {
@@ -332,8 +297,8 @@
                 scope.model.ui.details.target = nameOfColumn;
 
                 var selectedChildTypes = '';
-                for(var i=0; i<self.childType.length; ++i) {
-                    if(i>0) {
+                for (var i = 0; i < self.childType.length; ++i) {
+                    if (i > 0) {
                         selectedChildTypes += ', ';
                     }
                     selectedChildTypes += volumeStructures.getChildStructureTypeCode(self.childType[i]);

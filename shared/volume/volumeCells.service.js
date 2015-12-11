@@ -138,7 +138,7 @@
          */
         function getCellChildCentroidAt(cellIndex, childIndex) {
             var locations = getCellChildLocationsAt(cellIndex, childIndex);
-            if(locations.length > 2) {
+            if (locations.length > 2) {
                 var hull = getConvexHullFromLocations(locations);
                 var centroid = hull.centroid();
                 return new utils.Point2D(centroid[0], centroid[1]);
@@ -172,6 +172,7 @@
         }
 
         function getCellChildrenByTypeIndexes(cellIndex, childType) {
+
             var cellChildren = self.cellChildren[cellIndex];
             var currChildren = [];
             var i;
@@ -195,6 +196,7 @@
                     currChildren.push(i);
                 }
             }
+
             return currChildren;
         }
 

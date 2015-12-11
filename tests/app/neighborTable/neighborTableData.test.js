@@ -1,4 +1,4 @@
-fdescribe('neighborTableData service test', function () {
+describe('neighborTableData service test', function () {
 
     'use strict';
 
@@ -249,7 +249,7 @@ fdescribe('neighborTableData service test', function () {
     it('getTableDataAsCsv - grouping with target labels', function () {
 
         var cellIndexes = [0];
-        var childType = [28];
+        var childType = [28, 244];
         var useTargetLabelGroups = false;
         var useOnlySelectedTargets = false;
         var selectedTargets = undefined;
@@ -257,7 +257,7 @@ fdescribe('neighborTableData service test', function () {
 
         var data = neighborTableData.getTableAsCsv(cellIndexes, childType, useTargetLabelGroups, useOnlySelectedTargets, selectedTargets, childrenGrouping);
 
-        var expectedData = 'id, label, CBb5w, GAC Aii, null, Self\n6115, CBb5w, 12, 6, 3, 4\n';
+        var expectedData = 'id, label, AC (G), AC (U), CBb5w (G), CBb5w (U), GAC Aii (G), GAC Aii (U), GC (G), GC (U), null (G), null (U), Rod BC (G), Rod BC (U), Self (G), Self (U), YAC Starburst (G), YAC Starburst (U), YAC WF (G), YAC WF (U)\n6115, CBb5w, 0, 27, 12, 2, 6, 6, 0, 4, 3, 119, 0, 1, 4, 0, 0, 7, 0, 1\n';
 
         expect(data == expectedData).toBeTruthy();
     });
@@ -273,7 +273,7 @@ fdescribe('neighborTableData service test', function () {
 
         var data = neighborTableData.getTableAsCsv(cellIndexes, childType, useTargetLabelGroups, useOnlySelectedTargets, selectedTargets, childrenGrouping);
 
-        var expectedData = 'id, label, Self\n6115, CBb5w, 4\n';
+        var expectedData = 'id, label, Self (G)\n6115, CBb5w, 4\n';
 
         expect(data == expectedData).toBeTruthy();
     });
@@ -311,8 +311,23 @@ fdescribe('neighborTableData service test', function () {
         expect(data == expectedData).toBeTruthy();
     });
 
-    // TODO: fill this in
     it('getTableDataAsCsv - grouping by target label with attribute distance', function () {
+
+        var cellIndexes = [0];
+        var childType = [28];
+        var useTargetLabelGroups = false;
+        var useOnlySelectedTargets = false;
+        var selectedTargets = undefined;
+        var childrenGrouping = neighborTableData.Grouping.CHILDTYPE;
+
+        var data = neighborTableData.getTableAsCsvOfChildren(cellIndexes, childType, useTargetLabelGroups, useOnlySelectedTargets, selectedTargets, childrenGrouping);
+
+        data = data.split('\n');
+
+        var expectedHeader = 'cell id, child id, child type, confidence, distance (px), distance (nm), target id, target label, diameter (px), diameter (nm)';
+
+        expect(data.length == 26).toBeTruthy(); // 25 gap junctions + 1 header
+        expect(data[0] == expectedHeader).toBeTruthy();
 
     });
 
@@ -358,8 +373,8 @@ fdescribe('neighborTableData service test', function () {
 
         var histogramValues = neighborTableData.getHistogramValues(data[0][header[2]].values, numBins, xAxisRange, xAxisDomain);
 
-        expectedHistogramBin.forEach(function(d, i) {
-           expect(histogramValues[0][i] - d).toBeCloseTo(0);
+        expectedHistogramBin.forEach(function (d, i) {
+            expect(histogramValues[0][i] - d).toBeCloseTo(0);
         });
 
     });
@@ -407,12 +422,12 @@ fdescribe('neighborTableData service test', function () {
         expect(maxYValue == 136).toBeTruthy();
     });
 
-    it('getDetailsColumnDefs', function() {
+    it('getDetailsColumnDefs', function () {
 
         function checkExpectedValues(columnDefs, expectedDisplayNames) {
             expect(columnDefs.length == expectedDisplayNames.length).toBeTruthy();
-            columnDefs.forEach(function(column, i) {
-               expect(column.displayName == expectedDisplayNames[i]).toBeTruthy();
+            columnDefs.forEach(function (column, i) {
+                expect(column.displayName == expectedDisplayNames[i]).toBeTruthy();
             });
         }
 
@@ -440,7 +455,7 @@ fdescribe('neighborTableData service test', function () {
         checkExpectedValues(columnDefs, expectedDisplayNames);
     });
 
-    it('getDetailsGridOptions', function() {
+    it('getDetailsGridOptions', function () {
 
         var detailsGridOptions = neighborTableData.getDetailsGridOptions();
 
@@ -448,7 +463,7 @@ fdescribe('neighborTableData service test', function () {
 
     });
 
-    it('getDetailsData', function() {
+    it('getDetailsData', function () {
 
         var cellIndexes = [0];
         var childType = undefined;
@@ -461,7 +476,7 @@ fdescribe('neighborTableData service test', function () {
         var attribute = undefined;
         var data = neighborTableData.getTableData(cellIndexes, childType, useTargetLabelGroups, useOnlySelectedTargets, selectedTargets, grouping, 0, 100, true);
         var details = neighborTableData.getDetailsData(attribute, grouping, data[0]['GAC Aii'].values);
-        details.forEach(function(row) {
+        details.forEach(function (row) {
             expect(volumeCells.getCell(row.targetId).label == 'GAC Aii').toBeTruthy();
             expect(row.count == row.childIds.split(', ').length).toBeTruthy();
         });
@@ -486,7 +501,7 @@ fdescribe('neighborTableData service test', function () {
         data = neighborTableData.getTableData(cellIndexes, childType, useTargetLabelGroups, useOnlySelectedTargets, selectedTargets, grouping, 0, 100, true, attribute);
         details = neighborTableData.getDetailsData(attribute, grouping, data[0]['G'].values);
         expect(details.length == 25).toBeTruthy();
-        details.forEach(function(row) {
+        details.forEach(function (row) {
             expect(!isNaN(row.childValue)).toBeTruthy();
         });
 
