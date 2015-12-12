@@ -1,7 +1,8 @@
 (function () {
     'use strict';
 
-    var app = angular.module('app.csvUpload', ['app.volumeModule', 'app.childrenTableModule', 'app.neighborTableModule', 'ui.router', 'ui.select', 'ngSanitize', 'app.ioModule', 'app.visModule',
+    var app = angular.module('app.csvUpload', [
+        'app.volumeModule', 'app.childrenTableModule', 'app.neighborTableModule', 'app.loadedCellsModule', 'ui.router', 'ui.select', 'ngSanitize', 'app.ioModule', 'app.visModule',
         'ui.grid', 'ui.grid.resizeColumns', 'ui.grid.selection', 'ui.grid.cellNav',  'ui.grid.pinning', 'toastr']);
 
     app.config(function ($stateProvider, $urlRouterProvider) {

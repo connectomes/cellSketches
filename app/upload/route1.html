@@ -10,12 +10,8 @@
 <div id="content">
     <h3>Cell IDs</h3>
     <io-text-input></io-text-input>
-    <div ng-show="model.cellsLoading"><h4>Loading cells</h4></div>
 
-    <div ng-show="model.cellsLoadError"><h4>Error: {{model.cellsLoadErrorMessage}}</h4></div>
-    <br><br>
-    <div ng-show="model.cellsLoaded"><h4>Cells loaded!</h4>
-        <loaded-cells model="model"></loaded-cells>
-    </div>
+
+    <loaded-cells model="model"></loaded-cells>
     <!-- <div ng-show="!model.cellsLoaded && !model.cellsLoading"><h5>No cells loaded!</h5></div>-->
 </div>

@@ -1,12 +1,12 @@
 (function () {
     'use strict';
 
-    angular.module('app.csvUpload')
+    angular.module('app.loadedCellsModule')
         .directive('loadedCells', loadedCells);
 
-    loadedCells.$inject = ['$log', 'volumeCells', 'volumeStructures', 'volumeHelpers', 'visUtils', 'visTable'];
+    loadedCells.$inject = ['$log', 'loadedCellsData', 'volumeCells'];
 
-    function loadedCells($log, volumeCells, volumeStructures, volumeHelpers, visUtils, visTable) {
+    function loadedCells($log, loadedCellsData, volumeCells) {
 
         return {
             link: link,
@@ -18,49 +18,30 @@
             var self = {};
 
             $log.debug('neighborCells - link', scope);
+            scope.$on('onLoadingCellsStarted', onLoadingCellsStarted);
+            scope.$on('onInitialCellsLoaded', onInitialCellsLoaded);
             scope.$on('cellsChanged', cellsChanged);
+            // scope.$on('broadcastCellLoadingStarted', onCellLoadStarted())
 
+            var header = loadedCellsData.getHeaderData();
             scope.gridLoadedCellsOptions = {};
-            scope.gridLoadedCellsOptions.columnDefs = createColumnDefs(['id', 'label'], 100);
+            scope.gridLoadedCellsOptions.columnDefs = loadedCellsData.getColumnDefs(header);
             scope.broadcastChange();
+
+            // TODO: What if this is the second time we're loading cells?
+            function onLoadingCellsStarted(slot, cellIds) {
+                scope.gridLoadedCellsOptions.data = loadedCellsData.getInitialData(cellIds);
+            }
+
+            function onInitialCellsLoaded(slot, cellIds, labels, invalidCellIds) {
+                $log.debug('onInitialCellsLoaded', cellIds, labels, invalidCellIds);
+                loadedCellsData.updateDataStatusAndLabels(scope.gridLoadedCellsOptions.data, cellIds, labels, invalidCellIds);
+            }
 
             function cellsChanged(slot, cells, childType, useTargetLabelGroups, useOnlySelectedTargets, selectedTargets) {
                 $log.debug('loadedCells - cells changed', cells);
-                scope.gridLoadedCellsOptions.data = createRowData(cells.indexes);
             }
         }
 
-        function createColumnDefs(headerData, columnWidth) {
-            var columnDefs = [];
-            for (var i = 0; i < headerData.length; ++i) {
-                var column = {
-                    field: headerData[i],
-                    displayName: headerData[i]
-                };
-
-                if(i==0) {
-                    column.width = 100;
-                }
-
-                columnDefs.push(column);
-            }
-
-            return columnDefs;
-        }
-
-        function createRowData(cellIndexes) {
-            var data = [];
-            cellIndexes.forEach(function (cellIndex, i) {
-                var cell  = volumeCells.getCellAt(cellIndex);
-
-                var rowData = {};
-
-                rowData.id = cell.id;
-                rowData.label = cell.label;
-
-                data.push(rowData);
-            });
-            return data;
-        }
     }
 })();

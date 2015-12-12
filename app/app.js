@@ -89,7 +89,7 @@
             };
 
         // Set this to false for loading local json of cell data.
-        $scope.model.usingRemote = false;
+        $scope.model.usingRemote = true;
 
         $scope.activate = function () {
 
@@ -212,6 +212,10 @@
                     $scope.model.cellsLoaded = false;
 
                     $scope.loadingCellToast = toastr.success('These cell ids will be loaded:' + cellsToLoad, 'Loading started');
+
+                    // Send the list of cell ids that are about to be loaded to the 'loadedCells' directive.
+                    $scope.$broadcast('onLoadingCellsStarted', cellsToLoad);
+
                     volumeCells.loadCellIds(cellsToLoad).then(cellsLoadedSuccess, cellsLoadedFailure);
                 }
 
@@ -227,7 +231,6 @@
 
             }
         };
-
 
         $scope.saveData = function (data) {
             var blob = new Blob([data], {type: "text"});
@@ -457,6 +460,13 @@
 
             // TODO: This should be somewhere else.
             $scope.textAreaInput = "";
+
+
+            var labels = [];
+            $scope.model.masterCells.indexes.forEach(function (cellIndex) {
+                labels.push(volumeCells.getCellAt(cellIndex).label);
+            });
+            $scope.$broadcast('onInitialCellsLoaded', $scope.model.masterCells.ids, labels, []);
 
             $q.all(promises).then(cellChildrenSuccess, cellChildrenFailure);
 
