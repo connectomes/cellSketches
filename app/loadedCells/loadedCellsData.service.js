@@ -48,6 +48,7 @@
 
                 if (field == 'status') {
                     column.width = 75;
+                    column.cellTemplate = 'loadedCells/loadedCellsStatus.directive.html';
                 } else if (field == 'id') {
                     column.width = 100;
                 }

@@ -9,6 +9,10 @@
     function loadedCells($log, loadedCellsData, volumeCells) {
 
         return {
+            scope: {
+                model: '=',
+                broadcastChange: '&'
+            },
             link: link,
             restrict: 'E',
             templateUrl: 'loadedCells/loadedCells.html'
@@ -49,6 +53,7 @@
             }
 
             function cellsChanged(slot, cells, childType, useTargetLabelGroups, useOnlySelectedTargets, selectedTargets) {
+                $log.debug(self.name, slot, scope);
 
                 var cellIds = scope.model.masterCells.ids;
                 if (scope.gridLoadedCellsOptions.data.length == 0 && cellIds.length > 0) {

@@ -1,5 +1,5 @@
 <div id="sidebar">
-    <b>Directions:</b>
+    <b>Directions</b>
     <ol style="width: 70%">
         <li>Enter a list of cell IDs</li>
         <li>Click 'Load cells'</li>
@@ -8,10 +8,9 @@
     </ol>
 </div>
 <div id="content">
-    <h3>Cell IDs</h3>
+    <h4>Enter Cell Ids</h4>
     <io-text-input></io-text-input>
 
-
-    <loaded-cells model="model"></loaded-cells>
-    <!-- <div ng-show="!model.cellsLoaded && !model.cellsLoading"><h5>No cells loaded!</h5></div>-->
+    <h4>Cell Status</h4>
+    <loaded-cells model="model" broadcast-change="broadcastChange()"></loaded-cells>
 </div>
