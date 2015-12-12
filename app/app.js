@@ -437,7 +437,9 @@
             toastr.warning('I couldn\'t find these IDs:' + $scope.model.invalidIds, 'Cells do not exist!');
             toastr.warning('I am giving up. Try loading cells again');
             $scope.model.cellsLoading = false;
+
             volumeCells.reset();
+            $scope.$broadcast('reset');
         }
 
         function cellsLoadedSuccess(results) {
@@ -461,12 +463,11 @@
             // TODO: This should be somewhere else.
             $scope.textAreaInput = "";
 
-
             var labels = [];
-            $scope.model.masterCells.indexes.forEach(function (cellIndex) {
-                labels.push(volumeCells.getCellAt(cellIndex).label);
+            cells.forEach(function (cellId) {
+                labels.push(volumeCells.getCell(cellId).label);
             });
-            $scope.$broadcast('onInitialCellsLoaded', $scope.model.masterCells.ids, labels, []);
+            $scope.$broadcast('onInitialCellsLoaded', cells, labels, results[0].invalidIds);
 
             $q.all(promises).then(cellChildrenSuccess, cellChildrenFailure);
 
