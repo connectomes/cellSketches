@@ -147,7 +147,8 @@
                 useOnlySelectedTargets,
                 selectedTargets,
                 $scope.model.ui.units == 'nm',
-                $scope.model.ui.selectedChildAttribute == 'Diameter');
+                $scope.model.ui.selectedChildAttribute == 'Diameter',
+                $scope.model.masterCells);
         };
 
         /**
@@ -211,7 +212,7 @@
                     $scope.model.cellsLoading = true;
                     $scope.model.cellsLoaded = false;
 
-                    $scope.loadingCellToast = toastr.success('These cell ids will be loaded:' + cellsToLoad, 'Loading started');
+                    $scope.loadingCellToast = toastr.success(cellsToLoad, 'I\'m loading these cell ids!');
 
                     // Send the list of cell ids that are about to be loaded to the 'loadedCells' directive.
                     $scope.$broadcast('onLoadingCellsStarted', cellsToLoad);
@@ -433,13 +434,8 @@
         }
 
         function cellsLoadedFailure(results) {
-            $scope.model.invalidIds = angular.copy(results.invalidIds);
-            toastr.warning('I couldn\'t find these IDs:' + $scope.model.invalidIds, 'Cells do not exist!');
-            toastr.warning('I am giving up. Try loading cells again');
-            $scope.model.cellsLoading = false;
-
-            volumeCells.reset();
-            $scope.$broadcast('reset');
+            toastr.warning(results.invalidIds, 'I couldn\'t find these cell ids!');
+            cellsLoadedSuccess([results]);
         }
 
         function cellsLoadedSuccess(results) {

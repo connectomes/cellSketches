@@ -45,24 +45,25 @@
             function onInitialCellsLoaded(slot, cellIds, labels, invalidCellIds) {
                 $log.debug(self.name, slot, cellIds, labels, invalidCellIds);
                 loadedCellsData.updateDataStatusAndLabels(scope.gridLoadedCellsOptions.data, cellIds, labels, invalidCellIds);
+                loadedCellsData.updateDataRemoveErrors(scope.gridLoadedCellsOptions.data);
             }
 
             function cellsChanged(slot, cells, childType, useTargetLabelGroups, useOnlySelectedTargets, selectedTargets) {
 
-
-                if (scope.gridLoadedCellsOptions.data.length == 0 && cells.ids.length > 0) {
-                    var data = loadedCellsData.getInitialData(cells.ids);
+                var cellIds = scope.model.masterCells.ids;
+                if (scope.gridLoadedCellsOptions.data.length == 0 && cellIds.length > 0) {
+                    var data = loadedCellsData.getInitialData(cellIds);
 
                     var labels = [];
                     var status = [];
-                    cells.ids.forEach(function (cellId) {
+                    cellIds.forEach(function (cellId) {
                         labels.push(volumeCells.getCell(cellId).label);
                         status.push(loadedCellsData.Status.OK);
                     });
 
-                    loadedCellsData.updateDataStatusAndLabels(data, cells.ids, labels, []);
+                    loadedCellsData.updateDataStatusAndLabels(data, cellIds, labels, []);
 
-                    loadedCellsData.updateDataStatus(data, cells.ids, status);
+                    loadedCellsData.updateDataStatus(data, cellIds, status);
 
                     scope.gridLoadedCellsOptions.data = data;
 
@@ -70,11 +71,12 @@
 
                     status = [];
 
-                    cells.ids.forEach(function (cellId) {
+                    cellIds.forEach(function (cellId) {
                         status.push(loadedCellsData.Status.OK);
                     });
 
-                    loadedCellsData.updateDataStatus(scope.gridLoadedCellsOptions.data, cells.ids, status);
+                    loadedCellsData.updateDataStatus(scope.gridLoadedCellsOptions.data, cellIds, status);
+
                 }
             }
 

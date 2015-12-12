@@ -39,12 +39,21 @@
         function getColumnDefs(header) {
             var columns = [];
 
-            header.forEach(function (column, i) {
-                columns.push({
-                    field: column,
-                    displayName: column,
-                    width: 100
-                });
+            header.forEach(function (field, i) {
+
+                var column  = {
+                    field: field,
+                    displayName: field
+                };
+
+                if (field == 'status') {
+                    column.width = 75;
+                } else if (field == 'id') {
+                    column.width = 100;
+                }
+
+                columns.push(column);
+
             });
 
             return columns;

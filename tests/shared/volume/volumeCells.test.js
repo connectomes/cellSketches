@@ -49,6 +49,20 @@ describe('VolumeCells service test', function () {
             expect(false).toBeTruthy();
         }
 
+        volumeCells.loadCellIds([514]);
+
+        httpBackend.flush();
+
+        volumeCells.loadCellChildrenAt(0);
+        httpBackend.flush();
+
+        volumeCells.loadCellChildrenAt(1);
+        httpBackend.flush();
+
+        expect(volumeCells.getNumCells() == 2).toBeTruthy();
+        expect(volumeCells.getNumCellChildrenAt(0) == 10).toBeTruthy();
+        expect(volumeCells.getNumCellChildrenAt(1) == 2).toBeTruthy();
+
     });
 
     it('loadCellLocations', function() {
