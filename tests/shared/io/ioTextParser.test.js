@@ -12,26 +12,35 @@ describe('ioTextParser', function () {
         ioTextParser = _ioTextParser_;
     }));
 
-    it('parseString - correct', function() {
+    it('parseString - correct', function () {
         var results = ioTextParser.parseString('1 2 34\n5');
 
         expect(results.success).toBeTruthy();
 
         var expectedResults = [1, 2, 34, 5];
-        expectedResults.forEach(function(e, i) {
-           expect(results.values[i] == e).toBeTruthy();
+        expectedResults.forEach(function (e, i) {
+            expect(results.values[i] == e).toBeTruthy();
         });
     });
 
-    it('parseString - negative number', function() {
+    it('parseString - negative number', function () {
         var results = ioTextParser.parseString('1 2 -34\n5');
         expect(results.success == false).toBeTruthy();
         expect(results.message == 'These values are invalid: -34').toBeTruthy();
     });
 
-    it('parseString - non-number', function() {
+    it('parseString - non-number', function () {
         var results = ioTextParser.parseString('1 b -34\n14a');
         expect(results.success == false).toBeTruthy();
         expect(results.message == 'These values are invalid: b,-34,14a').toBeTruthy();
     });
+
+    it('parseString - multiple line breaks', function () {
+        var input = '1\n2\n3\n4\n5\n';
+        var results = ioTextParser.parseString(input);
+        results.values.forEach(function (d, i) {
+            expect(d == (i + 1)).toBeTruthy();
+        });
+    });
+
 });

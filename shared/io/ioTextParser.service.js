@@ -5,6 +5,7 @@
         .module('app.ioModule')
         .factory('ioTextParser', ioTextParser);
 
+
     function ioTextParser() {
 
         var self = this;
@@ -19,19 +20,21 @@
          * @returns Object with list of values - the integers
          */
         function parseString(input) {
-            input = input.replace('\n', ' ');
+            input = input.replace(/[\n\r]/g, ' ');
             var values = input.split(' ');
             var invalidValues = [];
             var validValues = [];
 
             values.forEach(function (value) {
-                var numericValue = Number(value);
-                if (isNaN(numericValue)) {
-                    invalidValues.push(value);
-                } else if (numericValue < 0) {
-                    invalidValues.push(value);
-                } else {
-                    validValues.push(numericValue);
+                if (value != '') {
+                    var numericValue = Number(value);
+                    if (isNaN(numericValue)) {
+                        invalidValues.push(value);
+                    } else if (numericValue < 0) {
+                        invalidValues.push(value);
+                    } else {
+                        validValues.push(numericValue);
+                    }
                 }
             });
 

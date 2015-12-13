@@ -89,7 +89,7 @@
             };
 
         // Set this to false for loading local json of cell data.
-        $scope.model.usingRemote = false;
+        $scope.model.usingRemote = true;
 
         $scope.activate = function () {
 
@@ -443,9 +443,16 @@
             if (self.verbose) {
                 $log.debug('MainCtrl - cells loaded successfully: ', results);
             }
+            var validIds = [];
+            var invalidIds = [];
+
+            results.forEach(function(result) {
+                validIds = validIds.concat(result.validIds);
+                invalidIds = invalidIds.concat(result.invalidIds);
+            });
 
             var promises = [];
-            var cells = results[0].validIds;
+            var cells = validIds;
             var numCells = cells.length;
 
             // Load cell children that the user asked for.
@@ -463,7 +470,7 @@
             cells.forEach(function (cellId) {
                 labels.push(volumeCells.getCell(cellId).label);
             });
-            $scope.$broadcast('onInitialCellsLoaded', cells, labels, results[0].invalidIds);
+            $scope.$broadcast('onInitialCellsLoaded', cells, labels, invalidIds);
 
             $q.all(promises).then(cellChildrenSuccess, cellChildrenFailure);
 
