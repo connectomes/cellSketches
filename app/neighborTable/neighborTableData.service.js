@@ -108,7 +108,21 @@
          * @param sortFunction
          * @returns Array of column defs
          */
-        function getDetailsColumnDefs(grouping, attribute, sortFunction) {
+        function getDetailsColumnDefs(grouping, attribute, units) {
+
+            var childValueDisplayName = '';
+            if(attribute == volumeHelpers.PerChildAttributes.DIAMETER) {
+                childValueDisplayName = 'diameter';
+            } else if (attribute == volumeHelpers.PerChildAttributes.DISTANCE) {
+                childValueDisplayName = 'distance';
+            }
+
+            if(units == volumeHelpers.Units.PIXELS) {
+                childValueDisplayName += ' (px)';
+            } else if (units == volumeHelpers.Units.NM) {
+                childValueDisplayName += ' (nm)';
+            }
+
             if (grouping == self.Grouping.TARGETLABEL && attribute == undefined) {
 
                 return [{
@@ -138,7 +152,7 @@
                     enableSorting: false
                 }, {
                     field: 'childValue',
-                    displayName: 'child value',
+                    displayName: childValueDisplayName,
                     cellTemplate: 'neighborTable/neighborTableTruncatedValueCell.html',
                     sortingAlgorithm: utils.SortingAlgorithms.sortColumnAsNumbers
                 }];
@@ -176,7 +190,7 @@
                     enableSorting: false
                 }, {
                     field: 'childValue',
-                    displayName: 'child value',
+                    displayName: childValueDisplayName,
                     cellTemplate: 'neighborTable/neighborTableTruncatedValueCell.html',
                     sortingAlgorithm: utils.SortingAlgorithms.sortColumnAsNumbers
                 }];

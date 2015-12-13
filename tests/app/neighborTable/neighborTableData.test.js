@@ -433,13 +433,14 @@ describe('neighborTableData service test', function () {
 
         var grouping = neighborTableData.Grouping.TARGETLABEL;
         var attribute = undefined;
+        var units = volumeHelpers.Units.PIXELS;
 
         var expectedDisplayNames = ['target id', 'count', 'child ids'];
         var columnDefs = neighborTableData.getDetailsColumnDefs(grouping, attribute);
         checkExpectedValues(columnDefs, expectedDisplayNames);
 
         attribute = volumeHelpers.PerChildAttributes.DIAMETER;
-        expectedDisplayNames = ['child id', 'target id', 'child value'];
+        expectedDisplayNames = ['child id', 'target id', 'diameter'];
         columnDefs = neighborTableData.getDetailsColumnDefs(grouping, attribute);
         checkExpectedValues(columnDefs, expectedDisplayNames);
 
@@ -450,8 +451,19 @@ describe('neighborTableData service test', function () {
         checkExpectedValues(columnDefs, expectedDisplayNames);
 
         attribute = volumeHelpers.PerChildAttributes.DIAMETER;
-        expectedDisplayNames = ['child id', 'target label', 'target id', 'child value'];
-        columnDefs = neighborTableData.getDetailsColumnDefs(grouping, attribute);
+        expectedDisplayNames = ['child id', 'target label', 'target id', 'diameter (px)'];
+        columnDefs = neighborTableData.getDetailsColumnDefs(grouping, attribute, units);
+        checkExpectedValues(columnDefs, expectedDisplayNames);
+
+        attribute = volumeHelpers.PerChildAttributes.DISTANCE;
+        expectedDisplayNames = ['child id', 'target label', 'target id', 'distance (px)'];
+        columnDefs = neighborTableData.getDetailsColumnDefs(grouping, attribute, units);
+        checkExpectedValues(columnDefs, expectedDisplayNames);
+
+        attribute = volumeHelpers.PerChildAttributes.DISTANCE;
+        units = volumeHelpers.Units.NM;
+        expectedDisplayNames = ['child id', 'target label', 'target id', 'distance (nm)'];
+        columnDefs = neighborTableData.getDetailsColumnDefs(grouping, attribute, units);
         checkExpectedValues(columnDefs, expectedDisplayNames);
     });
 

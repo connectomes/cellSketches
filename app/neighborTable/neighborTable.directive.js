@@ -233,7 +233,7 @@
                 // Create the details grid.
                 scope.gridOptions = neighborTableData.getDetailsGridOptions(grouping, attribute);
 
-                scope.gridOptions.columnDefs = neighborTableData.getDetailsColumnDefs(grouping, attribute);
+                scope.gridOptions.columnDefs = neighborTableData.getDetailsColumnDefs(grouping, attribute, scope.overviewGridSettings.selectedUnits);
                 scope.gridOptions.data = [];
                 scope.mouseOverDetailsRow = onDetailsRowHovered;
             }
