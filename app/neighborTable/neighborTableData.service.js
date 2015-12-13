@@ -64,6 +64,7 @@
                     } else {
                         column.width = self.histogramRowWidth;
                         column.cellTemplate = 'neighborTable/neighborTableHistogramCell.directive.html';
+                        column.enableSorting = false;
                     }
                 } else {
                     if (i == 0) {
@@ -81,8 +82,7 @@
         }
 
         /**
-         * @name getDefaultGridOptions
-         * @param attribute - either distance or diameter - this will cause the rowHeight to be larger
+         * @name getDefaultGridOptions @param attribute - either distance or diameter - this will cause the rowHeight to be larger
          * @returns Object of grid options.
          */
         function getDefaultGridOptions(attribute) {
@@ -207,7 +207,8 @@
          */
         function getDetailsGridOptions() {
             var gridOptions = {};
-            gridOptions.rowTemplate = 'common/rowTemplate.html';
+            // If we set the rowTemplate to rowTemplate then it will support mouse-hover highlighting.
+            // gridOptions.rowTemplate = 'common/rowTemplate.html';
             return gridOptions;
         }
 
@@ -218,8 +219,6 @@
          * @param values
          */
         function getDetailsData(attribute, grouping, values) {
-
-            $log.debug('getDetailsData', grouping, attribute);
 
             var details = [];
 

@@ -252,11 +252,13 @@
             }
 
             function onDetailsRowHovered(column, rowScope, mouseOver) {
+                /*return;
                 if (mouseOver) {
-                    onHighlightCellsWithCommonNeighbors(rowScope.$parent.row.entity.id, scope);
+                    onHighlightCellsWithCommonNeighbors(rowScope.$parent.row.entity.targetId, scope);
                 } else {
                     onHighlightingCleared(scope);
                 }
+                */
             }
 
             function onHighlightCellsWithCommonNeighbors(neighborId, scope) {
@@ -296,20 +298,25 @@
                 scope.model.ui.details.cellId = newRowCol.row.entity['id'];
                 scope.model.ui.details.target = nameOfColumn;
 
-                var selectedChildTypes = '';
-                for (var i = 0; i < self.childType.length; ++i) {
-                    if (i > 0) {
-                        selectedChildTypes += ', ';
+                // The selectedChildTypes are displayed in the header above the details table. Here, we update it only
+                // if we're using the a specific child type (in other words, if the display more is 'grouped by target')
+                if(self.childType) {
+
+                    var selectedChildTypes = '';
+                    for (var i = 0; i < self.childType.length; ++i) {
+                        if (i > 0) {
+                            selectedChildTypes += ', ';
+                        }
+                        selectedChildTypes += volumeStructures.getChildStructureTypeCode(self.childType[i]);
                     }
-                    selectedChildTypes += volumeStructures.getChildStructureTypeCode(self.childType[i]);
+
+                    scope.model.ui.details.selectedChildTypes = selectedChildTypes;
                 }
 
-                scope.model.ui.details.selectedChildTypes = selectedChildTypes;
             }
 
             function populateDetailsTableFromClickedCell(valueList) {
 
-                $log.debug(scope);
                 scope.gridOptions.data = neighborTableData.getDetailsData(scope.overviewGridSettings.selectedAttribute,
                     scope.overviewGridSettings.selectedGrouping, valueList);
 

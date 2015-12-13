@@ -29,6 +29,10 @@
 
         function link(scope, element, attribute) {
 
+            if(scope.values.length == 0) {
+                return;
+            }
+
             // TODO: move these to app scope.
             var width = 200;
             var height = 75;

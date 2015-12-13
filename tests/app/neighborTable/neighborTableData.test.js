@@ -471,7 +471,8 @@ describe('neighborTableData service test', function () {
 
         var detailsGridOptions = neighborTableData.getDetailsGridOptions();
 
-        expect(detailsGridOptions.rowTemplate == 'common/rowTemplate.html').toBeTruthy();
+        // TODO: If we have row highlighting enabled in the neighborTableData then uncomment this.
+        //expect(detailsGridOptions.rowTemplate == 'common/rowTemplate.html').toBeTruthy();
 
     });
 
