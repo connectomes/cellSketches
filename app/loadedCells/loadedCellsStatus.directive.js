@@ -40,7 +40,9 @@
                         .style('stroke', '#4D4D4D');
 
                 } else if (newValue == loadedCellsData.Status.ERROR) {
-                    alert('invalid cell is in table. this should never happen. wtf?');
+
+                    // In this case the row will be deleted by the table. We don't do anything here.
+
                 }
 
             }

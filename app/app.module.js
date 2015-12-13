@@ -22,7 +22,7 @@
                 templateUrl: "childrenTable/childrenTable.html",
                 controller: 'ExampleController'
             }).state('neighborTable', {
-                url: "/neighborTable",
+                url: "/table",
                 templateUrl: "neighborTable/neighborTable.html",
                 controller: 'ExampleController'
             }).state('neighborChart', {
