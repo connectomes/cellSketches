@@ -51,6 +51,7 @@
                     column.cellTemplate = 'loadedCells/loadedCellsStatus.directive.html';
                 } else if (field == 'id') {
                     column.width = 100;
+                    column.sortingAlgorithm = utils.SortingAlgorithms.sortColumnAsNumbers
                 }
 
                 columns.push(column);

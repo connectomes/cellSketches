@@ -105,20 +105,24 @@
          * @name getDetailsColumnDefs
          * @param grouping
          * @param attribute
+         * @param sortFunction
          * @returns Array of column defs
          */
-        function getDetailsColumnDefs(grouping, attribute) {
+        function getDetailsColumnDefs(grouping, attribute, sortFunction) {
             if (grouping == self.Grouping.TARGETLABEL && attribute == undefined) {
 
                 return [{
                     field: 'targetId',
-                    displayName: 'target id'
+                    displayName: 'target id',
+                    enableSorting: false
                 }, {
                     field: 'count',
-                    displayName: 'count'
+                    displayName: 'count',
+                    sortingAlgorithm: utils.SortingAlgorithms.sortColumnAsNumbers
                 }, {
                     field: 'childIds',
-                    displayName: 'child ids'
+                    displayName: 'child ids',
+                    enableSorting: false
                 }];
 
             }
@@ -126,13 +130,17 @@
 
                 return [{
                     field: 'childId',
-                    displayName: 'child id'
+                    displayName: 'child id',
+                    sortingAlgorithm: utils.SortingAlgorithms.sortColumnAsNumbers
                 }, {
                     field: 'targetId',
-                    displayName: 'target id'
+                    displayName: 'target id',
+                    enableSorting: false
                 }, {
                     field: 'childValue',
-                    displayName: 'child value'
+                    displayName: 'child value',
+                    cellTemplate: 'neighborTable/neighborTableTruncatedValueCell.html',
+                    sortingAlgorithm: utils.SortingAlgorithms.sortColumnAsNumbers
                 }];
 
             }
@@ -140,30 +148,37 @@
 
                 return [{
                     field: 'childId',
-                    displayName: 'child id'
+                    displayName: 'child id',
+                    sortingAlgorithm: utils.SortingAlgorithms.sortColumnAsNumbers
                 }, {
                     field: 'targetLabel',
-                    displayName: 'target label'
-
+                    displayName: 'target label',
+                    enableSorting: false
                 }, {
                     field: 'targetId',
-                    displayName: 'target id'
+                    displayName: 'target id',
+                    enableSorting: false
                 }];
             }
             else if (grouping == self.Grouping.CHILDTYPE && attribute != undefined) {
 
                 return [{
                     field: 'childId',
-                    displayName: 'child id'
+                    displayName: 'child id',
+                    sortingAlgorithm: utils.SortingAlgorithms.sortColumnAsNumbers
                 }, {
                     field: 'targetLabel',
-                    displayName: 'target label'
+                    displayName: 'target label',
+                    enableSorting: false
                 }, {
                     field: 'targetId',
-                    displayName: 'target id'
+                    displayName: 'target id',
+                    enableSorting: false
                 }, {
                     field: 'childValue',
-                    displayName: 'child value'
+                    displayName: 'child value',
+                    cellTemplate: 'neighborTable/neighborTableTruncatedValueCell.html',
+                    sortingAlgorithm: utils.SortingAlgorithms.sortColumnAsNumbers
                 }];
 
             }
@@ -235,7 +250,7 @@
                     details.push({
                         childId: childId,
                         targetId: targetId,
-                        childValue: childValue.toFixed(2)
+                        childValue: childValue
                     });
                 });
 
@@ -314,7 +329,7 @@
                             childId: volumeCells.getCellChildAt(value.cellIndex, value.childIndex).id,
                             targetId: targetId,
                             targetLabel: targetLabels,
-                            childValue: value.value.toFixed(2)
+                            childValue: value.value
                         });
                     }
 
