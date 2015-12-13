@@ -91,9 +91,8 @@
                 self.text = svg.append('text')
                     .text(scope.values.length)
                     .style('text-anchor', 'middle')
-                    .style('alignment-baseline', 'hanging')
                     .attr('x', scope.width / 2)
-                    .attr('y', 5)
+                    .attr('y', 15)
                     .style('fill', 'white')
                     .style('display', 'none');
             }
