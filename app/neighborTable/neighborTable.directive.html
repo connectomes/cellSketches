@@ -4,6 +4,11 @@
     <div>
         <div>
             <b>Cells</b>
+
+            <div uib-popover="This changes the table rows. Optionally select a subset of loaded cells to appear in the table."
+                 popover-trigger="mouseenter" popover-placement="bottom-right" class="tooltipCircle">?
+            </div>
+
         </div>
 
         <div class="sidebarControls">
@@ -25,6 +30,11 @@
     <div>
         <div class="sidebarHeading">
             <b>Display mode</b>
+
+            <div uib-popover="This changes the table columns. Show either all children grouped by type or select a child type grouped by its target label."
+                 popover-trigger="mouseenter" popover-placement="right" class="tooltipCircle">?
+            </div>
+
         </div>
 
         <div class="sidebarControls">
@@ -49,6 +59,10 @@
     <div ng-show="model.ui.usingChildrenByTargetLabel" class="animate-show">
         <div class="sidebarHeading">
             <b>Child type</b>
+            <div uib-popover="All children of these types will be displayed."
+                 popover-trigger="mouseenter" popover-placement="right" class="tooltipCircle">?
+            </div>
+
         </div>
         <div class="sidebarControls">
             <ui-select multiple ng-model="model.ui.selectedChildTypes" theme="select2" class="sidebarMultiSelect"
@@ -64,6 +78,9 @@
     <div>
         <div class="sidebarHeading">
             <b>Data in table</b>
+            <div uib-popover="This changes the data representation in table cells."
+                 popover-trigger="mouseenter" popover-placement="right" class="tooltipCircle">?
+            </div>
         </div>
 
         <div class="sidebarControls">
@@ -90,6 +107,9 @@
 
             <div class="sidebarHeading">
                 <b>Encoding</b>
+                <div uib-popover="Show either text or bars in the table."
+                     popover-trigger="mouseenter" popover-placement="right" class="tooltipCircle">?
+                </div>
             </div>
             <div class="sidebarControls">
                 <ui-select ng-model="model.ui.modes.selectedCountMode"
@@ -116,6 +136,9 @@
 
         <div class="sidebarHeading">
             <b>Attribute</b>
+            <div uib-popover="Diameter is max diameter of child locations. Distance is the child's distance from the center of its parent's convex hull."
+                 popover-trigger="mouseenter" popover-placement="right" class="tooltipCircle">?
+            </div>
         </div>
 
         <div class="sidebarControls">
@@ -137,6 +160,9 @@
 
         <div class="sidebarHeading">
             <b>Units</b>
+            <div uib-popover="Pixels or nanometers. Both will be included in data downloads."
+                 popover-trigger="mouseenter" popover-placement="right" class="tooltipCircle">?
+            </div>
         </div>
         <div class="sidebarControls">
             <ui-select ng-model="model.ui.modes.selectedUnitMode"

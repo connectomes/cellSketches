@@ -11,7 +11,7 @@
 
 #sidebar {
     margin-left: 10px;
-    float:left;
+    float: left;
     width: 290px;
 }
 
@@ -21,3 +21,14 @@
     width: 1350px;
 }
 
+.tooltipCircle {
+    border-radius: 50%;
+    width: 15px;
+    height: 15px;
+    font-size: 12px;
+    margin-right: 20px;
+    background: #EEEEEE;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+}

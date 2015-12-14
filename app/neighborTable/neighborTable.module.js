@@ -1,6 +1,6 @@
 (function () {
     'use strict';
 
-    angular.module('app.neighborTableModule', ['app.volumeModule']);
+    angular.module('app.neighborTableModule', ['app.volumeModule', 'ui.bootstrap']);
 
 })();
