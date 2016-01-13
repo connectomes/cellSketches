@@ -1,0 +1,56 @@
+{
+  "@odata.context": "http://websvc1.connectomes.utah.edu/RC1/OData/$metadata#Structures",
+  "value": [
+    {
+      "ID": 57530,
+      "TypeID": 235,
+      "Notes": "",
+      "Verified": false,
+      "Tags": null,
+      "Confidence": 0.5,
+      "Version": "AAAAAADFzqk=",
+      "ParentID": null,
+      "Created": "2013-07-23T21:19:20.533-07:00",
+      "Label": null,
+      "Username": "jamesan         ",
+      "LastModified": "2013-07-23T21:19:20.533-07:00",
+      "Locations": [
+        {
+          "ID": 772551,
+          "ParentID": 57530,
+          "X": 87239.35,
+          "Y": 21909.29,
+          "Z": 371.0,
+          "Closed": false,
+          "Version": "AAAAAAZZ21U=",
+          "Overlay": null,
+          "Tags": "",
+          "VolumeX": 22660.17,
+          "VolumeY": 93223.32,
+          "Terminal": false,
+          "OffEdge": false,
+          "Radius": 250.0,
+          "TypeCode": 1,
+          "LastModified": "2015-08-28T05:14:52.18-07:00",
+          "Created": "2013-07-23T21:19:20.543-07:00",
+          "Username": "jamesan         ",
+          "MosaicShape": {
+            "Geometry": {
+              "CoordinateSystemId": 0,
+              "WellKnownText": "CURVEPOLYGON (CIRCULARSTRING (86989.35 21909.29 371, 87239.35 22159.29 371, 87489.35 21909.29 371, 87239.35 21659.29 371, 86989.35 21909.29 371))",
+              "WellKnownBinary": null
+            }
+          },
+          "VolumeShape": {
+            "Geometry": {
+              "CoordinateSystemId": 0,
+              "WellKnownText": "CURVEPOLYGON (CIRCULARSTRING (22410.17 93223.32 371, 22660.17 93473.32 371, 22910.17 93223.32 371, 22660.17 92973.32 371, 22410.17 93223.32 371))",
+              "WellKnownBinary": null
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
+

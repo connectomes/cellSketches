@@ -4,6 +4,7 @@ var TestUtils = (function () {
     return {
         setup: setup,
         setupForCell514: setupForCell514,
+        setupLayers: setupLayers,
         setupStructures: setupStructures,
         loadCellAndNeighbors: loadCellAndNeighbors
     };
@@ -72,6 +73,19 @@ var TestUtils = (function () {
 
         httpBackend.when('GET', loadCell514ChildrenEdges).respond(
             readJSON('tests/mock/cell514ChildrenEdges.json')
+        );
+    }
+
+    function setupLayers(httpBackend) {
+        var upper = 'http://websvc1.connectomes.utah.edu/RC1/OData/Structures?$filter=(TypeID eq 224)&$expand=Locations';
+        var lower = 'http://websvc1.connectomes.utah.edu/RC1/OData/Structures?$filter=(TypeID eq 235)&$expand=Locations';
+
+        httpBackend.when('GET', upper).respond(
+            readJSON('tests/mock/layersUpperBound.json')
+        );
+
+        httpBackend.when('GET', lower).respond(
+            readJSON('tests/mock/layersLowerBound.json')
         );
     }
 
