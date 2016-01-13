@@ -40,10 +40,9 @@
 
                     for (var j = 0; j < locations.length; ++j) {
 
+                        var currLocation = locations[j];
                         var location = {
-                            volumeX: locations[j].VolumeX,
-                            volumeY: locations[j].VolumeY,
-                            z: locations[j].Z,
+                            position: new utils.Point3D(currLocation.VolumeY, currLocation.VolumeX, currLocation.Z),
                             id: locations[j].ID
                         };
 
@@ -67,15 +66,12 @@
 
         function convertToIPLPercent(point) {
 
-            // TODO: Move this when its needed somewhere else.
-            function distance2D(p, q) {
-                return Math.sqrt(Math.pow((p[0] - q[0]), 2) + Math.pow(p[1] - q[1], 2))
-            }
+            var inputPoint = point.getAs2D();
 
             // Same indexes used throughout this method.
             // nearestIdxs[0] = index of nearest neighbor on bottom of layer.
             // nearestIdxs[1] = index of nearest neighbor on top of layer.
-            var nearestIdxs = [];
+            var nearestIndexes = [];
             var nearestDistances = [];
             var pointsInRadiusIdxs = [[], []];
             var distancesInRadius = [[], []];
@@ -84,22 +80,23 @@
             var boundaries = [self.lower, self.upper];
             for (var i = 0; i < boundaries.length; ++i) {
                 var currBoundary = boundaries[i];
-                var current = [currBoundary[0].volumeX, currBoundary[0].volumeY];
-                nearestIdxs[i] = 0;
-                nearestDistances[i] = distance2D(point, current);
+                var current = currBoundary[0].position.getAs2D();
+                nearestIndexes[i] = 0;
+                nearestDistances[i] = current.distance(inputPoint);
             }
 
             // Search for nearest neighbor and points in radius.
             for (i = 0; i < boundaries.length; ++i) {
                 currBoundary = boundaries[i];
                 for (var j = 0; j < currBoundary.length; ++j) {
-                    current = [currBoundary[j].volumeX, currBoundary[j].volumeY];
-                    var distance = distance2D(current, point);
+                    // TODO: use the point structure.
+                    current = currBoundary[j].position.getAs2D();
+                    var distance = current.distance(inputPoint);
 
                     // Nearest neighbor for current boundary?
                     if (distance < nearestDistances[i]) {
                         nearestDistances[i] = distance;
-                        nearestIdxs[i] = j;
+                        nearestIndexes[i] = j;
                     }
 
                     // Point in search radius?
@@ -120,14 +117,15 @@
 
                 // No points in search radius -> use nearest point as our best guess.
                 if (pointsInRadiusIdxs[i].length == 0) {
-                    averageDepths[i] = currBoundary[nearestIdxs[i]].z;
-                    pointsInRadiusIdxs[i].push(nearestIdxs[i]);
+                    // TODO: use the point structure
+                    averageDepths[i] = currBoundary[nearestIndexes[i]].position.z;
+                    pointsInRadiusIdxs[i].push(nearestIndexes[i]);
                 } else {
                     var totalDepth = 0.0;
                     var totalDistance = 0.0;
 
                     for (j = 0; j < currPointsInRadius.length; ++j) {
-                        var currPoint = currBoundary[currPointsInRadius[j]];
+                        var currPoint = currBoundary[currPointsInRadius[j]].position;
                         totalDepth += (currPoint.z * currDistancesInRadius[j]);
                         totalDistance += currDistancesInRadius[j];
                     }
@@ -135,11 +133,12 @@
                 }
             }
 
-            var percent = (point[2] - averageDepths[1]) / (averageDepths[0] - averageDepths[1]);
+            // TODO: use the point structure
+            var percent = (point.z - averageDepths[1]) / (averageDepths[0] - averageDepths[1]);
 
             return {
-                bottomIdxs: pointsInRadiusIdxs[0],
-                topIdxs: pointsInRadiusIdxs[1],
+                bottomIndexes: pointsInRadiusIdxs[0],
+                topIndexes: pointsInRadiusIdxs[1],
                 percent: percent
             };
         }

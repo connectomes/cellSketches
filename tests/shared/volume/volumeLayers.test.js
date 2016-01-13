@@ -29,22 +29,21 @@ fdescribe('VolumeLayers service test', function () {
         expect(volumeLayers.getLowerBounds().length == 1).toBeTruthy();
     });
 
-    it('convert to ipl percent', function() {
+    it('convert to ipl percent', function () {
         volumeLayers.activate();
         httpBackend.flush();
 
-        var point = [97482.5, 28709.78, 136];
+        var point = new utils.Point3D(97482.5, 28709.78, 136);
         var result = volumeLayers.convertToIPLPercent(point);
         expect(result.percent).toBeCloseTo(0, 0.01);
 
-        point = [97482.5, 28709.78, 253.5];
+        point = new utils.Point3D(97482.5, 28709.78, 253.5);
         result = volumeLayers.convertToIPLPercent(point);
         expect(result.percent - 0.5).toBeCloseTo(0.0, 0.01);
 
-        point = [97482.5, 28709.78, 371];
+        point = new utils.Point3D(97482.5, 28709.78, 371);
         result = volumeLayers.convertToIPLPercent(point);
         expect(result.percent - 1.0).toBeCloseTo(0.0, 0.01);
     });
-
 
 });
