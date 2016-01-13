@@ -12,6 +12,8 @@ module.exports = function (config) {
             'bower_components/angular-bootstrap/ui-bootstrap-tpls.js',
             'app/childrenTable/childrenTable.module.js',
             'app/childrenTable/*.js',
+            'app/iplChart/iplChart.module.js',
+            'app/iplChart/*.js',
             'app/loadedCells/loadedCells.module.js',
             'app/loadedCells/*.service.js',
             'app/neighborTable/neighborTable.module.js',
