@@ -9,6 +9,7 @@ module.exports = function (config) {
             'bower_components/karma-read-json/karma-read-json.js',
             'bower_components/d3/d3.js',
             'bower_components/angular-toastr/dist/angular-toastr.tpls.js',
+            'bower_components/angular-bootstrap/ui-bootstrap-tpls.js',
             'app/childrenTable/childrenTable.module.js',
             'app/childrenTable/*.js',
             'app/loadedCells/loadedCells.module.js',
