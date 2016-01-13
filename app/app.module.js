@@ -2,8 +2,23 @@
     'use strict';
 
     var app = angular.module('app.csvUpload', [
-        'app.volumeModule', 'app.childrenTableModule', 'app.neighborTableModule', 'app.loadedCellsModule', 'ui.router', 'ui.select', 'ngSanitize', 'app.ioModule', 'app.visModule',
-        'ui.grid', 'ui.grid.resizeColumns', 'ui.grid.selection', 'ui.grid.cellNav',  'ui.grid.pinning', 'toastr']);
+        'app.volumeModule',
+        'app.childrenTableModule',
+        'app.iplChartModule',
+        'app.loadedCellsModule',
+        'app.neighborTableModule',
+        'ui.router',
+        'ui.select',
+        'ngSanitize',
+        'app.ioModule',
+        'app.visModule',
+        'ui.bootstrap',
+        'ui.grid',
+        'ui.grid.resizeColumns',
+        'ui.grid.selection',
+        'ui.grid.cellNav',
+        'ui.grid.pinning',
+        'toastr']);
 
     app.config(function ($stateProvider, $urlRouterProvider) {
 
@@ -29,8 +44,13 @@
                 url: "/neighborChart",
                 templateUrl: "neighborChart/neighborChart.html",
                 controller: 'ExampleController'
+            }).state('iplChart', {
+                url: "/iplChart",
+                templateUrl: "iplChart/iplChart.html",
+                controller: "ExampleController"
             });
-    });
+        }
+    );
 
     app.config(function(toastrConfig) {
         angular.extend(toastrConfig, {

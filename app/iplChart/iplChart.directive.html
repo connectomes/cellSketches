@@ -1,0 +1,30 @@
+<div id="sidebar">
+    <!-- Controls for the cells --->
+    <div>
+        <div>
+            <b>Cells</b>
+
+            <div uib-popover="This changes the table rows. Optionally select a subset of loaded cells to appear in the table."
+                 popover-trigger="mouseenter" popover-placement="bottom-right" class="tooltipCircle">?
+            </div>
+
+        </div>
+
+        <div class="sidebarControls">
+            <label>All:
+                <input type="checkbox" ng-model="model.ui.allCellsChecked" ng-change="selectedCellsChanged()">
+            </label>
+            <label ng-show="!model.ui.allCellsChecked"><br>Cells:
+                <ui-select multiple ng-model="model.ui.selectedCells" theme="select2" style="width: 220px;"
+                           ng-change="selectedCellsChanged()">
+                    <ui-select-match placeholder="Click to select">{{$item}}</ui-select-match>
+                    <ui-select-choices repeat="id in model.masterCells.ids | filter:$select.search">{{id}}
+                    </ui-select-choices>
+                </ui-select>
+            </label>
+        </div>
+    </div>
+</div>
+<div id="content">
+    Content!
+</div>
