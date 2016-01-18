@@ -11,14 +11,11 @@
 
         var self = this;
 
-        self.Status = {
-            LOADING: 0,
-            ERROR: -1,
-            OK: 1
-        };
-
         var service = {
-            getIplChartData: getIplChartData
+            getIplChartData: getIplChartData,
+            getIplRange: getIplRange,
+            getHistogramMaxItemsInBins: getHistogramMaxItemsInBins,
+            getHistogramBins: getHistogramBins
         };
 
         service.Status = self.Status;
@@ -37,23 +34,72 @@
                 cellIds.push(volumeCells.getCellAt(cellIndex).id);
             });
 
+
             var data = [];
             cellIds.forEach(function(cellId) {
-
+                var cellData = [];
                 var locations = volumeCells.getCellLocations(cellId);
 
                 locations.forEach(function(location) {
                     var result = volumeLayers.convertToIPLPercent(location.position);
-                    data.push({
+                    cellData.push({
                         location: location,
                         result: result
                     });
                 });
+
+                data.push(cellData);
             });
 
             return data;
 
         }
+
+        function getIplRange(data) {
+
+            var minIpl = 100.0;
+            var maxIpl = 0.0;
+
+            data.forEach(function(results) {
+                results.forEach(function(result) {
+                    minIpl = Math.min(result.result.percent);
+                    maxIpl = Math.max(result.result.percent);
+                });
+            });
+
+            return [minIpl, maxIpl];
+        }
+
+        function getHistogramBins(data, numBins, domain, range) {
+
+            var scale = d3.scale.linear()
+                .domain(domain)
+                .range(range);
+
+            var justValues = data.map(function (d) {
+                return d.result.percent;
+            });
+
+            return d3.layout.histogram()
+                .range(range)
+                .bins(scale.ticks(numBins))
+                (justValues);
+        }
+
+        function getHistogramMaxItemsInBins(data, numBins, domain, range) {
+
+            var maxItemsInBins = 0;
+
+            data.forEach(function(results) {
+                var bins = getHistogramBins(results, numBins, domain, range);
+                bins.forEach(function(bin) {
+                   maxItemsInBins = Math.max(bin.length, maxItemsInBins);
+                });
+            });
+
+            return maxItemsInBins;
+        }
+
     }
 })();
 
