@@ -45,79 +45,51 @@
 
             var self = {};
 
-            $log.debug('neighborBarChart - link');
+            $log.debug('iplChart - link');
 
             //self.svg = visUtils.createSvg(element[0]);
             //self.mainGroup = visUtils.createMainGroup(self.svg);
             scope.$on('cellsChanged', cellsChanged);
 
-            self.numSmallMultiplesPerRow = 6;
+            self.numSmallMultiplesPerRow = 3;
             self.smallMultiplePadding = 10;
             self.smallMultipleWidth = (visUtils.getSvgWidth() - (self.numSmallMultiplesPerRow * self.smallMultiplePadding)) / self.numSmallMultiplesPerRow;
-            self.smallMultipleHeight = 200;
-            self.smallMultipleOffsets = new utils.Point2D(self.smallMultiplePadding + self.smallMultipleWidth, self.smallMultiplePadding + self.smallMultipleHeight);
+            self.smallMultipleHeight = 300;
 
-            // Data is either attribute or count
-            scope.DataModes = [
-                {
-                    name: 'Count',
-                    id: 0
-                },
-                {
-                    name: 'Attribute (histogram)',
-                    id: 1
-                }
-            ];
-
-            // Count encoding is either bar or text
-            scope.CountEncodingModes = [
-                {
-                    name: 'Bars',
-                    id: 0
-                },
-                {
-                    name: 'Text',
-                    id: 1
-                }
-            ];
-
-            // Attributes are either distance or diameter
-            scope.AttributeModes = [
-                {
-                    name: 'Distance',
-                    id: volumeHelpers.PerChildAttributes.DISTANCE
-                },
-                {
-                    name: 'Diameter',
-                    id: volumeHelpers.PerChildAttributes.DIAMETER
-                }
-            ];
-
-            scope.UnitModes = [
-                {
-                    name: 'px',
-                    id: volumeHelpers.Units.PIXELS
-                },
-                {
-                    name: 'nm',
-                    id: volumeHelpers.Units.NM
-                }
-            ];
-
-            scope.model.ui.modes = {};
-            scope.model.ui.modes.selectedDataMode = scope.DataModes[1];
-            scope.model.ui.modes.selectedCountMode = scope.CountEncodingModes[0];
-            scope.model.ui.modes.selectedAttributeMode = scope.AttributeModes[0];
-            scope.model.ui.modes.selectedUnitMode = scope.UnitModes[1];
-            scope.overviewGridOptions = {};
             scope.broadcastChange();
 
             function cellsChanged(slot, cells, childType, useTargetLabelGroups, useOnlySelectedTargets, selectedTargets, convertToNm, useRadius) {
 
                 scope.model.ui.details.cellId = -1;
+                var cellIndexes = cells.indexes;
+                var svgWidth = visUtils.getSvgWidth();
+                var numRows = cellIndexes.length / self.numSmallMultiplesPerRow;
+                var svgHeight = 1000;
+                console.log(svgHeight);
+                if (!self.mainGroup) {
+                    self.mainGroup = d3.select(element[0])
+                        .append('svg')
+                        .attr('width', svgWidth)
+                        .attr('height', svgHeight);
+                }
+                visUtils.clearGroup(self.mainGroup);
 
-                $log.debug('iplChart - cells changed');
+                var offsets = new utils.Point2D(self.smallMultipleWidth, self.smallMultipleHeight);
+                for (var i = 0; i < cellIndexes.length; ++i) {
+                    var positionInGrid = visUtils.computeGridPosition(i, self.numSmallMultiplesPerRow);
+                    var position = positionInGrid.multiply(offsets);
+                    var totalPadding = positionInGrid.multiply(new utils.Point2D(self.smallMultiplePadding, self.smallMultiplePadding));
+                    position = position.add(totalPadding);
 
+                    var group = self.mainGroup.append('g')
+                        .attr('transform', 'translate' + position.toString());
+
+                    visUtils.addOutlineToGroup(group, self.smallMultipleWidth, self.smallMultipleHeight);
+                    //var chart = new visBarChart.BarChartD3();
+
+                    //chart.activate(group, cells.ids[i], self.smallMultipleWidth, self.smallMultipleHeight, targets, chartData[i], maxCount, onBarClicked);
+
+                }
 
             }
         }
