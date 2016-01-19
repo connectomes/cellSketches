@@ -38,8 +38,8 @@
         function link(scope, element, attribute) {
             var self = {};
 
-            scope.$watch('chartData', cellsChanged);
-
+            //scope.$watch('chartData', cellsChanged);
+            scope.$watch('numBins', cellsChanged);
             self.svg = d3.select(element[0])
                 .append('svg')
                 .attr('width', scope.width)
@@ -51,9 +51,10 @@
             cellsChanged();
 
             function cellsChanged() {
+                $log.debug('iplHistogram - cellsChanged');
+                $log.debug(scope);
 
                 visUtils.clearGroup(self.svg);
-
                 var width = scope.width;
                 var height = scope.height;
                 var margin = getMargins(width, height);
@@ -149,7 +150,10 @@
                 bar.append("rect")
                     .attr("x", 0)
                     .attr("height", function (d) {
-                        return (yRange / data.length) - 0.5;
+                        if (scope.numBins == 50)
+                            return (yRange / (scope.numBins)) - 1;
+                        else
+                            return (yRange / (scope.numBins + 1));
                     })
                     .attr('width', function (d) {
                         return x(d.length);

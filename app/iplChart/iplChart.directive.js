@@ -56,10 +56,11 @@
             self.smallMultipleWidth = (visUtils.getSvgWidth() - (self.numSmallMultiplesPerRow * self.smallMultiplePadding)) / self.numSmallMultiplesPerRow;
             self.smallMultipleHeight = 250;
 
+            scope.model.ui.numBinOptions = [50, 100];
+            scope.model.ui.numBins = 50;
+
             scope.broadcastChange();
 
-            scope.model.ui.numBinOptions = [25, 50];
-            scope.model.ui.numBins = 50;
 
             function cellsChanged(slot, cells, childType, useTargetLabelGroups, useOnlySelectedTargets, selectedTargets, convertToNm, useRadius) {
                 $log.debug('iplChart - cellsChanged');
@@ -69,12 +70,14 @@
                 scope.cellIndexes = cells.indexes;
                 scope.smallMultipleWidth = self.smallMultipleWidth;
                 scope.smallMultipleHeight = self.smallMultipleHeight;
-                scope.chartData = iplChartData.getIplChartData(scope.cellIndexes);
+                var chartData = iplChartData.getIplChartData(scope.cellIndexes);
 
-                scope.yAxisDomain = iplChartData.getIplRange(scope.chartData);
+                scope.yAxisDomain = iplChartData.getIplRange(chartData);
                 scope.yAxisRange = [0, self.smallMultipleHeight];
-                scope.xAxisDomain = [0, iplChartData.getHistogramMaxItemsInBins(scope.chartData, scope.model.ui.numBins, scope.yAxisDomain, scope.yAxisRange)];
+                scope.xAxisDomain = [0, iplChartData.getHistogramMaxItemsInBins(chartData, scope.model.ui.numBins, scope.yAxisDomain, scope.yAxisRange)];
                 scope.xAxisRange = [0, self.smallMultipleWidth];
+                scope.chartData = chartData;
+                $log.error('setting num bins', scope.model.ui.numBins);
                 scope.numBins = scope.model.ui.numBins;
             }
         }
