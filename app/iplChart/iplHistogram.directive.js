@@ -46,7 +46,7 @@
                 .attr('height', scope.height)
                 .append('g');
 
-            visUtils.clearGroup(svg);
+            visUtils.clearGroup(self.svg);
 
             cellsChanged();
 

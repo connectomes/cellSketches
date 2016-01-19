@@ -58,8 +58,12 @@
 
             scope.broadcastChange();
 
-            function cellsChanged(slot, cells, childType, useTargetLabelGroups, useOnlySelectedTargets, selectedTargets, convertToNm, useRadius) {
+            scope.model.ui.numBinOptions = [25, 50];
+            scope.model.ui.numBins = 50;
 
+            function cellsChanged(slot, cells, childType, useTargetLabelGroups, useOnlySelectedTargets, selectedTargets, convertToNm, useRadius) {
+                $log.debug('iplChart - cellsChanged');
+                $log.debug(scope);
                 scope.model.ui.details.cellId = -1;
                 scope.cellIds = cells.ids;
                 scope.cellIndexes = cells.indexes;
@@ -67,12 +71,11 @@
                 scope.smallMultipleHeight = self.smallMultipleHeight;
                 scope.chartData = iplChartData.getIplChartData(scope.cellIndexes);
 
-                var numBins = 50;
                 scope.yAxisDomain = iplChartData.getIplRange(scope.chartData);
                 scope.yAxisRange = [0, self.smallMultipleHeight];
-                scope.xAxisDomain = [0, iplChartData.getHistogramMaxItemsInBins(scope.chartData, numBins, scope.yAxisDomain, scope.yAxisRange)];
+                scope.xAxisDomain = [0, iplChartData.getHistogramMaxItemsInBins(scope.chartData, scope.model.ui.numBins, scope.yAxisDomain, scope.yAxisRange)];
                 scope.xAxisRange = [0, self.smallMultipleWidth];
-                scope.numBins = numBins;
+                scope.numBins = scope.model.ui.numBins;
             }
         }
     }

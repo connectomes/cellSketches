@@ -23,6 +23,31 @@
                 </ui-select>
             </label>
         </div>
+<br>
+        <div>
+            <b>Number of bins</b>
+
+            <div uib-popover="This changes the number of bins used for showing ipl% of structure annotations."
+                 popover-trigger="mouseenter" popover-placement="bottom-right" class="tooltipCircle">?
+            </div>
+
+        </div>
+        <div class="sidebarControls">
+            <ui-select ng-model="model.ui.numBins"
+                       theme="select2"
+                       search-enabled="false"
+                       ng-change="broadcastChange()"
+                       class="sidebarMultiSelect">
+
+                <ui-select-match placeholder="Click to select">
+                    {{model.ui.numBins}}
+                </ui-select-match>
+
+                <ui-select-choices repeat="id in model.ui.numBinOptions">
+                    <div ng-bind-html="id"></div>
+                </ui-select-choices>
+            </ui-select>
+        </div>
     </div>
 </div>
 <div id="content">
