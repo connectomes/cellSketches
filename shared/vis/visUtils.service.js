@@ -32,14 +32,14 @@
 
         return service;
 
-        function addOutlineToGroup(group, width, height) {
+        function addOutlineToGroup(group, width, height, stroke) {
             group.append('rect')
                 .attr({
                     width: width,
                     height: height,
                     fill: 'none',
-                    stroke: 'black',
-                    'stroke-width': '1px'
+                    stroke: stroke,
+                    'stroke-width': '2px'
                 });
         }
 

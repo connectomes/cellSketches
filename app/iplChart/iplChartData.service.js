@@ -30,17 +30,17 @@
         function getIplChartData(cellIndexes) {
 
             var cellIds = [];
-            cellIndexes.forEach(function(cellIndex) {
+            cellIndexes.forEach(function (cellIndex) {
                 cellIds.push(volumeCells.getCellAt(cellIndex).id);
             });
 
 
             var data = [];
-            cellIds.forEach(function(cellId) {
+            cellIds.forEach(function (cellId) {
                 var cellData = [];
                 var locations = volumeCells.getCellLocations(cellId);
 
-                locations.forEach(function(location) {
+                locations.forEach(function (location) {
                     var result = volumeLayers.convertToIPLPercent(location.position);
                     cellData.push({
                         location: location,
@@ -57,13 +57,14 @@
 
         function getIplRange(data) {
 
+            // IPL should be in the range (-0.5, 1.0)
             var minIpl = 100.0;
-            var maxIpl = 0.0;
+            var maxIpl = -100.0;
 
-            data.forEach(function(results) {
-                results.forEach(function(result) {
-                    minIpl = Math.min(result.result.percent);
-                    maxIpl = Math.max(result.result.percent);
+            data.forEach(function (results) {
+                results.forEach(function (result) {
+                    minIpl = Math.min(result.result.percent, minIpl);
+                    maxIpl = Math.max(result.result.percent, maxIpl);
                 });
             });
 
@@ -90,10 +91,10 @@
 
             var maxItemsInBins = 0;
 
-            data.forEach(function(results) {
+            data.forEach(function (results) {
                 var bins = getHistogramBins(results, numBins, domain, range);
-                bins.forEach(function(bin) {
-                   maxItemsInBins = Math.max(bin.length, maxItemsInBins);
+                bins.forEach(function (bin) {
+                    maxItemsInBins = Math.max(bin.length, maxItemsInBins);
                 });
             });
 

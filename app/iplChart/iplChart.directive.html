@@ -26,5 +26,17 @@
     </div>
 </div>
 <div id="content">
-    Content!
+    <span ng-repeat="cellId in cellIds">
+        <ipl-histogram
+                value="cellId"
+                width="smallMultipleWidth"
+                domain="xAxisDomain"
+                range="xAxisRange"
+                height="smallMultipleHeight"
+                chart-data="chartData[$index]"
+                y-axis-domain="yAxisDomain"
+                y-axis-range="yAxisRange"
+                num-bins="numBins">
+        </ipl-histogram>
+    </span>
 </div>

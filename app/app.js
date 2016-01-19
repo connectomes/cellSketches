@@ -90,9 +90,10 @@
 
         // Set this to false for loading local json of cell data.
         $scope.model.usingRemote = false;
+        //$scope.model.usingRemote = true;
 
         $scope.activate = function () {
-            volumeLayers.activate();
+
             // Allow only one activation
             if (!$scope.model.isActivated) {
 
@@ -380,8 +381,9 @@
             $log.debug(' setting all neighbor labels to: ', allLabels);
             $scope.model.ui.neighborLabels = allLabels;
         };
-
-        $scope.activate();
+        volumeLayers.activate().then(function() {
+            $scope.activate();
+        });
 
         // These functions are chained together for async callbacks. The order they get called in:
         // 1. cellsLoadedSuccess -- this updates the scope's masterCells

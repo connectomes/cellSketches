@@ -4,9 +4,9 @@
     angular.module('app.iplChartModule')
         .directive('iplChart', iplChart);
 
-    iplChart.$inject = ['$log', 'volumeCells', 'volumeStructures', 'volumeHelpers', 'visUtils', 'visTable', 'neighborTableData'];
+    iplChart.$inject = ['$log', 'volumeCells', 'volumeStructures', 'volumeHelpers', 'visUtils', 'visTable', 'iplChartData'];
 
-    function iplChart($log, volumeCells, volumeStructures, volumeHelpers, visUtils, visTable, neighborTableData) {
+    function iplChart($log, volumeCells, volumeStructures, volumeHelpers, visUtils, visTable, iplChartData) {
 
         return {
             link: link,
@@ -51,46 +51,28 @@
             //self.mainGroup = visUtils.createMainGroup(self.svg);
             scope.$on('cellsChanged', cellsChanged);
 
-            self.numSmallMultiplesPerRow = 3;
+            self.numSmallMultiplesPerRow = 4;
             self.smallMultiplePadding = 10;
             self.smallMultipleWidth = (visUtils.getSvgWidth() - (self.numSmallMultiplesPerRow * self.smallMultiplePadding)) / self.numSmallMultiplesPerRow;
-            self.smallMultipleHeight = 300;
+            self.smallMultipleHeight = 250;
 
             scope.broadcastChange();
 
             function cellsChanged(slot, cells, childType, useTargetLabelGroups, useOnlySelectedTargets, selectedTargets, convertToNm, useRadius) {
 
                 scope.model.ui.details.cellId = -1;
-                var cellIndexes = cells.indexes;
-                var svgWidth = visUtils.getSvgWidth();
-                var numRows = cellIndexes.length / self.numSmallMultiplesPerRow;
-                var svgHeight = 1000;
-                console.log(svgHeight);
-                if (!self.mainGroup) {
-                    self.mainGroup = d3.select(element[0])
-                        .append('svg')
-                        .attr('width', svgWidth)
-                        .attr('height', svgHeight);
-                }
-                visUtils.clearGroup(self.mainGroup);
+                scope.cellIds = cells.ids;
+                scope.cellIndexes = cells.indexes;
+                scope.smallMultipleWidth = self.smallMultipleWidth;
+                scope.smallMultipleHeight = self.smallMultipleHeight;
+                scope.chartData = iplChartData.getIplChartData(scope.cellIndexes);
 
-                var offsets = new utils.Point2D(self.smallMultipleWidth, self.smallMultipleHeight);
-                for (var i = 0; i < cellIndexes.length; ++i) {
-                    var positionInGrid = visUtils.computeGridPosition(i, self.numSmallMultiplesPerRow);
-                    var position = positionInGrid.multiply(offsets);
-                    var totalPadding = positionInGrid.multiply(new utils.Point2D(self.smallMultiplePadding, self.smallMultiplePadding));
-                    position = position.add(totalPadding);
-
-                    var group = self.mainGroup.append('g')
-                        .attr('transform', 'translate' + position.toString());
-
-                    visUtils.addOutlineToGroup(group, self.smallMultipleWidth, self.smallMultipleHeight);
-                    //var chart = new visBarChart.BarChartD3();
-
-                    //chart.activate(group, cells.ids[i], self.smallMultipleWidth, self.smallMultipleHeight, targets, chartData[i], maxCount, onBarClicked);
-
-                }
-
+                var numBins = 50;
+                scope.yAxisDomain = iplChartData.getIplRange(scope.chartData);
+                scope.yAxisRange = [0, self.smallMultipleHeight];
+                scope.xAxisDomain = [0, iplChartData.getHistogramMaxItemsInBins(scope.chartData, numBins, scope.yAxisDomain, scope.yAxisRange)];
+                scope.xAxisRange = [0, self.smallMultipleWidth];
+                scope.numBins = numBins;
             }
         }
     }
