@@ -70,7 +70,7 @@
                 scope.cellIndexes = cells.indexes;
                 scope.smallMultipleWidth = self.smallMultipleWidth;
                 scope.smallMultipleHeight = self.smallMultipleHeight;
-                var chartData = iplChartData.getIplChartData(scope.cellIndexes);
+                var chartData = iplChartData.getIplChartData(scope.cellIndexes, iplChartData.IplMode.DEPTH);
 
                 scope.yAxisDomain = iplChartData.getIplRange(chartData);
                 scope.yAxisRange = [0, self.smallMultipleHeight];

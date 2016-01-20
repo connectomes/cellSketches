@@ -112,8 +112,9 @@
                     .call(xAxis);
 
                 var justValues = scope.chartData.map(function (d) {
-                    return d.result.percent;
+                    return d.value;
                 });
+
                 console.log();
                 // Stitch values back into bins.
                 var data = d3.layout.histogram()
