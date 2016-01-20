@@ -114,7 +114,7 @@
                 var justValues = scope.chartData.map(function (d) {
                     return d.result.percent;
                 });
-
+                console.log();
                 // Stitch values back into bins.
                 var data = d3.layout.histogram()
                     .range(scope.yAxisDomain)
@@ -137,7 +137,7 @@
                 }
 
                 // Create bars.
-                var bar = group.selectAll(".histogramBar")
+                var bar = group.selectAll(".iplHistogramBar")
                     .data(data)
                     .enter()
                     .append("g")
@@ -150,16 +150,14 @@
                 bar.append("rect")
                     .attr("x", 0)
                     .attr("height", function (d) {
-                        if (scope.numBins == 50)
-                            return (yRange / (scope.numBins)) - 1;
-                        else
-                            return (yRange / (scope.numBins + 1));
+                        //return (yRange / (scope.numBins));
+                        //return y(data[0].dx);
+                        return yRange / scope.numBins - 1.5;
                     })
                     .attr('width', function (d) {
                         return x(d.length);
                     })
-                    .attr('fill', 'black')
-                    .attr("class", "histogramBar")
+                    .attr("class", "iplHistogramBar")
                     .on('click', null);
             }
         }

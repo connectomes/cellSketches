@@ -56,8 +56,8 @@
             self.smallMultipleWidth = (visUtils.getSvgWidth() - (self.numSmallMultiplesPerRow * self.smallMultiplePadding)) / self.numSmallMultiplesPerRow;
             self.smallMultipleHeight = 250;
 
-            scope.model.ui.numBinOptions = [50, 100];
-            scope.model.ui.numBins = 50;
+            scope.model.ui.numBinOptions = [25, 50];
+            scope.model.ui.numBins = 25;
 
             scope.broadcastChange();
 
