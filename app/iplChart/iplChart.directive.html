@@ -23,33 +23,81 @@
                 </ui-select>
             </label>
         </div>
-<br>
+    </div>
+
+        <!-- Controls for num bins--->
         <div>
             <b>Number of bins</b>
-
             <div uib-popover="This changes the number of bins used for showing ipl% of structure annotations."
-                 popover-trigger="mouseenter" popover-placement="bottom-right" class="tooltipCircle">?
+                 popover-trigger="mouseenter" popover-placement="right" class="tooltipCircle">?
             </div>
-
         </div>
+
         <div class="sidebarControls">
             <ui-select ng-model="model.ui.numBins"
                        theme="select2"
                        search-enabled="false"
                        ng-change="broadcastChange()"
                        class="sidebarMultiSelect">
-
                 <ui-select-match placeholder="Click to select">
                     {{model.ui.numBins}}
                 </ui-select-match>
-
                 <ui-select-choices repeat="id in model.ui.numBinOptions">
                     <div ng-bind-html="id"></div>
                 </ui-select-choices>
             </ui-select>
         </div>
+
+        <!-- Controls for vertical axis -->
+        <div class="sidebarHeading">
+            <b>Vertical Axis Units</b>
+            <div uib-popover="Show a histogram of IPL or depth values"
+                 popover-trigger="mouseenter" popover-placement="right" class="tooltipCircle">?
+            </div>
+        </div>
+        <div class="sidebarControls">
+            <ui-select ng-model="model.ui.selectedIplMode"
+                       theme="select2"
+                       search-enabled="false"
+                       class="sidebarMultiSelect"
+                       ng-change="broadcastChange()">
+
+                <ui-select-match placeholder="Click to select">
+                    {{model.ui.selectedIplMode.name}}
+                </ui-select-match>
+
+                <ui-select-choices repeat="id in IplModes">
+                    <div ng-bind-html="id.name">{{id.name}}</div>
+                </ui-select-choices>
+            </ui-select>
+        </div>
+
+
+    <div class="sidebarHeading">
+        <b>Search Radius for IPL Conversion</b>
+        <div uib-popover="The area searched for doing interpolation between IPL boundaries."
+             popover-trigger="mouseenter" popover-placement="right" class="tooltipCircle">?
+        </div>
+    </div>
+    <div class="sidebarControls">
+        <ui-select ng-model="model.ui.selectedSearchRadiusMode"
+                   theme="select2"
+                   search-enabled="false"
+                   class="sidebarMultiSelect"
+                   ng-change="broadcastChange()">
+
+            <ui-select-match placeholder="Click to select">
+                {{model.ui.selectedSearchRadiusMode.name}}
+            </ui-select-match>
+
+            <ui-select-choices repeat="id in SearchRadiusModes">
+                <div ng-bind-html="id.name">{{id.name}}</div>
+            </ui-select-choices>
+        </ui-select>
+    </div>
     </div>
 </div>
+
 <div id="content">
     <span ng-repeat="cellId in cellIds">
         <ipl-histogram
@@ -61,7 +109,8 @@
                 chart-data="chartData[$index]"
                 y-axis-domain="yAxisDomain"
                 y-axis-range="yAxisRange"
-                num-bins="numBins">
+                num-bins="numBins"
+                toggle="toggle">
         </ipl-histogram>
     </span>
 </div>

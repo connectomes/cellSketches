@@ -33,7 +33,7 @@ fdescribe('iplChartData service test', function () {
 
     it('getIplChartData', function () {
         var cellIndexes = [0];
-        var data = iplChartData.getIplChartData(cellIndexes, iplChartData.IplMode.IPL);
+        var data = iplChartData.getIplChartData(cellIndexes, iplChartData.IplModes.IPL);
 
         // expectedValues[i] is the linearly interpolated ipl percent computer for cell 6115's fake location i.
         var expectedValues = [-0.574468085106383, -0.5659574468085107, -0.5659574468085107, -0.5617021276595745];
@@ -43,7 +43,7 @@ fdescribe('iplChartData service test', function () {
         });
 
         // expectValue[i] is the depth value of the corresponding location
-        data = iplChartData.getIplChartData(cellIndexes, iplChartData.IplMode.DEPTH);
+        data = iplChartData.getIplChartData(cellIndexes, iplChartData.IplModes.DEPTH);
         expectedValues = [1, 2, 3, 4];
         data[0].forEach(function (d, i) {
             expect(d.value - expectedValues[i]).toBeCloseTo(0, 0.01);
@@ -52,7 +52,7 @@ fdescribe('iplChartData service test', function () {
 
     it('getIplRange - ipl', function () {
         var cellIndexes = [0];
-        var data = iplChartData.getIplChartData(cellIndexes, iplChartData.IplMode.IPL);
+        var data = iplChartData.getIplChartData(cellIndexes, iplChartData.IplModes.IPL);
         var range = iplChartData.getIplRange(data);
         expect(range[0] + 0.5617021276595745).toBeCloseTo(0, 0.01);
         expect(range[1] + 0.574468085106383).toBeCloseTo(0, 0.01);
@@ -60,7 +60,7 @@ fdescribe('iplChartData service test', function () {
 
     it('getIplRange - depth', function () {
         var cellIndexes = [0];
-        var data = iplChartData.getIplChartData(cellIndexes, iplChartData.IplMode.DEPTH);
+        var data = iplChartData.getIplChartData(cellIndexes, iplChartData.IplModes.DEPTH);
         var range = iplChartData.getIplRange(data);
         expect(range[0] - 1).toBeCloseTo(0, 0.01);
         expect(range[1] - 4).toBeCloseTo(0, 0.01);
@@ -68,7 +68,7 @@ fdescribe('iplChartData service test', function () {
 
     it('getHistogramBins', function () {
         var cellIndexes = [0];
-        var data = iplChartData.getIplChartData(cellIndexes, iplChartData.IplMode.IPL);
+        var data = iplChartData.getIplChartData(cellIndexes, iplChartData.IplModes.IPL);
         var range = [-0.6, -0.5];
         var domain = [0, 1];
         var numBins = 5;

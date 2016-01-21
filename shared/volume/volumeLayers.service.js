@@ -117,7 +117,6 @@
 
                 // No points in search radius -> use nearest point as our best guess.
                 if (pointsInRadiusIdxs[i].length == 0) {
-                    // TODO: use the point structure
                     averageDepths[i] = currBoundary[nearestIndexes[i]].position.z;
                     pointsInRadiusIdxs[i].push(nearestIndexes[i]);
                 } else {

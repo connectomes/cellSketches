@@ -4,9 +4,9 @@
     angular.module('app.iplChartModule')
         .directive('iplHistogram', iplHistogram);
 
-    iplHistogram.$inject = ['$log', 'visUtils'];
+    iplHistogram.$inject = ['$log', 'visUtils', 'iplChartData'];
 
-    function iplHistogram($log, visUtils) {
+    function iplHistogram($log, visUtils, iplChartData) {
 
         return {
             scope: {
@@ -20,7 +20,8 @@
                 range: '=',
                 yAxisRange: '=',
                 yAxisDomain: '=',
-                numBins: '='
+                numBins: '=',
+                toggle: '='
             },
             link: link,
             restrict: 'E'
@@ -39,7 +40,7 @@
             var self = {};
 
             //scope.$watch('chartData', cellsChanged);
-            scope.$watch('numBins', cellsChanged);
+            scope.$watch('toggle', cellsChanged);
             self.svg = d3.select(element[0])
                 .append('svg')
                 .attr('width', scope.width)
@@ -51,8 +52,8 @@
             cellsChanged();
 
             function cellsChanged() {
-                $log.debug('iplHistogram - cellsChanged');
-                $log.debug(scope);
+                $log.debug('iplHistogram - cellsChanged', scope);
+
 
                 visUtils.clearGroup(self.svg);
                 var width = scope.width;
@@ -67,19 +68,16 @@
                     .attr('x', '5')
                     .attr('y', '15');
 
-
                 var group = self.svg.append('g')
                     .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
 
-
                 var x = d3.scale.linear()
                     .domain(scope.domain)
-                    .range([0, width - margin.left - margin.right]);
-
+                    .range(scope.range);
 
                 var y = d3.scale.linear()
                     .domain(scope.yAxisDomain)
-                    .range([margin.bottom, height - (margin.top)]);
+                    .range(scope.yAxisRange);
 
                 var xAxis = d3.svg.axis()
                     .scale(x)
@@ -97,10 +95,9 @@
                     .attr({
                         class: 'y axis',
                         'font-size': '9px',
-                        'transform': 'translate(0,' + (-margin.bottom) + ')'
+                        'transform': 'translate(0,0)'
                     })
                     .call(yAxis);
-
 
                 // Create x axis
                 group.append("g")
@@ -111,16 +108,7 @@
                     })
                     .call(xAxis);
 
-                var justValues = scope.chartData.map(function (d) {
-                    return d.value;
-                });
-
-                console.log();
-                // Stitch values back into bins.
-                var data = d3.layout.histogram()
-                    .range(scope.yAxisDomain)
-                    .bins(y.ticks(scope.numBins))
-                    (justValues);
+                var data = iplChartData.getHistogramBins(scope.chartData, scope.numBins, scope.yAxisDomain, scope.yAxisRange);
 
                 for (var i = 0; i < data.length; ++i) {
                     var currData = data[i];
@@ -137,29 +125,29 @@
                     }
                 }
 
-                // Create bars.
+                var yRange = Math.abs(height - (margin.bottom + margin.top));
+
                 var bar = group.selectAll(".iplHistogramBar")
                     .data(data)
                     .enter()
                     .append("g")
-                    .attr("transform", function (d) {
-                        return "translate(" + 0.5 + "," + (y(d.x) - margin.bottom) + ")";
+                    .attr("transform", function (d, i) {
+                        return "translate(" + 0.5 + "," + ((yRange / (data.length)) * i) + ")";
                     });
-
-                var yRange = Math.abs(margin.bottom - (height - (margin.top)));
 
                 bar.append("rect")
                     .attr("x", 0)
                     .attr("height", function (d) {
-                        //return (yRange / (scope.numBins));
-                        //return y(data[0].dx);
-                        return yRange / scope.numBins - 1.5;
+                        return (yRange / (data.length + 1));
                     })
                     .attr('width', function (d) {
                         return x(d.length);
                     })
                     .attr("class", "iplHistogramBar")
-                    .on('click', null);
+                    .on('click', function (d) {
+                        $log.warn(d);
+                    });
+
             }
         }
 

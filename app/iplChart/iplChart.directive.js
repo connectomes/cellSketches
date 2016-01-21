@@ -4,9 +4,9 @@
     angular.module('app.iplChartModule')
         .directive('iplChart', iplChart);
 
-    iplChart.$inject = ['$log', 'volumeCells', 'volumeStructures', 'volumeHelpers', 'visUtils', 'visTable', 'iplChartData'];
+    iplChart.$inject = ['$log', 'volumeCells', 'volumeStructures', 'volumeHelpers', 'visUtils', 'visTable', 'iplChartData', 'volumeLayers'];
 
-    function iplChart($log, volumeCells, volumeStructures, volumeHelpers, visUtils, visTable, iplChartData) {
+    function iplChart($log, volumeCells, volumeStructures, volumeHelpers, visUtils, visTable, iplChartData, volumeLayers) {
 
         return {
             link: link,
@@ -42,7 +42,7 @@
          *
          */
         function link(scope, element, attribute) {
-
+            scope.toggle = true;
             var self = {};
 
             $log.debug('iplChart - link');
@@ -59,26 +59,55 @@
             scope.model.ui.numBinOptions = [25, 50];
             scope.model.ui.numBins = 25;
 
-            scope.broadcastChange();
+            scope.IplModes = [{
+                name: "Depth",
+                value: iplChartData.IplModes.DEPTH
+            }, {
+                name: "IPL",
+                value: iplChartData.IplModes.IPL
+            }];
 
+            scope.SearchRadiusModes = [{
+                name: "Tiny",
+                value: 1
+            }, {
+                name: "Small",
+                value: 15000
+            }, {
+                name: "Medium",
+                value: 30000
+            }, {
+                name: "Large",
+                value: 45000
+            }];
+
+            scope.model.ui.selectedSearchRadiusMode = scope.SearchRadiusModes[1];
+            scope.model.ui.selectedIplMode = scope.IplModes[0];
+
+            scope.broadcastChange();
 
             function cellsChanged(slot, cells, childType, useTargetLabelGroups, useOnlySelectedTargets, selectedTargets, convertToNm, useRadius) {
                 $log.debug('iplChart - cellsChanged');
                 $log.debug(scope);
+
+                volumeLayers.setSearchRadius(scope.model.ui.selectedSearchRadiusMode.value);
+
                 scope.model.ui.details.cellId = -1;
                 scope.cellIds = cells.ids;
                 scope.cellIndexes = cells.indexes;
                 scope.smallMultipleWidth = self.smallMultipleWidth;
                 scope.smallMultipleHeight = self.smallMultipleHeight;
-                var chartData = iplChartData.getIplChartData(scope.cellIndexes, iplChartData.IplMode.DEPTH);
+                var chartData = iplChartData.getIplChartData(scope.cellIndexes, scope.model.ui.selectedIplMode.value);
 
                 scope.yAxisDomain = iplChartData.getIplRange(chartData);
-                scope.yAxisRange = [0, self.smallMultipleHeight];
+                scope.yAxisRange = [0, self.smallMultipleHeight * (6.0 / 8.0)];
                 scope.xAxisDomain = [0, iplChartData.getHistogramMaxItemsInBins(chartData, scope.model.ui.numBins, scope.yAxisDomain, scope.yAxisRange)];
-                scope.xAxisRange = [0, self.smallMultipleWidth];
+                scope.xAxisRange = [0, self.smallMultipleWidth * (6.0 / 8.0)];
                 scope.chartData = chartData;
-                $log.error('setting num bins', scope.model.ui.numBins);
                 scope.numBins = scope.model.ui.numBins;
+
+                // This is the watched variable to redraw
+                scope.toggle = !scope.toggle;
             }
         }
     }

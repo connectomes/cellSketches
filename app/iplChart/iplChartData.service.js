@@ -11,7 +11,7 @@
 
         var self = this;
 
-        self.IplMode = {
+        self.IplModes = {
             DEPTH: 0,
             IPL: 1
         };
@@ -23,7 +23,7 @@
             getHistogramBins: getHistogramBins
         };
 
-        service.IplMode = self.IplMode;
+        service.IplModes = self.IplModes;
 
         return service;
 
@@ -48,7 +48,7 @@
                 locations.forEach(function (location) {
                     var result = volumeLayers.convertToIPLPercent(location.position);
                     cellData.push({
-                        value: (iplMode == self.IplMode.DEPTH) ? (location.position.z) : result.percent,
+                        value: (iplMode == self.IplModes.DEPTH) ? (location.position.z) : result.percent,
                         location: location,
                         result: result
                     });
@@ -64,8 +64,8 @@
         function getIplRange(data) {
 
             // IPL should be in the range (-0.5, 1.0)
-            var minIpl = 100.0;
-            var maxIpl = -100.0;
+            var minIpl = 1000000.0;
+            var maxIpl = -1000000.0;
 
             data.forEach(function (results) {
                 results.forEach(function (result) {
@@ -88,7 +88,7 @@
             });
 
             return d3.layout.histogram()
-                .range(range)
+                .range(domain)
                 .bins(scale.ticks(numBins))
                 (justValues);
         }
@@ -99,7 +99,7 @@
 
             data.forEach(function (results) {
                 var bins = getHistogramBins(results, numBins, domain, range);
-                bins.forEach(function (bin) {
+                bins.forEach(function (bin, i) {
                     maxItemsInBins = Math.max(bin.length, maxItemsInBins);
                 });
             });
