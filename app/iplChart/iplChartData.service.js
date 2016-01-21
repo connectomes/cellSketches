@@ -17,6 +17,7 @@
         };
 
         var service = {
+            getAsCsv: getAsCsv,
             getIplChartData: getIplChartData,
             getIplRange: getIplRange,
             getHistogramMaxItemsInBins: getHistogramMaxItemsInBins,
@@ -26,6 +27,21 @@
         service.IplModes = self.IplModes;
 
         return service;
+
+        function getAsCsv(cellIndexes, chartData) {
+            var csv = 'cellId, locationId, locationZ, %ipl';
+            cellIndexes.forEach(function(cellIndex, i) {
+                var cellId = volumeCells.getCellAt(cellIndex).id;
+                chartData[i].forEach(function(result) {
+                    csv += '\n'
+                    csv += cellId;
+                    csv += ', ' + result.location.id;
+                    csv += ', ' + result.location.position.z;
+                    csv += ', ' + result.result.percent;
+                });
+            });
+            return csv;
+        }
 
         /**
          * @name getColumnDefs

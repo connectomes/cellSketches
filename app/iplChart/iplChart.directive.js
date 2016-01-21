@@ -83,6 +83,7 @@
 
             scope.model.ui.selectedSearchRadiusMode = scope.SearchRadiusModes[1];
             scope.model.ui.selectedIplMode = scope.IplModes[0];
+            scope.onIplChartDownloadClicked = onDownloadClicked;
 
             scope.broadcastChange();
 
@@ -109,7 +110,20 @@
                 // This is the watched variable to redraw
                 scope.toggle = !scope.toggle;
             }
+
+            function onDownloadClicked() {
+
+                var csv = '';
+                var chartData = iplChartData.getIplChartData(scope.cellIndexes, scope.model.ui.selectedIplMode.value);
+                csv += iplChartData.getAsCsv(scope.cellIndexes, chartData);
+                var blob = new Blob([csv], {type: "text"});
+                saveAs(blob, 'data.csv');
+
+            }
+
         }
+
+
     }
 
 
