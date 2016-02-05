@@ -26,13 +26,15 @@
 
         service.IplModes = self.IplModes;
 
+        self.dataCache = {};
+
         return service;
 
         function getAsCsv(cellIndexes, chartData) {
             var csv = 'cellId, locationId, locationZ, %ipl';
-            cellIndexes.forEach(function(cellIndex, i) {
+            cellIndexes.forEach(function (cellIndex, i) {
                 var cellId = volumeCells.getCellAt(cellIndex).id;
-                chartData[i].forEach(function(result) {
+                chartData[i].forEach(function (result) {
                     csv += '\n'
                     csv += cellId;
                     csv += ', ' + result.location.id;
@@ -44,6 +46,10 @@
         }
 
         function getIplChartData(cellIndexes, iplMode) {
+            $log.debug('getting chart data');
+            if (iplMode == self.IplModes.DEPTH) {
+
+            }
 
             var cellIds = [];
             cellIndexes.forEach(function (cellIndex) {
@@ -89,10 +95,6 @@
         }
 
         function getHistogramBins(data, numBins, domain, range) {
-            console.log(numBins);
-            var scale = d3.scale.linear()
-                .domain(domain)
-                .range(range);
 
             var justValues = data.map(function (d) {
                 return d.value;

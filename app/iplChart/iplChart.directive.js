@@ -55,7 +55,7 @@
             self.smallMultiplePadding = 10;
             self.smallMultipleWidth = (visUtils.getSvgWidth() - (self.numSmallMultiplesPerRow * self.smallMultiplePadding)) / self.numSmallMultiplesPerRow;
             self.smallMultipleHeight = 250;
-
+            self.cachedRadius == -1;
             scope.model.ui.numBinOptions = [25, 30, 35, 40, 45, 50];
             scope.model.ui.numBins = 25;
 
@@ -92,14 +92,44 @@
 
                 volumeLayers.setSearchRadius(scope.model.ui.selectedSearchRadiusMode.value);
 
+                var cachedOk = false;
+                var chartData = [];
+
+                // Only used cache data if radius has not changed.
+                if (self.cachedRadius == scope.model.ui.selectedSearchRadiusMode.value &&
+                    self.cachedIplMode == scope.model.ui.selectedIplMode.value) {
+
+                    // Check that we have all the cell ids cached
+                    var allCellsCached = true;
+                    cells.ids.forEach(function (cellId) {
+                            if (self.cachedIds.indexOf(cellId) == -1) {
+                                allCellsCached = false;
+                            }
+                        }
+                    );
+
+                    // If we have all the cells cached, then we can retrieve the values
+                    if (allCellsCached) {
+                        cachedOk = true;
+                        cells.ids.forEach(function (cellId) {
+                            var cachedIndex = self.cachedIds.indexOf(cellId);
+                            chartData.push(self.cachedData[cachedIndex]);
+                        })
+                    }
+
+                }
+
+                if (!cachedOk) {
+                    chartData = iplChartData.getIplChartData(cells.indexes, scope.model.ui.selectedIplMode.value);
+                }
+
                 scope.model.ui.details.cellId = -1;
                 scope.cellIds = cells.ids;
                 scope.cellIndexes = cells.indexes;
                 scope.smallMultipleWidth = self.smallMultipleWidth;
                 scope.smallMultipleHeight = self.smallMultipleHeight;
-                var chartData = iplChartData.getIplChartData(scope.cellIndexes, scope.model.ui.selectedIplMode.value);
-
                 scope.yAxisDomain = iplChartData.getIplRange(chartData);
+
                 scope.yAxisRange = [0, self.smallMultipleHeight * (6.0 / 8.0)];
                 scope.xAxisDomain = [0, iplChartData.getHistogramMaxItemsInBins(chartData, scope.model.ui.numBins, scope.yAxisDomain, scope.yAxisRange)];
                 scope.xAxisRange = [0, self.smallMultipleWidth * (6.0 / 8.0)];
@@ -108,6 +138,14 @@
                 scope.numBins = scope.model.ui.numBins;
                 // This is the watched variable to redraw
                 scope.toggle = !scope.toggle;
+
+                // Only update the cache if we had to recompute some new values.
+                if (!cachedOk) {
+                    self.cachedRadius = scope.model.ui.selectedSearchRadiusMode.value;
+                    self.cachedData = chartData;
+                    self.cachedIds = cells.ids;
+                    self.cachedIplMode = scope.model.ui.selectedIplMode.value;
+                }
             }
 
             function onDownloadClicked() {
