@@ -84,12 +84,22 @@
                     .orient("bottom")
                     .tickValues(scope.domain);
 
+                var format = d3.format("1%");
+
                 var yAxis = d3.svg.axis()
                     .scale(y)
                     .orient('left')
                     .tickFormat(function (d) {
-                        return d;
-                    }).ticks(10);
+                        // Return integers or round to 2 decimal places
+                        if (Math.round(d) == d) {
+                            return d;
+                        } else if (Math.abs(d - 0.0) < 0.001) {
+                            return "0.00";
+                        } else {
+                            return d.toFixed(2);
+                        }
+                    })
+                    .ticks(10);
 
                 group.append('g')
                     .attr({

@@ -56,7 +56,7 @@
             self.smallMultipleWidth = (visUtils.getSvgWidth() - (self.numSmallMultiplesPerRow * self.smallMultiplePadding)) / self.numSmallMultiplesPerRow;
             self.smallMultipleHeight = 250;
 
-            scope.model.ui.numBinOptions = [25, 50];
+            scope.model.ui.numBinOptions = [25, 30, 35, 40, 45, 50];
             scope.model.ui.numBins = 25;
 
             scope.IplModes = [{
@@ -88,8 +88,7 @@
             scope.broadcastChange();
 
             function cellsChanged(slot, cells, childType, useTargetLabelGroups, useOnlySelectedTargets, selectedTargets, convertToNm, useRadius) {
-                $log.debug('iplChart - cellsChanged');
-                $log.debug(scope);
+                $log.debug('iplChart - cellsChanged', scope);
 
                 volumeLayers.setSearchRadius(scope.model.ui.selectedSearchRadiusMode.value);
 
@@ -105,8 +104,8 @@
                 scope.xAxisDomain = [0, iplChartData.getHistogramMaxItemsInBins(chartData, scope.model.ui.numBins, scope.yAxisDomain, scope.yAxisRange)];
                 scope.xAxisRange = [0, self.smallMultipleWidth * (6.0 / 8.0)];
                 scope.chartData = chartData;
-                scope.numBins = scope.model.ui.numBins;
 
+                scope.numBins = scope.model.ui.numBins;
                 // This is the watched variable to redraw
                 scope.toggle = !scope.toggle;
             }

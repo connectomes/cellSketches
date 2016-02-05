@@ -5,9 +5,9 @@
         .module('app.volumeModule')
         .factory('volumeLayers', volumeLayers);
 
-    volumeLayers.$inject = ['$q', 'volumeOData'];
+    volumeLayers.$inject = ['$q', '$log', 'volumeOData'];
 
-    function volumeLayers($q, volumeOData) {
+    function volumeLayers($q, $log, volumeOData) {
 
         var self = this;
         self.upper = [];
