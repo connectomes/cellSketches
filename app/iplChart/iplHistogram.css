@@ -1,3 +1,13 @@
 .iplHistogramBar {
-    fill: darkgrey;
+     fill: darkgrey;
+ }
+
+
+.y-axis-ticks line {
+    shape-rendering: crispEdges;
+    stroke: #777;
+}
+
+.y-axis-ticks path {
+    display: none;
 }

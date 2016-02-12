@@ -25,53 +25,52 @@
         </div>
     </div>
 
-        <!-- Controls for num bins--->
-        <div>
-            <b>Number of bins</b>
-            <div uib-popover="This changes the number of bins used for showing ipl% of structure annotations."
-                 popover-trigger="mouseenter" popover-placement="right" class="tooltipCircle">?
-            </div>
+    <!-- Controls for num bins--->
+    <div>
+        <b>Number of bins</b>
+        <div uib-popover="This changes the number of bins used for showing ipl% of structure annotations."
+             popover-trigger="mouseenter" popover-placement="right" class="tooltipCircle">?
         </div>
+    </div>
 
-        <div class="sidebarControls">
-            <ui-select ng-model="model.ui.numBins"
-                       theme="select2"
-                       search-enabled="false"
-                       ng-change="broadcastChange()"
-                       class="sidebarMultiSelect">
-                <ui-select-match placeholder="Click to select">
-                    {{model.ui.numBins}}
-                </ui-select-match>
-                <ui-select-choices repeat="id in model.ui.numBinOptions">
-                    <div ng-bind-html="id"></div>
-                </ui-select-choices>
-            </ui-select>
+    <div class="sidebarControls">
+        <ui-select ng-model="model.ui.numBins"
+                   theme="select2"
+                   search-enabled="false"
+                   ng-change="broadcastChange()"
+                   class="sidebarMultiSelect">
+            <ui-select-match placeholder="Click to select">
+                {{model.ui.numBins}}
+            </ui-select-match>
+            <ui-select-choices repeat="id in model.ui.numBinOptions">
+                <div ng-bind-html="id"></div>
+            </ui-select-choices>
+        </ui-select>
+    </div>
+
+    <!-- Controls for vertical axis -->
+    <div class="sidebarHeading">
+        <b>Vertical Axis Units</b>
+        <div uib-popover="Show a histogram of IPL or depth values"
+             popover-trigger="mouseenter" popover-placement="right" class="tooltipCircle">?
         </div>
+    </div>
+    <div class="sidebarControls">
+        <ui-select ng-model="model.ui.selectedIplMode"
+                   theme="select2"
+                   search-enabled="false"
+                   class="sidebarMultiSelect"
+                   ng-change="broadcastChange()">
 
-        <!-- Controls for vertical axis -->
-        <div class="sidebarHeading">
-            <b>Vertical Axis Units</b>
-            <div uib-popover="Show a histogram of IPL or depth values"
-                 popover-trigger="mouseenter" popover-placement="right" class="tooltipCircle">?
-            </div>
-        </div>
-        <div class="sidebarControls">
-            <ui-select ng-model="model.ui.selectedIplMode"
-                       theme="select2"
-                       search-enabled="false"
-                       class="sidebarMultiSelect"
-                       ng-change="broadcastChange()">
+            <ui-select-match placeholder="Click to select">
+                {{model.ui.selectedIplMode.name}}
+            </ui-select-match>
 
-                <ui-select-match placeholder="Click to select">
-                    {{model.ui.selectedIplMode.name}}
-                </ui-select-match>
-
-                <ui-select-choices repeat="id in IplModes">
-                    <div ng-bind-html="id.name">{{id.name}}</div>
-                </ui-select-choices>
-            </ui-select>
-        </div>
-
+            <ui-select-choices repeat="id in IplModes">
+                <div ng-bind-html="id.name">{{id.name}}</div>
+            </ui-select-choices>
+        </ui-select>
+    </div>
 
     <div class="sidebarHeading">
         <b>Search Radius for IPL Conversion</b>
@@ -95,6 +94,29 @@
             </ui-select-choices>
         </ui-select>
     </div>
+
+    <!-- Controls for num bins--->
+    <div class="sidebarHeading">
+        <b>Number of horizontal ticks</b>
+        <div uib-popover="This changes the number of ticks!"
+             popover-trigger="mouseenter" popover-placement="right" class="tooltipCircle">?
+        </div>
+    </div>
+    <div class="sidebarControls">
+        <ui-select ng-model="model.ui.numTicks"
+                   theme="select2"
+                   search-enabled="false"
+                   ng-change="broadcastChange()"
+                   class="sidebarMultiSelect">
+            <ui-select-match placeholder="Click to select">
+                {{model.ui.numTicks}}
+            </ui-select-match>
+            <ui-select-choices repeat="id in model.ui.numTickOptions">
+                <div ng-bind-html="id"></div>
+            </ui-select-choices>
+        </ui-select>
+    </div>
+
     <br>
     <input type="button" value="Download" ng-click="onIplChartDownloadClicked()"></input>
 </div>
@@ -113,7 +135,9 @@
                 y-axis-domain="yAxisDomain"
                 y-axis-range="yAxisRange"
                 num-bins="numBins"
-                toggle="toggle">
+                toggle="toggle"
+                num-ticks="numTicks"
+                label="cellLabels[$index]">
         </ipl-histogram>
     </span>
 </div>

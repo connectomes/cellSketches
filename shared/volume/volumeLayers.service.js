@@ -64,7 +64,7 @@
             return deferred.promise;
         }
 
-        function convertToIPLPercent(point) {
+        function convertToIPLPercent(point, useOnlyTopMarkers) {
 
             var inputPoint = point.getAs2D();
 
@@ -132,8 +132,12 @@
                 }
             }
 
-            // TODO: use the point structure
-            var percent = (point.z - averageDepths[1]) / (averageDepths[0] - averageDepths[1]);
+            var percent = undefined;
+            if(useOnlyTopMarkers) {
+                percent = (point.z - averageDepths[1]);
+            } else {
+                percent = (point.z - averageDepths[1]) / (averageDepths[0] - averageDepths[1]);
+            }
 
             return {
                 bottomIndexes: pointsInRadiusIdxs[0],

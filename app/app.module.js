@@ -18,6 +18,8 @@
         'ui.grid.selection',
         'ui.grid.cellNav',
         'ui.grid.pinning',
+        'ui.grid.moveColumns',
+        'ui.grid.saveState',
         'toastr']);
 
     app.config(function ($stateProvider, $urlRouterProvider) {

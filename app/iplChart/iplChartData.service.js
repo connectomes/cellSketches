@@ -13,7 +13,8 @@
 
         self.IplModes = {
             DEPTH: 0,
-            IPL: 1
+            IPL: 1,
+            NORMALIZED_DEPTH: 2
         };
 
         var service = {
@@ -26,7 +27,7 @@
 
         service.IplModes = self.IplModes;
 
-        self.dataCache = {};
+        self.cachedData = [];
 
         return service;
 
@@ -45,11 +46,7 @@
             return csv;
         }
 
-        function getIplChartData(cellIndexes, iplMode) {
-            $log.debug('getting chart data');
-            if (iplMode == self.IplModes.DEPTH) {
-
-            }
+        function getIplChartData(cellIndexes, iplMode, searchRadius) {
 
             var cellIds = [];
             cellIndexes.forEach(function (cellIndex) {
@@ -59,19 +56,7 @@
 
             var data = [];
             cellIds.forEach(function (cellId) {
-                var cellData = [];
-                var locations = volumeCells.getCellLocations(cellId);
-
-                locations.forEach(function (location) {
-                    var result = volumeLayers.convertToIPLPercent(location.position);
-                    cellData.push({
-                        value: (iplMode == self.IplModes.DEPTH) ? (location.position.z) : result.percent,
-                        location: location,
-                        result: result
-                    });
-                });
-
-                data.push(cellData);
+                data.push(getOrCreateCellData(cellId, iplMode, searchRadius));
             });
 
             return data;
@@ -118,6 +103,39 @@
             });
 
             return maxItemsInBins;
+        }
+
+        function getOrCreateCellData(cellId, iplMode, searchRadius) {
+
+            // Search for entry in the cache
+            for (var i = 0; i < self.cachedData.length; ++i) {
+                var cachedData = self.cachedData[i];
+                if (cachedData.cellId == cellId && cachedData.iplMode == iplMode && cachedData.searchRadius == searchRadius) {
+                    return cachedData.data;
+                }
+            }
+
+            // Couldn't find entry. Compute values.
+            var locations = volumeCells.getCellLocations(cellId);
+            var cellData = [];
+
+            locations.forEach(function (location) {
+                var result = volumeLayers.convertToIPLPercent(location.position, iplMode == self.IplModes.NORMALIZED_DEPTH);
+                cellData.push({
+                    value: (iplMode == self.IplModes.DEPTH) ? (location.position.z) : result.percent,
+                    location: location,
+                    result: result
+                });
+            });
+
+            self.cachedData.push({
+                cellId: cellId,
+                iplMode: iplMode,
+                searchRadius: searchRadius,
+                data: cellData
+            });
+
+            return cellData;
         }
 
     }

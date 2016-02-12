@@ -21,7 +21,9 @@
                 yAxisRange: '=',
                 yAxisDomain: '=',
                 numBins: '=',
-                toggle: '='
+                toggle: '=',
+                numTicks: '=',
+                label: '='
             },
             link: link,
             restrict: 'E'
@@ -54,7 +56,6 @@
             function cellsChanged() {
                 $log.debug('iplHistogram - cellsChanged', scope);
 
-
                 visUtils.clearGroup(self.svg);
                 var width = scope.width;
                 var height = scope.height;
@@ -63,7 +64,7 @@
                 visUtils.addOutlineToGroup(self.svg, width, height, '#222222');
 
                 self.svg.append('text')
-                    .text(scope.value)
+                    .text(scope.value + " - " + scope.label)
                     .attr('text-anchor', 'start')
                     .attr('x', '5')
                     .attr('y', '15');
@@ -101,13 +102,15 @@
                     })
                     .ticks(10);
 
-                group.append('g')
-                    .attr({
-                        class: 'y axis',
-                        'font-size': '9px',
-                        'transform': 'translate(0,0)'
-                    })
-                    .call(yAxis);
+                var yAxisTicks = d3.svg.axis()
+                    .scale(y)
+                    .orient('left')
+                    .ticks(scope.numTicks)
+                    .tickSize(-(scope.width - margin.left - margin.right))
+                    .tickFormat(function (d) {
+                        return;
+                    });
+
 
                 // Create x axis
                 group.append("g")
@@ -157,6 +160,22 @@
                     .on('click', function (d) {
                         $log.warn(d);
                     });
+
+                group.append('g')
+                    .attr({
+                        class: 'y axis',
+                        'font-size': '9px',
+                        'transform': 'translate(0,0)'
+                    })
+                    .call(yAxis);
+
+                group.append('g')
+                    .attr({
+                        class: 'y-axis-ticks',
+                        'font-size': '9px',
+                        'transform': 'translate(0,0)'
+                    })
+                    .call(yAxisTicks);
 
             }
         }

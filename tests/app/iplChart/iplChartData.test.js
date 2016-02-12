@@ -1,4 +1,4 @@
-fdescribe('iplChartData service test', function () {
+describe('iplChartData service test', function () {
 
     'use strict';
 

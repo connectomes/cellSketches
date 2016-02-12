@@ -1,4 +1,4 @@
-fdescribe('VolumeLayers service test', function () {
+describe('VolumeLayers service test', function () {
 
     var volumeCells, httpBackend, volumeLayers;
 

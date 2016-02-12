@@ -57,15 +57,21 @@
             self.smallMultipleHeight = 250;
             self.cachedRadius == -1;
             scope.model.ui.numBinOptions = [25, 30, 35, 40, 45, 50];
+            scope.model.ui.numTickOptions = [0, 3, 5];
+            scope.model.ui.numTicks = 3;
             scope.model.ui.numBins = 25;
 
             scope.IplModes = [{
                 name: "Depth",
                 value: iplChartData.IplModes.DEPTH
             }, {
-                name: "IPL",
-                value: iplChartData.IplModes.IPL
-            }];
+                name: "Normalized depth",
+                value: iplChartData.IplModes.NORMALIZED_DEPTH
+            },
+                {
+                    name: "IPL",
+                    value: iplChartData.IplModes.IPL
+                }];
 
             scope.SearchRadiusModes = [{
                 name: "Tiny",
@@ -95,37 +101,18 @@
                 var cachedOk = false;
                 var chartData = [];
 
-                // Only used cache data if radius has not changed.
-                if (self.cachedRadius == scope.model.ui.selectedSearchRadiusMode.value &&
-                    self.cachedIplMode == scope.model.ui.selectedIplMode.value) {
 
-                    // Check that we have all the cell ids cached
-                    var allCellsCached = true;
-                    cells.ids.forEach(function (cellId) {
-                            if (self.cachedIds.indexOf(cellId) == -1) {
-                                allCellsCached = false;
-                            }
-                        }
-                    );
+                chartData = iplChartData.getIplChartData(cells.indexes, scope.model.ui.selectedIplMode.value, scope.model.ui.selectedSearchRadiusMode.value);
 
-                    // If we have all the cells cached, then we can retrieve the values
-                    if (allCellsCached) {
-                        cachedOk = true;
-                        cells.ids.forEach(function (cellId) {
-                            var cachedIndex = self.cachedIds.indexOf(cellId);
-                            chartData.push(self.cachedData[cachedIndex]);
-                        })
-                    }
-
-                }
-
-                if (!cachedOk) {
-                    chartData = iplChartData.getIplChartData(cells.indexes, scope.model.ui.selectedIplMode.value);
-                }
 
                 scope.model.ui.details.cellId = -1;
                 scope.cellIds = cells.ids;
                 scope.cellIndexes = cells.indexes;
+
+                scope.cellLabels = [];
+                for (var i = 0; i < scope.cellIndexes.length; ++i) {
+                    scope.cellLabels.push(volumeCells.getCellAt(scope.cellIndexes[i]).label);
+                }
                 scope.smallMultipleWidth = self.smallMultipleWidth;
                 scope.smallMultipleHeight = self.smallMultipleHeight;
                 scope.yAxisDomain = iplChartData.getIplRange(chartData);
@@ -136,6 +123,7 @@
                 scope.chartData = chartData;
 
                 scope.numBins = scope.model.ui.numBins;
+                scope.numTicks = scope.model.ui.numTicks;
                 // This is the watched variable to redraw
                 scope.toggle = !scope.toggle;
 
