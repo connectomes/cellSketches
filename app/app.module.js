@@ -20,6 +20,7 @@
         'ui.grid.pinning',
         'ui.grid.moveColumns',
         'ui.grid.saveState',
+        'ui.grid.edit',
         'toastr']);
 
     app.config(function ($stateProvider, $urlRouterProvider) {

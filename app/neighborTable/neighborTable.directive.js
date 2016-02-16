@@ -231,11 +231,22 @@
             function createDetailsTable(scope, grouping, attribute) {
 
                 // Create the details grid.
-                scope.gridOptions = neighborTableData.getDetailsGridOptions(grouping, attribute);
+                scope.gridOptions = scope.gridOptions || {};
+                scope.gridOptions = angular.extend(scope.gridOptions, neighborTableData.getDetailsGridOptions(grouping, attribute));
 
                 scope.gridOptions.columnDefs = neighborTableData.getDetailsColumnDefs(grouping, attribute, scope.overviewGridSettings.selectedUnits);
                 scope.gridOptions.data = [];
                 scope.mouseOverDetailsRow = onDetailsRowHovered;
+
+                scope.gridOptions.onRegisterApi = function (gridApi) {
+                    console.log('register api');
+                    scope.detailGridApi = gridApi;
+                    gridApi.edit.on.afterCellEdit(scope, function (rowEntity, colDef, newValue, oldValue) {
+
+                        rowEntity[colDef.field] = oldValue;
+                        scope.$apply();
+                    });
+                };
             }
 
             function onDownloadClicked() {
@@ -253,12 +264,12 @@
 
             function onDetailsRowHovered(column, rowScope, mouseOver) {
                 /*return;
-                if (mouseOver) {
-                    onHighlightCellsWithCommonNeighbors(rowScope.$parent.row.entity.targetId, scope);
-                } else {
-                    onHighlightingCleared(scope);
-                }
-                */
+                 if (mouseOver) {
+                 onHighlightCellsWithCommonNeighbors(rowScope.$parent.row.entity.targetId, scope);
+                 } else {
+                 onHighlightingCleared(scope);
+                 }
+                 */
             }
 
             function onHighlightCellsWithCommonNeighbors(neighborId, scope) {
@@ -300,7 +311,7 @@
 
                 // The selectedChildTypes are displayed in the header above the details table. Here, we update it only
                 // if we're using the a specific child type (in other words, if the display more is 'grouped by target')
-                if(self.childType) {
+                if (self.childType) {
 
                     var selectedChildTypes = '';
                     for (var i = 0; i < self.childType.length; ++i) {

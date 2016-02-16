@@ -101,7 +101,7 @@
                         }
                     })
                     .ticks(10);
-
+                
                 var yAxisTicks = d3.svg.axis()
                     .scale(y)
                     .orient('left')

@@ -49,3 +49,17 @@
 .ui-grid-cell-focus {
     background-color: #FF6400;
 }
+
+.details-grid-viewport .details-grid-cell-contents {
+    word-wrap: break-word;
+    white-space: normal !important;
+}
+
+.details-grid-row, .details-grid-cell {
+    height: auto !important;
+}
+
+.details-grid-row div[role=row] {
+    display: flex ;
+    align-content: stretch;
+}

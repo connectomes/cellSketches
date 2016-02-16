@@ -101,7 +101,6 @@
                 var cachedOk = false;
                 var chartData = [];
 
-
                 chartData = iplChartData.getIplChartData(cells.indexes, scope.model.ui.selectedIplMode.value, scope.model.ui.selectedSearchRadiusMode.value);
 
 

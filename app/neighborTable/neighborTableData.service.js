@@ -111,13 +111,13 @@
         function getDetailsColumnDefs(grouping, attribute, units) {
 
             var childValueDisplayName = '';
-            if(attribute == volumeHelpers.PerChildAttributes.DIAMETER) {
+            if (attribute == volumeHelpers.PerChildAttributes.DIAMETER) {
                 childValueDisplayName = 'diameter';
             } else if (attribute == volumeHelpers.PerChildAttributes.DISTANCE) {
                 childValueDisplayName = 'distance';
             }
 
-            if(units == volumeHelpers.Units.PIXELS) {
+            if (units == volumeHelpers.Units.PIXELS) {
                 childValueDisplayName += ' (px)';
             } else if (units == volumeHelpers.Units.NM) {
                 childValueDisplayName += ' (nm)';
@@ -128,11 +128,13 @@
                 return [{
                     field: 'targetId',
                     displayName: 'target id',
-                    enableSorting: false
+                    enableSorting: false,
+                    width: 100
                 }, {
                     field: 'count',
                     displayName: 'count',
-                    sortingAlgorithm: utils.SortingAlgorithms.sortColumnAsNumbers
+                    sortingAlgorithm: utils.SortingAlgorithms.sortColumnAsNumbers,
+                    width: 100
                 }, {
                     field: 'childIds',
                     displayName: 'child ids',
@@ -145,11 +147,13 @@
                 return [{
                     field: 'childId',
                     displayName: 'child id',
-                    sortingAlgorithm: utils.SortingAlgorithms.sortColumnAsNumbers
+                    sortingAlgorithm: utils.SortingAlgorithms.sortColumnAsNumbers,
+                    width: 100
                 }, {
                     field: 'targetId',
                     displayName: 'target id',
-                    enableSorting: false
+                    enableSorting: false,
+                    width: 100
                 }, {
                     field: 'childValue',
                     displayName: childValueDisplayName,
@@ -163,11 +167,13 @@
                 return [{
                     field: 'childId',
                     displayName: 'child id',
-                    sortingAlgorithm: utils.SortingAlgorithms.sortColumnAsNumbers
+                    sortingAlgorithm: utils.SortingAlgorithms.sortColumnAsNumbers,
+                    width: 100
                 }, {
                     field: 'targetLabel',
                     displayName: 'target label',
-                    enableSorting: false
+                    enableSorting: false,
+                    width: 400
                 }, {
                     field: 'targetId',
                     displayName: 'target id',
@@ -179,15 +185,18 @@
                 return [{
                     field: 'childId',
                     displayName: 'child id',
-                    sortingAlgorithm: utils.SortingAlgorithms.sortColumnAsNumbers
+                    sortingAlgorithm: utils.SortingAlgorithms.sortColumnAsNumbers,
+                    width: 100
                 }, {
                     field: 'targetLabel',
                     displayName: 'target label',
-                    enableSorting: false
+                    enableSorting: false,
+                    width: 300
                 }, {
                     field: 'targetId',
                     displayName: 'target id',
-                    enableSorting: false
+                    enableSorting: false,
+                    width: 400
                 }, {
                     field: 'childValue',
                     displayName: childValueDisplayName,
@@ -208,7 +217,6 @@
         function getDetailsGridOptions() {
             var gridOptions = {};
             // If we set the rowTemplate to rowTemplate then it will support mouse-hover highlighting.
-            // gridOptions.rowTemplate = 'common/rowTemplate.html';
             return gridOptions;
         }
 
