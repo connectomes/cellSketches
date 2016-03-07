@@ -58,7 +58,7 @@
             self.cachedRadius == -1;
             scope.model.ui.numBinOptions = [25, 30, 35, 40, 45, 50];
             scope.model.ui.numTickOptions = [0, 3, 5];
-            scope.model.ui.numTicks = 3;
+            scope.model.ui.numTicks = 0;
             scope.model.ui.numBins = 25;
 
             scope.IplModes = [{
