@@ -65,7 +65,7 @@
                     }
                 }
 
-                var material = new THREE.MeshBasicMaterial({side: THREE.DoubleSide});
+                var material = new THREE.MeshBasicMaterial({side: THREE.DoubleSide, wireframe: true, color: 0xcccccc});
 
                 var geometry = createBoundaryGeometry(self.upper);
                 self.upperMesh = new THREE.Mesh(geometry, material);
@@ -299,12 +299,14 @@
             }
 
             if (intersections.length == 0) {
-                console.log("[" + point.x + ", " + point.y + "," + point.z + "]");
-                throw 'Failed to find intersections when getting distance to mesh';
+                //console.log("[" + point.x + ", " + point.y + "," + point.z + "]");
+                //throw 'Failed to find intersections when getting distance to mesh';
+                return null;
             } else if (intersections.length == 1) {
                 return new utils.Point3D(intersections[0].point.x, intersections[0].point.y, intersections[0].point.z);
             } else if (intersections.length > 1) {
-                throw 'Found more than one intersection when converting point';
+                return null;
+                //throw 'Found more than one intersection when converting point';
             }
         }
 
@@ -313,6 +315,7 @@
         }
 
         function getUpperBoundsMesh() {
+            console.log(self.upperMesh);
             return self.upperMesh;
         }
 

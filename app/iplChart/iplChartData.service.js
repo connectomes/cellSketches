@@ -119,7 +119,8 @@
             var locations = volumeCells.getCellLocations(cellId);
             var cellData = [];
 
-            locations.forEach(function (location) {
+            locations.forEach(function (location, i) {
+                console.log("converting location", i);
                 var result = volumeLayers.convertToIPLPercent(location.position, iplMode == self.IplModes.NORMALIZED_DEPTH);
                 cellData.push({
                     value: (iplMode == self.IplModes.DEPTH) ? (location.position.z) : result.percent,
