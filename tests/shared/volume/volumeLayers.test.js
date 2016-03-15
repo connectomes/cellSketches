@@ -20,30 +20,48 @@ fdescribe('VolumeLayers service test', function () {
         httpBackend.verifyNoOutstandingRequest();
     });
 
-    // Load upper and lower bounds. There is one of each in the fake responses.
+    // Load upper and lower bounds.
     it('activate', function () {
         volumeLayers.activate();
         httpBackend.flush();
 
-        expect(volumeLayers.getUpperBounds().length == 1).toBeTruthy();
-        expect(volumeLayers.getLowerBounds().length == 1).toBeTruthy();
+        expect(volumeLayers.getUpperBounds().length == 4).toBeTruthy();
+        expect(volumeLayers.getLowerBounds().length == 4).toBeTruthy();
+
+        var mesh = volumeLayers.getUpperBoundsMesh();
+        expect(mesh.geometry.faces.length == 2).toBeTruthy();
+
+        mesh = volumeLayers.getLowerBoundsMesh();
+        expect(mesh.geometry.faces.length == 2).toBeTruthy();
     });
+
+    //
+    it('activate', function () {
+        volumeLayers.activate();
+        httpBackend.flush();
+
+        var mesh = volumeLayers.getUpperBoundsMesh();
+        expect(mesh.geometry.faces.length == 2).toBeTruthy();
+
+        var point = new utils.Point3D(0, 0, 0);
+
+
+        point = new utils.Point3D(0, 0, 200);
+
+        var conversion = volumeLayers.convertToIPLPercent(point);
+
+        console.log(volumeLayers.convertPoint(point, volumeLayers.ConversionModes.NORMALIZED_DEPTH, false, 15000));
+        console.log(volumeLayers.convertPoint(point, volumeLayers.ConversionModes.NORMALIZED_DEPTH, true));
+
+        console.log(volumeLayers.convertPoint(point, volumeLayers.ConversionModes.PERCENT_DIFFERENCE, false, 15000));
+        console.log(volumeLayers.convertPoint(point, volumeLayers.ConversionModes.PERCENT_DIFFERENCE, true));
+
+    });
+
 
     it('convert to ipl percent', function () {
         volumeLayers.activate();
         httpBackend.flush();
-
-        var point = new utils.Point3D(97482.5, 28709.78, 136);
-        var result = volumeLayers.convertToIPLPercent(point);
-        expect(result.percent).toBeCloseTo(0, 0.01);
-
-        point = new utils.Point3D(97482.5, 28709.78, 253.5);
-        result = volumeLayers.convertToIPLPercent(point);
-        expect(result.percent - 0.5).toBeCloseTo(0.0, 0.01);
-
-        point = new utils.Point3D(97482.5, 28709.78, 371);
-        result = volumeLayers.convertToIPLPercent(point);
-        expect(result.percent - 1.0).toBeCloseTo(0.0, 0.01);
     });
 
 });

@@ -13,13 +13,24 @@
         self.upper = [];
         self.lower = [];
 
+        self.ConversionModes = {
+            NORMALIZED_DEPTH: 0,
+            PERCENT_DIFFERENCE: 1
+        };
+
         var service = {
             activate: activate,
+            convertPoint: convertPoint,
             convertToIPLPercent: convertToIPLPercent,
-            getUpperBounds: getUpperBounds,
+            getMeshIntersectionPoint: getMeshIntersectionPoint,
             getLowerBounds: getLowerBounds,
+            getLowerBoundsMesh: getLowerBoundsMesh,
+            getUpperBounds: getUpperBounds,
+            getUpperBoundsMesh: getUpperBoundsMesh,
             setSearchRadius: setSearchRadius
         };
+
+        service.ConversionModes = self.ConversionModes;
 
         return service;
 
@@ -53,6 +64,15 @@
                         }
                     }
                 }
+
+                var material = new THREE.MeshBasicMaterial({side: THREE.DoubleSide});
+
+                var geometry = createBoundaryGeometry(self.upper);
+                self.upperMesh = new THREE.Mesh(geometry, material);
+
+                geometry = createBoundaryGeometry(self.lower);
+                self.lowerMesh = new THREE.Mesh(geometry, material);
+
                 deferred.resolve();
             };
 
@@ -62,6 +82,90 @@
             self.searchRadius = 15000;
 
             return deferred.promise;
+        }
+
+        function convertPoint(point, mode, useMesh, radius) {
+            if (mode == self.ConversionModes.NORMALIZED_DEPTH) {
+
+                var upperZ = undefined;
+                if (useMesh) {
+                    $log.debug("upper mesh");
+                    upperZ = getMeshIntersectionPoint(point, self.upperMesh).z;
+                } else {
+                    upperZ = getZAtBoundaryWithPointAverages(point, self.upper, radius);
+                }
+
+                return point.z - upperZ;
+
+            } else if (mode == self.ConversionModes.PERCENT_DIFFERENCE) {
+
+                upperZ = undefined;
+                var lowerZ = undefined;
+
+                if (useMesh) {
+                    $log.debug("upper mesh");
+                    upperZ = getMeshIntersectionPoint(point, self.upperMesh).z;
+                    $log.debug("lower mesh");
+                    lowerZ = getMeshIntersectionPoint(point, self.lowerMesh).z;
+                } else {
+                    upperZ = getZAtBoundaryWithPointAverages(point, self.upper, radius);
+                    lowerZ = getZAtBoundaryWithPointAverages(point, self.lower, radius);
+                }
+
+                //return (point.z - averageDepths[1]) / (averageDepths[0] - averageDepths[1]);
+                return (point.z - upperZ) / (lowerZ - upperZ);
+
+            } else {
+                throw 'Invalid conversion mode!';
+            }
+        }
+
+        /*
+         * Get the z-position in the boundary by using a weighted average of the boundary points within search radius.
+         */
+        function getZAtBoundaryWithPointAverages(point, boundary, searchRadius) {
+
+            // Initialize the nearest neighbor with first point in array.
+            var current = boundary[0].position.getAs2D();
+            var nearestDistance = current.distance(point);
+            var nearestIndex = 0;
+
+            // Keep list of all valid points in the search radius.
+            var pointsInRadiusIndexes = [];
+            var distancesInRadius = [];
+
+            // Search for points.
+            for (var i = 0; i < boundary.length; ++i) {
+                current = boundary[i].position.getAs2D();
+                var distance = current.distance(point);
+
+                // Nearest neighbor?
+                if (distance < nearestDistance) {
+                    nearestDistance = distance;
+                    nearestIndex = i;
+                }
+
+                // Point in search radius?
+                if (distance < searchRadius) {
+                    pointsInRadiusIndexes.push(i);
+                    distancesInRadius.push(distance);
+                }
+            }
+
+            // Found no points => return the nearest neighbor.
+            if (pointsInRadiusIndexes.length == 0) {
+                return boundary[nearestIndex].z;
+            }
+
+            // Found one or more points. Compute weighted average of z-values.
+            var totalDepth = 0.0;
+            var totalDistance = 0.0;
+            for (i = 0; i < pointsInRadiusIndexes.length; ++i) {
+                var currPoint = boundary[pointsInRadiusIndexes[i]].position;
+                totalDepth += (currPoint.z * distancesInRadius[i]);
+                totalDistance += distancesInRadius[i];
+            }
+            return (totalDepth / totalDistance);
         }
 
         function convertToIPLPercent(point, useOnlyTopMarkers) {
@@ -133,11 +237,16 @@
             }
 
             var percent = undefined;
-            if(useOnlyTopMarkers) {
+            if (useOnlyTopMarkers) {
                 percent = (point.z - averageDepths[1]);
             } else {
                 percent = (point.z - averageDepths[1]) / (averageDepths[0] - averageDepths[1]);
             }
+
+            console.log(convertPoint(point, self.ConversionModes.NORMALIZED_DEPTH, false, 15000));
+            console.log(convertPoint(point, self.ConversionModes.NORMALIZED_DEPTH, true));
+            console.log(convertPoint(point, self.ConversionModes.PERCENT_DIFFERENCE, false, 15000));
+            console.log(convertPoint(point, self.ConversionModes.PERCENT_DIFFERENCE, true));
 
             return {
                 bottomIndexes: pointsInRadiusIdxs[0],
@@ -146,12 +255,73 @@
             };
         }
 
+        /*
+         * Converts volume locations into a triangle mesh using 2D-delaunay triangulation.
+         */
+        function createBoundaryGeometry(locations) {
+            var points = [];
+
+            for (var i = 0; i < locations.length; ++i) {
+                points.push([locations[i].position.x, locations[i].position.y]);
+            }
+
+            var triangles = Triangulate.triangulate(points);
+
+            var geometry = new THREE.Geometry();
+            for (i = 0; i < locations.length; ++i) {
+                var point = locations[i].position;
+                geometry.vertices.push(new THREE.Vector3(point.x, point.y, point.z));
+            }
+
+            for (i = 0; i < triangles.length; ++i) {
+                geometry.faces.push(new THREE.Face3(triangles[i][0], triangles[i][1], triangles[i][2]));
+            }
+
+            return geometry;
+        }
+
+        /*
+         * Shoots a ray in the +z direction to find distance from a point to a boundary mesh. If there are no
+         * intersections then shoot in the -z direction. If still no intersecions, then throw an error!
+         */
+        function getMeshIntersectionPoint(point, mesh) {
+            var raycaster = new THREE.Raycaster();
+            var origin = new THREE.Vector3(point.x, point.y, point.z);
+            var direction = new THREE.Vector3(0, 0, 1);
+
+            raycaster.set(origin, direction);
+
+            var intersections = raycaster.intersectObject(mesh, true);
+            if (intersections.length == 0) {
+                direction = new THREE.Vector3(0, 0, -1);
+                raycaster.set(origin, direction);
+                intersections = raycaster.intersectObject(mesh, true);
+            }
+
+            if (intersections.length == 0) {
+                console.log("[" + point.x + ", " + point.y + "," + point.z + "]");
+                throw 'Failed to find intersections when getting distance to mesh';
+            } else if (intersections.length == 1) {
+                return new utils.Point3D(intersections[0].point.x, intersections[0].point.y, intersections[0].point.z);
+            } else if (intersections.length > 1) {
+                throw 'Found more than one intersection when converting point';
+            }
+        }
+
         function getUpperBounds() {
             return self.upper;
         }
 
+        function getUpperBoundsMesh() {
+            return self.upperMesh;
+        }
+
         function getLowerBounds() {
             return self.lower;
+        }
+
+        function getLowerBoundsMesh() {
+            return self.lowerMesh;
         }
 
         function setSearchRadius(radius) {

@@ -7,6 +7,7 @@
         'app.iplChartModule',
         'app.loadedCellsModule',
         'app.neighborTableModule',
+        'app.geometryModule',
         'ui.router',
         'ui.select',
         'ngSanitize',
@@ -35,23 +36,32 @@
                 url: "/input",
                 templateUrl: "upload/route1.html",
                 controller: 'ExampleController'
-            }).state('childrenTable', {
+            })
+            .state('childrenTable', {
                 url: "/childrenTable",
                 templateUrl: "childrenTable/childrenTable.html",
                 controller: 'ExampleController'
-            }).state('neighborTable', {
+            })
+            .state('neighborTable', {
                 url: "/table",
                 templateUrl: "neighborTable/neighborTable.html",
                 controller: 'ExampleController'
-            }).state('neighborChart', {
+            })
+            .state('neighborChart', {
                 url: "/neighborChart",
                 templateUrl: "neighborChart/neighborChart.html",
                 controller: 'ExampleController'
-            }).state('iplChart', {
+            })
+            .state('iplChart', {
                 url: "/iplChart",
                 templateUrl: "iplChart/iplChart.html",
                 controller: "ExampleController"
-            });
+            })
+            .state('geometry', {
+                url: "/geometry",
+                templateUrl: "geometry/geometry.html",
+                controller: "ExampleController"
+            })
         }
     );
 

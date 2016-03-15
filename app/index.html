@@ -18,6 +18,7 @@
     <script src="../bower_components/ui-select/dist/select.js"></script>
     <script src="../bower_components/d3/d3.js"></script>
     <script src="../bower_components/filesaver/FileSaver.js"></script>
+    <script src="../bower_components/three.js/three.js"></script>
 
     <!-- The app -->
     <script src="app.module.js"></script>
@@ -35,7 +36,6 @@
 
     <script src="neighborTable/neighborTableCell.directive.js"></script>
     <script src="neighborTable/neighborTableHistogramCell.directive.js"></script>
-
     <script src="neighborChart/neighborChart.directive.js"></script>
     <link rel="stylesheet" type="text/css" href="neighborChart/neighborChart.css">
 
@@ -48,6 +48,10 @@
     <script src="iplChart/iplHistogram.directive.js"></script>
     <script src="iplChart/iplChartData.service.js"></script>
     <link rel="stylesheet" type="text/css" href="iplChart/iplHistogram.css"/>
+
+
+    <script src="geometry/geometry.module.js"></script>
+    <script src="geometry/geometry.directive.js"></script>
 
     <!-- Shared modules. Order matters here. Module must be included before services. -->
     <script src="../shared/io/io.module.js"></script>
@@ -80,6 +84,7 @@
     <script src="../shared/utils/cellChildValue.js"></script>
     <script src="../shared/utils/dataToText.js"></script>
     <script src="../shared/utils/sort.js"></script>
+    <script src="../shared/utils/triangulate.js"></script>
 
     <link rel="stylesheet" type="text/css" href="../bower_components/angular-toastr/dist/angular-toastr.css"/>
     <script type="text/javascript" src="../bower_components/angular-toastr/dist/angular-toastr.tpls.js"></script>
@@ -104,6 +109,8 @@
                 <li ui-sref-active="active"><a ui-sref="route1">Cells</a></li>
                 <li ui-sref-active="active"><a ui-sref="neighborTable">Tables</a></li>
                 <li ui-sref-active="active"><a ui-sref="iplChart">IPL Chart</a></li>
+                <li ui-sref-active="active"><a ui-sref="geometry">Geometry</a></li>
+
             </ul>
         </div>
     </div>
