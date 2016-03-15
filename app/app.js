@@ -381,7 +381,7 @@
             $log.debug(' setting all neighbor labels to: ', allLabels);
             $scope.model.ui.neighborLabels = allLabels;
         };
-        volumeLayers.activate().then(function() {
+        volumeLayers.activate().then(function () {
             $scope.activate();
         });
 
@@ -448,7 +448,7 @@
             var validIds = [];
             var invalidIds = [];
 
-            results.forEach(function(result) {
+            results.forEach(function (result) {
                 validIds = validIds.concat(result.validIds);
                 invalidIds = invalidIds.concat(result.invalidIds);
             });

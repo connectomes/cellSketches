@@ -10,6 +10,7 @@ module.exports = function (config) {
             'bower_components/d3/d3.js',
             'bower_components/angular-toastr/dist/angular-toastr.tpls.js',
             'bower_components/angular-bootstrap/ui-bootstrap-tpls.js',
+            'bower_components/three.js/three.js',
             'app/childrenTable/childrenTable.module.js',
             'app/childrenTable/*.js',
             'app/iplChart/iplChart.module.js',
