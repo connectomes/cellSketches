@@ -12,9 +12,9 @@
         var self = this;
 
         self.IplModes = {
-            DEPTH: 0,
-            IPL: 1,
-            NORMALIZED_DEPTH: 2
+            DEPTH: 2,
+            IPL: 0,
+            NORMALIZED_DEPTH: 1
         };
 
         var service = {
@@ -40,13 +40,13 @@
                     csv += cellId;
                     csv += ', ' + result.location.id;
                     csv += ', ' + result.location.position.z;
-                    csv += ', ' + result.result.percent;
+                    csv += ', ' + result.percent;
                 });
             });
             return csv;
         }
 
-        function getIplChartData(cellIndexes, iplMode, searchRadius) {
+        function getIplChartData(cellIndexes, iplMode, useMesh, searchRadius) {
 
             var cellIds = [];
             cellIndexes.forEach(function (cellIndex) {
@@ -56,7 +56,7 @@
 
             var data = [];
             cellIds.forEach(function (cellId) {
-                data.push(getOrCreateCellData(cellId, iplMode, searchRadius));
+                data.push(getOrCreateCellData(cellId, iplMode, useMesh, searchRadius));
             });
 
             return data;
@@ -105,12 +105,15 @@
             return maxItemsInBins;
         }
 
-        function getOrCreateCellData(cellId, iplMode, searchRadius) {
+        function getOrCreateCellData(cellId, iplMode, useMesh, searchRadius) {
 
             // Search for entry in the cache
             for (var i = 0; i < self.cachedData.length; ++i) {
                 var cachedData = self.cachedData[i];
-                if (cachedData.cellId == cellId && cachedData.iplMode == iplMode && cachedData.searchRadius == searchRadius) {
+                if (cachedData.cellId == cellId
+                    && cachedData.iplMode == iplMode
+                    && cachedData.searchRadius == searchRadius
+                    && cachedData.useMesh == useMesh) {
                     return cachedData.data;
                 }
             }
@@ -119,13 +122,16 @@
             var locations = volumeCells.getCellLocations(cellId);
             var cellData = [];
 
-            locations.forEach(function (location, i) {
-                console.log("converting location", i);
-                var result = volumeLayers.convertToIPLPercent(location.position, iplMode == self.IplModes.NORMALIZED_DEPTH);
+            locations.forEach(function (location) {
+
+                var z = location.position.z;
+                if (iplMode !== self.IplModes.DEPTH) {
+                    z = volumeLayers.convertPoint(location.position, iplMode, useMesh, searchRadius);
+                }
                 cellData.push({
-                    value: (iplMode == self.IplModes.DEPTH) ? (location.position.z) : result.percent,
-                    location: location,
-                    result: result
+                    percent: z,
+                    value: z,
+                    location: location
                 });
             });
 
@@ -133,6 +139,7 @@
                 cellId: cellId,
                 iplMode: iplMode,
                 searchRadius: searchRadius,
+                useMesh: useMesh,
                 data: cellData
             });
 

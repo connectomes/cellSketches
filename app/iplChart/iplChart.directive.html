@@ -72,27 +72,56 @@
         </ui-select>
     </div>
 
-    <div class="sidebarHeading">
-        <b>Search Radius for IPL Conversion</b>
-        <div uib-popover="The area searched for doing interpolation between IPL boundaries."
-             popover-trigger="mouseenter" popover-placement="right" class="tooltipCircle">?
+    <!-- Controls for the conversion mode. Only visible if doing conversions. -->
+    <div ng-show="model.ui.selectedIplMode.name != 'Depth'">
+        <div class="sidebarHeading">
+            <b>Conversion strategy</b>
+            <div uib-popover="Average will take weighted average of boundary points within some radius. Mesh will create delaunay-triangulation from the boundary points."
+                 popover-trigger="mouseenter" popover-placement="right" class="tooltipCircle">?
+            </div>
+        </div>
+        <div class="sidebarControls">
+            <ui-select ng-model="model.ui.selectedConversionMode"
+                       theme="select2"
+                       search-enabled="false"
+                       class="sidebarMultiSelect"
+                       ng-change="broadcastChange()">
+
+                <ui-select-match placeholder="Click to select">
+                    {{model.ui.selectedConversionMode.name}}
+                </ui-select-match>
+
+                <ui-select-choices repeat="id in ConversionModes">
+                    <div ng-bind-html="id.name">{{id.name}}</div>
+                </ui-select-choices>
+            </ui-select>
         </div>
     </div>
-    <div class="sidebarControls">
-        <ui-select ng-model="model.ui.selectedSearchRadiusMode"
-                   theme="select2"
-                   search-enabled="false"
-                   class="sidebarMultiSelect"
-                   ng-change="broadcastChange()">
 
-            <ui-select-match placeholder="Click to select">
-                {{model.ui.selectedSearchRadiusMode.name}}
-            </ui-select-match>
+    <!-- Controls for the search radius. Only visible if doing conversion using average.-->
+    <div ng-show="model.ui.selectedConversionMode.name == 'Average'">
+        <div class="sidebarHeading">
+            <b>Search Radius for IPL Conversion</b>
+            <div uib-popover="The area searched for doing interpolation between IPL boundaries."
+                 popover-trigger="mouseenter" popover-placement="right" class="tooltipCircle">?
+            </div>
+        </div>
+        <div class="sidebarControls">
+            <ui-select ng-model="model.ui.selectedSearchRadiusMode"
+                       theme="select2"
+                       search-enabled="false"
+                       class="sidebarMultiSelect"
+                       ng-change="broadcastChange()">
 
-            <ui-select-choices repeat="id in SearchRadiusModes">
-                <div ng-bind-html="id.name">{{id.name}}</div>
-            </ui-select-choices>
-        </ui-select>
+                <ui-select-match placeholder="Click to select">
+                    {{model.ui.selectedSearchRadiusMode.name}}
+                </ui-select-match>
+
+                <ui-select-choices repeat="id in SearchRadiusModes">
+                    <div ng-bind-html="id.name">{{id.name}}</div>
+                </ui-select-choices>
+            </ui-select>
+        </div>
     </div>
 
     <!-- Controls for num bins--->
@@ -119,7 +148,6 @@
 
     <br>
     <input type="button" value="Download" ng-click="onIplChartDownloadClicked()"></input>
-</div>
 </div>
 
 

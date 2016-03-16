@@ -14,15 +14,16 @@
         self.lower = [];
 
         self.ConversionModes = {
-            NORMALIZED_DEPTH: 0,
-            PERCENT_DIFFERENCE: 1
+            PERCENT_DIFFERENCE: 0,
+            NORMALIZED_DEPTH: 1
         };
 
         var service = {
             activate: activate,
             convertPoint: convertPoint,
-            convertToIPLPercent: convertToIPLPercent,
-            getMeshIntersectionPoint: getMeshIntersectionPoint,
+            getZAtMeshIntersectionPoint: getZAtMeshIntersectionPoint,
+            getZAtMeshIntersectionOrAverage: getZAtMeshIntersectionOrAverage,
+            getZWithPointAverages: getZWithPointAverages,
             getLowerBounds: getLowerBounds,
             getLowerBoundsMesh: getLowerBoundsMesh,
             getUpperBounds: getUpperBounds,
@@ -65,7 +66,10 @@
                     }
                 }
 
-                var material = new THREE.MeshBasicMaterial({side: THREE.DoubleSide, wireframe: true, color: 0xcccccc});
+                var material = new THREE.MeshBasicMaterial({
+                    side: THREE.DoubleSide,
+                    wireframe: true, color: 0xcccccc
+                });
 
                 var geometry = createBoundaryGeometry(self.upper);
                 self.upperMesh = new THREE.Mesh(geometry, material);
@@ -89,10 +93,11 @@
 
                 var upperZ = undefined;
                 if (useMesh) {
-                    $log.debug("upper mesh");
-                    upperZ = getMeshIntersectionPoint(point, self.upperMesh).z;
+                    $log.debug("converting point to normalized depth with mesh");
+                    upperZ = getZAtMeshIntersectionOrAverage(point, self.upperMesh, self.upper);
                 } else {
-                    upperZ = getZAtBoundaryWithPointAverages(point, self.upper, radius);
+                    $log.debug("converting point to normalized depth w/o mesh");
+                    upperZ = getZWithPointAverages(point, self.upper, radius);
                 }
 
                 return point.z - upperZ;
@@ -103,16 +108,15 @@
                 var lowerZ = undefined;
 
                 if (useMesh) {
-                    $log.debug("upper mesh");
-                    upperZ = getMeshIntersectionPoint(point, self.upperMesh).z;
-                    $log.debug("lower mesh");
-                    lowerZ = getMeshIntersectionPoint(point, self.lowerMesh).z;
+                    $log.debug("converting point to ip w/ mesh");
+                    upperZ = getZAtMeshIntersectionOrAverage(point, self.upperMesh, self.upper);
+                    lowerZ = getZAtMeshIntersectionOrAverage(point, self.lowerMesh, self.lower);
                 } else {
-                    upperZ = getZAtBoundaryWithPointAverages(point, self.upper, radius);
-                    lowerZ = getZAtBoundaryWithPointAverages(point, self.lower, radius);
+                    $log.debug("converting point to ip w/o mesh");
+                    upperZ = getZWithPointAverages(point, self.upper, radius);
+                    lowerZ = getZWithPointAverages(point, self.lower, radius);
                 }
 
-                //return (point.z - averageDepths[1]) / (averageDepths[0] - averageDepths[1]);
                 return (point.z - upperZ) / (lowerZ - upperZ);
 
             } else {
@@ -120,10 +124,71 @@
             }
         }
 
-        /*
-         * Get the z-position in the boundary by using a weighted average of the boundary points within search radius.
+        /**
+         * @desc Converts locations into a THREE.js mesh.
          */
-        function getZAtBoundaryWithPointAverages(point, boundary, searchRadius) {
+        function createBoundaryGeometry(locations) {
+            var points = [];
+
+            for (var i = 0; i < locations.length; ++i) {
+                points.push([locations[i].position.x, locations[i].position.y]);
+            }
+
+            var triangles = Triangulate.triangulate(points);
+
+            var geometry = new THREE.Geometry();
+            for (i = 0; i < locations.length; ++i) {
+                var point = locations[i].position;
+                geometry.vertices.push(new THREE.Vector3(point.x, point.y, point.z));
+            }
+
+            for (i = 0; i < triangles.length; ++i) {
+                geometry.faces.push(new THREE.Face3(triangles[i][0], triangles[i][1], triangles[i][2]));
+            }
+
+            return geometry;
+        }
+
+        /**
+         * @desc Shoots a ray in the +z direction to find distance from a point to a boundary mesh. If there are no
+         * intersections then shoot in the -z direction.
+         */
+        function getZAtMeshIntersectionPoint(point, mesh) {
+            var raycaster = new THREE.Raycaster();
+            var origin = new THREE.Vector3(point.x, point.y, point.z);
+            var direction = new THREE.Vector3(0, 0, 1);
+
+            raycaster.set(origin, direction);
+
+            var intersections = raycaster.intersectObject(mesh, true);
+            if (intersections.length == 0) {
+                direction = new THREE.Vector3(0, 0, -1);
+                raycaster.set(origin, direction);
+                intersections = raycaster.intersectObject(mesh, true);
+            }
+
+            if (intersections.length == 0) {
+                return null;
+            } else if (intersections.length >= 1) {
+                return intersections[0].point.z;
+            }
+        }
+
+        /**
+         * @desc Tries to get z-position in the boundary using a the mesh. If that fails, fall back to nearest neighbor.
+         */
+        function getZAtMeshIntersectionOrAverage(point, mesh, boundary) {
+            var z = getZAtMeshIntersectionPoint(point, mesh);
+            if (!z) {
+                z = getZWithPointAverages(point, boundary, 0);
+            }
+            return z;
+        }
+
+        /**
+         * @desc Get the z-position in the boundary by using a weighted average of nearby points.
+         */
+        function getZWithPointAverages(point, boundary, searchRadius) {
 
             // Initialize the nearest neighbor with first point in array.
             var current = boundary[0].position.getAs2D();
@@ -154,7 +219,7 @@
 
             // Found no points => return the nearest neighbor.
             if (pointsInRadiusIndexes.length == 0) {
-                return boundary[nearestIndex].z;
+                return boundary[nearestIndex].position.z;
             }
 
             // Found one or more points. Compute weighted average of z-values.
@@ -168,154 +233,11 @@
             return (totalDepth / totalDistance);
         }
 
-        function convertToIPLPercent(point, useOnlyTopMarkers) {
-
-            var inputPoint = point.getAs2D();
-
-            // Same indexes used throughout this method.
-            // nearestIdxs[0] = index of nearest neighbor on bottom of layer.
-            // nearestIdxs[1] = index of nearest neighbor on top of layer.
-            var nearestIndexes = [];
-            var nearestDistances = [];
-            var pointsInRadiusIdxs = [[], []];
-            var distancesInRadius = [[], []];
-
-            // Initialize upper and lower nearest neighbor points.
-            var boundaries = [self.lower, self.upper];
-            for (var i = 0; i < boundaries.length; ++i) {
-                var currBoundary = boundaries[i];
-                var current = currBoundary[0].position.getAs2D();
-                nearestIndexes[i] = 0;
-                nearestDistances[i] = current.distance(inputPoint);
-            }
-
-            // Search for nearest neighbor and points in radius.
-            for (i = 0; i < boundaries.length; ++i) {
-                currBoundary = boundaries[i];
-                for (var j = 0; j < currBoundary.length; ++j) {
-                    // TODO: use the point structure.
-                    current = currBoundary[j].position.getAs2D();
-                    var distance = current.distance(inputPoint);
-
-                    // Nearest neighbor for current boundary?
-                    if (distance < nearestDistances[i]) {
-                        nearestDistances[i] = distance;
-                        nearestIndexes[i] = j;
-                    }
-
-                    // Point in search radius?
-                    if (distance < self.searchRadius) {
-                        pointsInRadiusIdxs[i].push(j);
-                        distancesInRadius[i].push(distance);
-                    }
-                }
-            }
-
-            // Compute average of depth values weighted by distance from point.
-            var averageDepths = [];
-
-            for (i = 0; i < boundaries.length; ++i) {
-                currBoundary = boundaries[i];
-                var currPointsInRadius = pointsInRadiusIdxs[i];
-                var currDistancesInRadius = distancesInRadius[i];
-
-                // No points in search radius -> use nearest point as our best guess.
-                if (pointsInRadiusIdxs[i].length == 0) {
-                    averageDepths[i] = currBoundary[nearestIndexes[i]].position.z;
-                    pointsInRadiusIdxs[i].push(nearestIndexes[i]);
-                } else {
-                    var totalDepth = 0.0;
-                    var totalDistance = 0.0;
-
-                    for (j = 0; j < currPointsInRadius.length; ++j) {
-                        var currPoint = currBoundary[currPointsInRadius[j]].position;
-                        totalDepth += (currPoint.z * currDistancesInRadius[j]);
-                        totalDistance += currDistancesInRadius[j];
-                    }
-                    averageDepths[i] = (totalDepth / totalDistance);
-                }
-            }
-
-            var percent = undefined;
-            if (useOnlyTopMarkers) {
-                percent = (point.z - averageDepths[1]);
-            } else {
-                percent = (point.z - averageDepths[1]) / (averageDepths[0] - averageDepths[1]);
-            }
-
-            console.log(convertPoint(point, self.ConversionModes.NORMALIZED_DEPTH, false, 15000));
-            console.log(convertPoint(point, self.ConversionModes.NORMALIZED_DEPTH, true));
-            console.log(convertPoint(point, self.ConversionModes.PERCENT_DIFFERENCE, false, 15000));
-            console.log(convertPoint(point, self.ConversionModes.PERCENT_DIFFERENCE, true));
-
-            return {
-                bottomIndexes: pointsInRadiusIdxs[0],
-                topIndexes: pointsInRadiusIdxs[1],
-                percent: percent
-            };
-        }
-
-        /*
-         * Converts volume locations into a triangle mesh using 2D-delaunay triangulation.
-         */
-        function createBoundaryGeometry(locations) {
-            var points = [];
-
-            for (var i = 0; i < locations.length; ++i) {
-                points.push([locations[i].position.x, locations[i].position.y]);
-            }
-
-            var triangles = Triangulate.triangulate(points);
-
-            var geometry = new THREE.Geometry();
-            for (i = 0; i < locations.length; ++i) {
-                var point = locations[i].position;
-                geometry.vertices.push(new THREE.Vector3(point.x, point.y, point.z));
-            }
-
-            for (i = 0; i < triangles.length; ++i) {
-                geometry.faces.push(new THREE.Face3(triangles[i][0], triangles[i][1], triangles[i][2]));
-            }
-
-            return geometry;
-        }
-
-        /*
-         * Shoots a ray in the +z direction to find distance from a point to a boundary mesh. If there are no
-         * intersections then shoot in the -z direction. If still no intersecions, then throw an error!
-         */
-        function getMeshIntersectionPoint(point, mesh) {
-            var raycaster = new THREE.Raycaster();
-            var origin = new THREE.Vector3(point.x, point.y, point.z);
-            var direction = new THREE.Vector3(0, 0, 1);
-
-            raycaster.set(origin, direction);
-
-            var intersections = raycaster.intersectObject(mesh, true);
-            if (intersections.length == 0) {
-                direction = new THREE.Vector3(0, 0, -1);
-                raycaster.set(origin, direction);
-                intersections = raycaster.intersectObject(mesh, true);
-            }
-
-            if (intersections.length == 0) {
-                //console.log("[" + point.x + ", " + point.y + "," + point.z + "]");
-                //throw 'Failed to find intersections when getting distance to mesh';
-                return null;
-            } else if (intersections.length == 1) {
-                return new utils.Point3D(intersections[0].point.x, intersections[0].point.y, intersections[0].point.z);
-            } else if (intersections.length > 1) {
-                return null;
-                //throw 'Found more than one intersection when converting point';
-            }
-        }
-
         function getUpperBounds() {
             return self.upper;
         }
 
         function getUpperBoundsMesh() {
-            console.log(self.upperMesh);
             return self.upperMesh;
         }
 

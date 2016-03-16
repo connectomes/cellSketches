@@ -67,11 +67,10 @@
             }, {
                 name: "Normalized depth",
                 value: iplChartData.IplModes.NORMALIZED_DEPTH
-            },
-                {
-                    name: "IPL",
-                    value: iplChartData.IplModes.IPL
-                }];
+            }, {
+                name: "IPL",
+                value: iplChartData.IplModes.IPL
+            }];
 
             scope.SearchRadiusModes = [{
                 name: "Tiny",
@@ -87,6 +86,15 @@
                 value: 45000
             }];
 
+            scope.ConversionModes = [{
+                name: "Average",
+                value: 0
+            }, {
+                name: "Mesh",
+                value: 1
+            }];
+
+            scope.model.ui.selectedConversionMode = scope.ConversionModes[1];
             scope.model.ui.selectedSearchRadiusMode = scope.SearchRadiusModes[1];
             scope.model.ui.selectedIplMode = scope.IplModes[0];
             scope.onIplChartDownloadClicked = onDownloadClicked;
@@ -101,8 +109,7 @@
                 var cachedOk = false;
                 var chartData = [];
 
-                chartData = iplChartData.getIplChartData(cells.indexes, scope.model.ui.selectedIplMode.value, scope.model.ui.selectedSearchRadiusMode.value);
-
+                chartData = iplChartData.getIplChartData(cells.indexes, scope.model.ui.selectedIplMode.value, scope.model.ui.selectedConversionMode.value, scope.model.ui.selectedSearchRadiusMode.value);
 
                 scope.model.ui.details.cellId = -1;
                 scope.cellIds = cells.ids;

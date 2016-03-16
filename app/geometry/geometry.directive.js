@@ -241,9 +241,14 @@
                 console.log(cellLocations);
                 for (var i = 0; i < cellLocations.length; ++i) {
                     var geometry = new THREE.SphereGeometry(100);
-                    var isect0 = volumeLayers.getMeshIntersectionPoint(cellLocations[i].position, volumeLayers.getLowerBoundsMesh());
-                    var isect1 = volumeLayers.getMeshIntersectionPoint(cellLocations[i].position, volumeLayers.getLowerBoundsMesh());
-                    if (!isect0 || !isect1) {
+
+                    // works correctly
+                    //var z0 = volumeLayers.convertPoint(cellLocations[i].position, volumeLayers.ConversionModes.NORMALIZED_DEPTH, false, 15000);
+                    //var z0 = volumeLayers.convertPoint(cellLocations[i].position, volumeLayers.ConversionModes.NORMALIZED_DEPTH, true);
+                    //var z0 = volumeLayers.convertPoint(cellLocations[i].position, volumeLayers.ConversionModes.PERCENT_DIFFERENCE, false, 15000);
+                    var z0 = volumeLayers.convertPoint(cellLocations[i].position, volumeLayers.ConversionModes.PERCENT_DIFFERENCE, true);
+
+                    if (!z0) {
                         var material = new THREE.MeshBasicMaterial({
                             side: THREE.DoubleSide,
                             wireframe: true,
