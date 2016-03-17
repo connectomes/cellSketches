@@ -4,7 +4,7 @@
         <div>
             <b>Cells</b>
 
-            <div uib-popover="This changes the table rows. Optionally select a subset of loaded cells to appear in the table."
+            <div uib-popover="This changes the cells being displayed."
                  popover-trigger="mouseenter" popover-placement="bottom-right" class="tooltipCircle">?
             </div>
 
@@ -28,7 +28,7 @@
     <!-- Controls for num bins--->
     <div>
         <b>Number of bins</b>
-        <div uib-popover="This changes the number of bins used for showing ipl% of structure annotations."
+        <div uib-popover="Number of bins in histograms."
              popover-trigger="mouseenter" popover-placement="right" class="tooltipCircle">?
         </div>
     </div>
@@ -50,30 +50,31 @@
 
     <!-- Controls for vertical axis -->
     <div class="sidebarHeading">
-        <b>Vertical Axis Units</b>
-        <div uib-popover="Show a histogram of IPL or depth values"
+        <b>Vertical axis units</b>
+        <div uib-popover="Depth is raw z-value. Normalized depth is distance from top boundary. Percent difference is
+        linear interpolation between the top and bottom boundaries."
              popover-trigger="mouseenter" popover-placement="right" class="tooltipCircle">?
         </div>
     </div>
     <div class="sidebarControls">
-        <ui-select ng-model="model.ui.selectedIplMode"
+        <ui-select ng-model="model.ui.selectedVerticalAxisMode"
                    theme="select2"
                    search-enabled="false"
                    class="sidebarMultiSelect"
                    ng-change="broadcastChange()">
 
             <ui-select-match placeholder="Click to select">
-                {{model.ui.selectedIplMode.name}}
+                {{model.ui.selectedVerticalAxisMode.name}}
             </ui-select-match>
 
-            <ui-select-choices repeat="id in IplModes">
+            <ui-select-choices repeat="id in VerticalAxisModes">
                 <div ng-bind-html="id.name">{{id.name}}</div>
             </ui-select-choices>
         </ui-select>
     </div>
 
     <!-- Controls for the conversion mode. Only visible if doing conversions. -->
-    <div ng-show="model.ui.selectedIplMode.name != 'Depth'">
+    <div ng-show="model.ui.selectedVerticalAxisMode.name != 'Depth'">
         <div class="sidebarHeading">
             <b>Conversion strategy</b>
             <div uib-popover="Average will take weighted average of boundary points within some radius. Mesh will create delaunay-triangulation from the boundary points."
@@ -81,17 +82,17 @@
             </div>
         </div>
         <div class="sidebarControls">
-            <ui-select ng-model="model.ui.selectedConversionMode"
+            <ui-select ng-model="model.ui.selectedSearchMode"
                        theme="select2"
                        search-enabled="false"
                        class="sidebarMultiSelect"
                        ng-change="broadcastChange()">
 
                 <ui-select-match placeholder="Click to select">
-                    {{model.ui.selectedConversionMode.name}}
+                    {{model.ui.selectedSearchMode.name}}
                 </ui-select-match>
 
-                <ui-select-choices repeat="id in ConversionModes">
+                <ui-select-choices repeat="id in SearchModes">
                     <div ng-bind-html="id.name">{{id.name}}</div>
                 </ui-select-choices>
             </ui-select>

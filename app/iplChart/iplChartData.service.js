@@ -11,10 +11,10 @@
 
         var self = this;
 
-        self.IplModes = {
+        self.VerticalAxisModes = {
             DEPTH: 2,
-            IPL: 0,
-            NORMALIZED_DEPTH: 1
+            PERCENT_DIFFERENCE: volumeLayers.ConversionModes.PERCENT_DIFFERENCE,
+            NORMALIZED_DEPTH: volumeLayers.ConversionModes.NORMALIZED_DEPTH
         };
 
         var service = {
@@ -25,28 +25,28 @@
             getHistogramBins: getHistogramBins
         };
 
-        service.IplModes = self.IplModes;
+        service.VerticalAxisModes = self.VerticalAxisModes;
 
         self.cachedData = [];
 
         return service;
 
         function getAsCsv(cellIndexes, chartData) {
-            var csv = 'cellId, locationId, locationZ, %ipl';
+            var csv = 'cell id, location id, z, converted value';
             cellIndexes.forEach(function (cellIndex, i) {
                 var cellId = volumeCells.getCellAt(cellIndex).id;
                 chartData[i].forEach(function (result) {
-                    csv += '\n'
+                    csv += '\n';
                     csv += cellId;
                     csv += ', ' + result.location.id;
                     csv += ', ' + result.location.position.z;
-                    csv += ', ' + result.percent;
+                    csv += ', ' + result.value;
                 });
             });
             return csv;
         }
 
-        function getIplChartData(cellIndexes, iplMode, useMesh, searchRadius) {
+        function getIplChartData(cellIndexes, verticalAxisMode, useMesh, searchRadius) {
 
             var cellIds = [];
             cellIndexes.forEach(function (cellIndex) {
@@ -56,7 +56,7 @@
 
             var data = [];
             cellIds.forEach(function (cellId) {
-                data.push(getOrCreateCellData(cellId, iplMode, useMesh, searchRadius));
+                data.push(getOrCreateCellData(cellId, verticalAxisMode, useMesh, searchRadius));
             });
 
             return data;
@@ -105,13 +105,13 @@
             return maxItemsInBins;
         }
 
-        function getOrCreateCellData(cellId, iplMode, useMesh, searchRadius) {
+        function getOrCreateCellData(cellId, verticalAxisMode, useMesh, searchRadius) {
 
             // Search for entry in the cache
             for (var i = 0; i < self.cachedData.length; ++i) {
                 var cachedData = self.cachedData[i];
                 if (cachedData.cellId == cellId
-                    && cachedData.iplMode == iplMode
+                    && cachedData.verticalAxisMode == verticalAxisMode
                     && cachedData.searchRadius == searchRadius
                     && cachedData.useMesh == useMesh) {
                     return cachedData.data;
@@ -125,11 +125,10 @@
             locations.forEach(function (location) {
 
                 var z = location.position.z;
-                if (iplMode !== self.IplModes.DEPTH) {
-                    z = volumeLayers.convertPoint(location.position, iplMode, useMesh, searchRadius);
+                if (verticalAxisMode !== self.VerticalAxisModes.DEPTH) {
+                    z = volumeLayers.convertPoint(location.position, verticalAxisMode, useMesh, searchRadius);
                 }
                 cellData.push({
-                    percent: z,
                     value: z,
                     location: location
                 });
@@ -137,7 +136,7 @@
 
             self.cachedData.push({
                 cellId: cellId,
-                iplMode: iplMode,
+                verticalAxisMode: verticalAxisMode,
                 searchRadius: searchRadius,
                 useMesh: useMesh,
                 data: cellData

@@ -93,10 +93,8 @@
 
                 var upperZ = undefined;
                 if (useMesh) {
-                    $log.debug("converting point to normalized depth with mesh");
                     upperZ = getZAtMeshIntersectionOrAverage(point, self.upperMesh, self.upper);
                 } else {
-                    $log.debug("converting point to normalized depth w/o mesh");
                     upperZ = getZWithPointAverages(point, self.upper, radius);
                 }
 
@@ -108,11 +106,9 @@
                 var lowerZ = undefined;
 
                 if (useMesh) {
-                    $log.debug("converting point to ip w/ mesh");
                     upperZ = getZAtMeshIntersectionOrAverage(point, self.upperMesh, self.upper);
                     lowerZ = getZAtMeshIntersectionOrAverage(point, self.lowerMesh, self.lower);
                 } else {
-                    $log.debug("converting point to ip w/o mesh");
                     upperZ = getZWithPointAverages(point, self.upper, radius);
                     lowerZ = getZWithPointAverages(point, self.lower, radius);
                 }

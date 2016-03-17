@@ -129,7 +129,7 @@
 
                     for (var j = 0; j < currData.length; ++j) {
                         for (var k = 0; k < scope.chartData.length; ++k) {
-                            var currDistance = scope.chartData[k].percent;
+                            var currDistance = scope.chartData[k].value;
                             if (currDistance == currData[j]) {
                                 currDetails.push(scope.chartData[k]);
                             }

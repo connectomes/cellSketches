@@ -55,23 +55,35 @@
             self.smallMultiplePadding = 10;
             self.smallMultipleWidth = (visUtils.getSvgWidth() - (self.numSmallMultiplesPerRow * self.smallMultiplePadding)) / self.numSmallMultiplesPerRow;
             self.smallMultipleHeight = 250;
-            self.cachedRadius == -1;
             scope.model.ui.numBinOptions = [25, 30, 35, 40, 45, 50];
             scope.model.ui.numTickOptions = [0, 3, 5];
             scope.model.ui.numTicks = 0;
             scope.model.ui.numBins = 25;
 
-            scope.IplModes = [{
+            // Units shown along the vertical axis.
+            scope.VerticalAxisModes = [{
                 name: "Depth",
-                value: iplChartData.IplModes.DEPTH
+                value: iplChartData.VerticalAxisModes.DEPTH
             }, {
                 name: "Normalized depth",
-                value: iplChartData.IplModes.NORMALIZED_DEPTH
+                value: iplChartData.VerticalAxisModes.NORMALIZED_DEPTH
             }, {
-                name: "IPL",
-                value: iplChartData.IplModes.IPL
+                name: "Percent difference",
+                value: iplChartData.VerticalAxisModes.PERCENT_DIFFERENCE
             }];
 
+            // How will we search for the intersection point with the different boundary layers?
+            // Average will do wt. avg
+            // Mesh will do ray casting.
+            scope.SearchModes = [{
+                name: "Average",
+                value: 0
+            }, {
+                name: "Mesh",
+                value: 1
+            }];
+
+            // Search radii used in wt average of boundary positions
             scope.SearchRadiusModes = [{
                 name: "Tiny",
                 value: 1
@@ -86,30 +98,19 @@
                 value: 45000
             }];
 
-            scope.ConversionModes = [{
-                name: "Average",
-                value: 0
-            }, {
-                name: "Mesh",
-                value: 1
-            }];
-
-            scope.model.ui.selectedConversionMode = scope.ConversionModes[1];
+            // Set initial modes for the ui.
+            scope.model.ui.selectedSearchMode = scope.SearchModes[1];
             scope.model.ui.selectedSearchRadiusMode = scope.SearchRadiusModes[1];
-            scope.model.ui.selectedIplMode = scope.IplModes[0];
+            scope.model.ui.selectedVerticalAxisMode = scope.VerticalAxisModes[0];
+
+            // Connect up buttons
             scope.onIplChartDownloadClicked = onDownloadClicked;
 
             scope.broadcastChange();
 
-            function cellsChanged(slot, cells, childType, useTargetLabelGroups, useOnlySelectedTargets, selectedTargets, convertToNm, useRadius) {
-                $log.debug('iplChart - cellsChanged', scope);
+            function cellsChanged(slot, cells) {
 
-                volumeLayers.setSearchRadius(scope.model.ui.selectedSearchRadiusMode.value);
-
-                var cachedOk = false;
-                var chartData = [];
-
-                chartData = iplChartData.getIplChartData(cells.indexes, scope.model.ui.selectedIplMode.value, scope.model.ui.selectedConversionMode.value, scope.model.ui.selectedSearchRadiusMode.value);
+                var chartData = iplChartData.getIplChartData(cells.indexes, scope.model.ui.selectedVerticalAxisMode.value, scope.model.ui.selectedSearchMode.value, scope.model.ui.selectedSearchRadiusMode.value);
 
                 scope.model.ui.details.cellId = -1;
                 scope.cellIds = cells.ids;
@@ -119,6 +120,7 @@
                 for (var i = 0; i < scope.cellIndexes.length; ++i) {
                     scope.cellLabels.push(volumeCells.getCellAt(scope.cellIndexes[i]).label);
                 }
+
                 scope.smallMultipleWidth = self.smallMultipleWidth;
                 scope.smallMultipleHeight = self.smallMultipleHeight;
                 scope.yAxisDomain = iplChartData.getIplRange(chartData);
@@ -130,26 +132,17 @@
 
                 scope.numBins = scope.model.ui.numBins;
                 scope.numTicks = scope.model.ui.numTicks;
+
                 // This is the watched variable to redraw
                 scope.toggle = !scope.toggle;
-
-                // Only update the cache if we had to recompute some new values.
-                if (!cachedOk) {
-                    self.cachedRadius = scope.model.ui.selectedSearchRadiusMode.value;
-                    self.cachedData = chartData;
-                    self.cachedIds = cells.ids;
-                    self.cachedIplMode = scope.model.ui.selectedIplMode.value;
-                }
             }
 
             function onDownloadClicked() {
-
                 var csv = '';
-                var chartData = iplChartData.getIplChartData(scope.cellIndexes, scope.model.ui.selectedIplMode.value);
+                var chartData = iplChartData.getIplChartData(scope.cellIndexes, scope.model.ui.selectedVerticalAxisMode.value);
                 csv += iplChartData.getAsCsv(scope.cellIndexes, chartData);
                 var blob = new Blob([csv], {type: "text"});
                 saveAs(blob, 'data.csv');
-
             }
 
         }
