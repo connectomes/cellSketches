@@ -1,4 +1,4 @@
-fdescribe('VolumeLayers service test', function () {
+describe('VolumeLayers service test', function () {
 
     var volumeCells, httpBackend, volumeLayers;
 
@@ -35,8 +35,8 @@ fdescribe('VolumeLayers service test', function () {
         expect(mesh.geometry.faces.length == 2).toBeTruthy();
     });
 
-    //
-    it('activate', function () {
+    // Tests are simple conversion modes.
+    it('Various conversion modes', function () {
         volumeLayers.activate();
         httpBackend.flush();
 
@@ -45,23 +45,11 @@ fdescribe('VolumeLayers service test', function () {
 
         var point = new utils.Point3D(0, 0, 0);
 
+        expect(volumeLayers.convertPoint(point, volumeLayers.ConversionModes.NORMALIZED_DEPTH, false, 15000)).toBeCloseTo(-100);
+        expect(volumeLayers.convertPoint(point, volumeLayers.ConversionModes.NORMALIZED_DEPTH, true)).toBeCloseTo(-105);
 
-        point = new utils.Point3D(0, 0, 200);
-
-        var conversion = volumeLayers.convertToIPLPercent(point);
-
-        console.log(volumeLayers.convertPoint(point, volumeLayers.ConversionModes.NORMALIZED_DEPTH, false, 15000));
-        console.log(volumeLayers.convertPoint(point, volumeLayers.ConversionModes.NORMALIZED_DEPTH, true));
-
-        console.log(volumeLayers.convertPoint(point, volumeLayers.ConversionModes.PERCENT_DIFFERENCE, false, 15000));
-        console.log(volumeLayers.convertPoint(point, volumeLayers.ConversionModes.PERCENT_DIFFERENCE, true));
+        expect(volumeLayers.convertPoint(point, volumeLayers.ConversionModes.PERCENT_DIFFERENCE, false, 15000)).toBeCloseTo(-0.36900);
+        expect(volumeLayers.convertPoint(point, volumeLayers.ConversionModes.PERCENT_DIFFERENCE, true)).toBeCloseTo(-0.39473);
 
     });
-
-
-    it('convert to ipl percent', function () {
-        volumeLayers.activate();
-        httpBackend.flush();
-    });
-
 });
