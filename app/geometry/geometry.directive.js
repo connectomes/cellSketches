@@ -236,37 +236,25 @@
                 }
                 scene.add(mesh);
 
+                cells.ids.forEach(function(cellId) {
+                    var cellLocations = volumeCells.getCellLocations(cellId);
+                    for (var i = 0; i < cellLocations.length; ++i) {
+                        var geometry = new THREE.SphereGeometry(100);
 
-                var cellLocations = volumeCells.getCellLocations(606);
-                console.log(cellLocations);
-                for (var i = 0; i < cellLocations.length; ++i) {
-                    var geometry = new THREE.SphereGeometry(100);
 
-                    // works correctly
-                    //var z0 = volumeLayers.convertPoint(cellLocations[i].position, volumeLayers.ConversionModes.NORMALIZED_DEPTH, false, 15000);
-                    //var z0 = volumeLayers.convertPoint(cellLocations[i].position, volumeLayers.ConversionModes.NORMALIZED_DEPTH, true);
-                    //var z0 = volumeLayers.convertPoint(cellLocations[i].position, volumeLayers.ConversionModes.PERCENT_DIFFERENCE, false, 15000);
-                    var z0 = volumeLayers.convertPoint(cellLocations[i].position, volumeLayers.ConversionModes.PERCENT_DIFFERENCE, true);
+                            var material = new THREE.MeshBasicMaterial({
+                                side: THREE.DoubleSide,
+                                wireframe: true,
+                                color: 0xcccc00
+                            });
 
-                    if (!z0) {
-                        var material = new THREE.MeshBasicMaterial({
-                            side: THREE.DoubleSide,
-                            wireframe: true,
-                            color: 0xcc0000
-                        });
-                    } else {
-                        var material = new THREE.MeshBasicMaterial({
-                            side: THREE.DoubleSide,
-                            wireframe: true,
-                            color: 0xcccc00
-                        });
+                        var mesh = new THREE.Mesh(geometry, material);
+                        mesh.position.x = cellLocations[i].position.x;
+                        mesh.position.y = cellLocations[i].position.y;
+                        mesh.position.z = cellLocations[i].position.z * 90;
+                        scene.add(mesh);
                     }
-                    var mesh = new THREE.Mesh(geometry, material);
-                    mesh.position.x = cellLocations[i].position.x;
-                    mesh.position.y = cellLocations[i].position.y;
-                    mesh.position.z = cellLocations[i].position.z * 90;
-                    scene.add(mesh);
-                }
+                });
 
                 controls.getObject().translateX(cellLocations[0].position.x);
                 controls.getObject().translateY(cellLocations[0].position.y);
