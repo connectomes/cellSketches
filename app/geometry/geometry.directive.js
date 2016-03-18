@@ -138,8 +138,6 @@
             var velocity = new THREE.Vector3();
 
 
-
-
             function init() {
 
 
@@ -226,39 +224,50 @@
 
 
                 var mesh = volumeLayers.getLowerBoundsMesh();
-                for(var i=0; i<mesh.geometry.vertices.length; ++i) {
+                for (var i = 0; i < mesh.geometry.vertices.length; ++i) {
                     mesh.geometry.vertices[i].z *= 90;
                 }
                 scene.add(mesh);
                 var mesh = volumeLayers.getUpperBoundsMesh();
-                for(var i=0; i<mesh.geometry.vertices.length; ++i) {
+                for (var i = 0; i < mesh.geometry.vertices.length; ++i) {
                     mesh.geometry.vertices[i].z *= 90;
                 }
                 scene.add(mesh);
 
-                cells.ids.forEach(function(cellId) {
-                    var cellLocations = volumeCells.getCellLocations(cellId);
-                    for (var i = 0; i < cellLocations.length; ++i) {
-                        var geometry = new THREE.SphereGeometry(100);
-
-
-                            var material = new THREE.MeshBasicMaterial({
-                                side: THREE.DoubleSide,
-                                wireframe: true,
-                                color: 0xcccc00
-                            });
-
-                        var mesh = new THREE.Mesh(geometry, material);
-                        mesh.position.x = cellLocations[i].position.x;
-                        mesh.position.y = cellLocations[i].position.y;
-                        mesh.position.z = cellLocations[i].position.z * 90;
-                        scene.add(mesh);
+                var location = undefined;
+                scope.$parent.model.cells.ids.forEach(function (cellId) {
+                        var cellLocations = volumeCells.getCellLocations(cellId);
+                        if (!location)
+                            location = cellLocations[0];
+                        for (var i = 0; i < cellLocations.length; ++i) {
+                            var isect0 = volumeLayers.getZAtMeshIntersectionPoint(cellLocations[i].position, volumeLayers.getLowerBoundsMesh());
+                            var isect1 = volumeLayers.getZAtMeshIntersectionPoint(cellLocations[i].position, volumeLayers.getLowerBoundsMesh());
+                            if (!isect0 || !isect1) {
+                                var material = new THREE.MeshBasicMaterial({
+                                    side: THREE.DoubleSide,
+                                    wireframe: true,
+                                    color: 0xcc0000
+                                });
+                            } else {
+                                material = new THREE.MeshBasicMaterial({
+                                    side: THREE.DoubleSide,
+                                    wireframe: true,
+                                    color: 0xcccc00
+                                });
+                            }
+                            var geometry = new THREE.SphereGeometry(100);
+                            var mesh = new THREE.Mesh(geometry, material);
+                            mesh.position.x = cellLocations[i].position.x;
+                            mesh.position.y = cellLocations[i].position.y;
+                            mesh.position.z = cellLocations[i].position.z * 90;
+                            scene.add(mesh);
+                        }
                     }
-                });
+                );
 
-                controls.getObject().translateX(cellLocations[0].position.x);
-                controls.getObject().translateY(cellLocations[0].position.y);
-                controls.getObject().translateZ(cellLocations[0].position.z);
+                controls.getObject().translateX(location.position.x);
+                controls.getObject().translateY(location.position.y);
+                controls.getObject().translateZ(location.position.z);
 
 
                 renderer = new THREE.WebGLRenderer();
