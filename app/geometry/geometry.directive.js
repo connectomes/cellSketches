@@ -240,9 +240,8 @@
                         if (!location)
                             location = cellLocations[0];
                         for (var i = 0; i < cellLocations.length; ++i) {
-                            var isect0 = volumeLayers.getZAtMeshIntersectionPoint(cellLocations[i].position, volumeLayers.getLowerBoundsMesh());
-                            var isect1 = volumeLayers.getZAtMeshIntersectionPoint(cellLocations[i].position, volumeLayers.getLowerBoundsMesh());
-                            if (!isect0 || !isect1) {
+                            var result = volumeLayers.convertPoint(cellLocations[i].position, volumeLayers.ConversionModes.PERCENT_DIFFERENCE, true, 15000);
+                            if (!result.usedMesh) {
                                 var material = new THREE.MeshBasicMaterial({
                                     side: THREE.DoubleSide,
                                     wireframe: true,

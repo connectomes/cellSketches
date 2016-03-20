@@ -23,7 +23,10 @@
                 numBins: '=',
                 toggle: '=',
                 numTicks: '=',
-                label: '='
+                label: '=',
+                supposedToUseMesh: '=',
+                hoverIndex: '=',
+                onUpdateHover: '&'
             },
             link: link,
             restrict: 'E'
@@ -39,21 +42,28 @@
         }
 
         function link(scope, element, attribute) {
+
             var self = {};
 
             //scope.$watch('chartData', cellsChanged);
             scope.$watch('toggle', cellsChanged);
+            scope.$watch('hoverIndex', hoverIndexChanged);
             self.svg = d3.select(element[0])
                 .append('svg')
                 .attr('width', scope.width)
                 .attr('height', scope.height)
                 .append('g');
 
+            var div = d3.select(element[0]).append("div")
+                .attr("class", "tooltip")
+                .style("opacity", 0);
+
             visUtils.clearGroup(self.svg);
 
             cellsChanged();
 
             function cellsChanged() {
+
                 $log.debug('iplHistogram - cellsChanged', scope);
 
                 visUtils.clearGroup(self.svg);
@@ -122,7 +132,10 @@
                     .call(xAxis);
 
                 var data = iplChartData.getHistogramBins(scope.chartData, scope.numBins, scope.yAxisDomain, scope.yAxisRange);
+                var allPointsUsedMesh = true;
 
+                var isPointAdded = [];
+                var numPointsWithoutMesh = 0;
                 for (var i = 0; i < data.length; ++i) {
                     var currData = data[i];
                     var currDetails = [];
@@ -130,12 +143,31 @@
                     for (var j = 0; j < currData.length; ++j) {
                         for (var k = 0; k < scope.chartData.length; ++k) {
                             var currDistance = scope.chartData[k].value;
-                            if (currDistance == currData[j]) {
+                            if ((isPointAdded[k] == undefined) && currDistance == currData[j]) {
+                                isPointAdded[k] = true;
                                 currDetails.push(scope.chartData[k]);
+                                allPointsUsedMesh &= scope.chartData[k].usedMesh;
+                                if (!scope.chartData[k].usedMesh) {
+                                    numPointsWithoutMesh++;
+                                }
                             }
                         }
                         currData.details = currDetails;
                     }
+                }
+
+                self.percentPointsWithoutMesh = (numPointsWithoutMesh / scope.chartData.length) * 100;
+
+
+                if (scope.supposedToUseMesh && !allPointsUsedMesh) {
+                    self.svg.append('circle')
+                        .attr('text-anchor', 'end')
+                        .attr('cx', 10)
+                        .attr('cy', 25)
+                        .attr('r', 3)
+                        .attr("fill", "lightgrey")
+                        .on("mouseover", onConversionMarkMouseOver)
+                        .on("mouseout", onConversionMarkMouseOut)
                 }
 
                 var yRange = Math.abs(height - (margin.bottom + margin.top));
@@ -157,9 +189,9 @@
                         return x(d.length);
                     })
                     .attr("class", "iplHistogramBar")
-                    .on('click', function (d) {
-                        $log.warn(d);
-                    });
+                    .on('click', onHistogramBarClicked)
+                    .on('mouseover', onHistogramBarMouseOver)
+                    .on('mouseout', onHistogramBarMouseOut);
 
                 group.append('g')
                     .attr({
@@ -177,6 +209,50 @@
                     })
                     .call(yAxisTicks);
 
+            }
+
+            function onConversionMarkMouseOver() {
+                div.transition()
+                    .duration(200)
+                    .style("opacity", .9);
+                div.html(self.percentPointsWithoutMesh.toFixed(2) + "% of the points were converted using a weighted average instead of mesh intersection.")
+                    .style("left", (d3.event.pageX) + 10 + "px")
+                    .style("top", (d3.event.pageY) + 5 + "px");
+            }
+
+            function onConversionMarkMouseOut() {
+                div.transition()
+                    .duration(500)
+                    .style("opacity", 0);
+            }
+
+            function onHistogramBarMouseOver(d, i) {
+                scope.onUpdateHover({index: i});
+            }
+
+            function onHistogramBarClicked(d, i) {
+                $log.warn(d.details.length);
+            }
+
+            function onHistogramBarMouseOut(d, i) {
+                scope.onUpdateHover({index: -1});
+            }
+
+            function hoverIndexChanged(newValue, oldValue) {
+                if (newValue == oldValue) {
+                    return;
+                }
+                if (newValue == -1) {
+                    self.svg.selectAll(".iplHistogramBar")
+                        .filter(function (d, i) {
+                            return i == oldValue;
+                        }).style("fill", "darkgrey");
+                } else if (newValue != -1) {
+                    self.svg.selectAll(".iplHistogramBar")
+                        .filter(function (d, i) {
+                            return i == newValue;
+                        }).style("fill", "#FFC800");
+                }
             }
         }
 

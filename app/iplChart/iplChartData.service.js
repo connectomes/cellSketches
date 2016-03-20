@@ -124,13 +124,18 @@
 
             locations.forEach(function (location) {
 
-                var z = location.position.z;
+                var result = {
+                    usedMesh: false,
+                    z: location.position.z
+                };
+
                 if (verticalAxisMode !== self.VerticalAxisModes.DEPTH) {
-                    z = volumeLayers.convertPoint(location.position, verticalAxisMode, useMesh, searchRadius);
+                    result = volumeLayers.convertPoint(location.position, verticalAxisMode, useMesh, searchRadius);
                 }
                 cellData.push({
-                    value: z,
-                    location: location
+                    value: result.z,
+                    location: location,
+                    usedMesh: result.usedMesh
                 });
             });
 

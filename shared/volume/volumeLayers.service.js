@@ -89,16 +89,19 @@
         }
 
         function convertPoint(point, mode, useMesh, radius) {
+            var result = {};
             if (mode == self.ConversionModes.NORMALIZED_DEPTH) {
 
                 var upperZ = undefined;
                 if (useMesh) {
-                    upperZ = getZAtMeshIntersectionOrAverage(point, self.upperMesh, self.upper);
+                    result = getZAtMeshIntersectionOrAverage(point, self.upperMesh, self.upper);
                 } else {
-                    upperZ = getZWithPointAverages(point, self.upper, radius);
+                    result.z = getZWithPointAverages(point, self.upper, radius);
+                    result.usedMesh = false;
                 }
+                result.z = point.z - result.z;
 
-                return point.z - upperZ;
+                return result;
 
             } else if (mode == self.ConversionModes.PERCENT_DIFFERENCE) {
 
@@ -106,14 +109,20 @@
                 var lowerZ = undefined;
 
                 if (useMesh) {
-                    upperZ = getZAtMeshIntersectionOrAverage(point, self.upperMesh, self.upper);
-                    lowerZ = getZAtMeshIntersectionOrAverage(point, self.lowerMesh, self.lower);
+                    var upperResult = getZAtMeshIntersectionOrAverage(point, self.upperMesh, self.upper);
+                    var lowerResult = getZAtMeshIntersectionOrAverage(point, self.lowerMesh, self.lower);
+                    upperZ = upperResult.z;
+                    lowerZ = lowerResult.z;
+                    result.usedMesh = upperResult.usedMesh && lowerResult.usedMesh;
                 } else {
                     upperZ = getZWithPointAverages(point, self.upper, radius);
                     lowerZ = getZWithPointAverages(point, self.lower, radius);
+                    result.usedMesh = false;
                 }
 
-                return (point.z - upperZ) / (lowerZ - upperZ);
+                result.z = (point.z - upperZ) / (lowerZ - upperZ);
+
+                return result;
 
             } else {
                 throw 'Invalid conversion mode!';
@@ -175,10 +184,16 @@
          */
         function getZAtMeshIntersectionOrAverage(point, mesh, boundary) {
             var z = getZAtMeshIntersectionPoint(point, mesh);
+            var usedMesh = true;
             if (!z) {
                 z = getZWithPointAverages(point, boundary, 0);
+                usedMesh = false
             }
-            return z;
+
+            return {
+                z: z,
+                usedMesh: usedMesh
+            };
         }
 
         /**

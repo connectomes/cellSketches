@@ -166,7 +166,11 @@
                 num-bins="numBins"
                 toggle="toggle"
                 num-ticks="numTicks"
-                label="cellLabels[$index]">
+                label="cellLabels[$index]"
+                supposed-to-use-mesh="model.ui.selectedSearchMode.name == 'Mesh' && model.ui.selectedVerticalAxisMode.name != 'Depth'"
+                hover-index="hoverIndex"
+                on-update-hover="onUpdateHover(index)">
+
         </ipl-histogram>
     </span>
 </div>

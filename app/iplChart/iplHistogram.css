@@ -1,7 +1,21 @@
 .iplHistogramBar {
-     fill: darkgrey;
- }
+    fill: darkgrey;
+}
 
+.iplHistogramBar:hover {
+    fill: #FFC800;
+}
+
+.tooltip {
+    position: absolute;
+    text-align: center;
+    padding: 2px;
+    font: 12px sans-serif;
+    background-color: white;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    border-radius: 6px;
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+}
 
 .y-axis-ticks line {
     shape-rendering: crispEdges;

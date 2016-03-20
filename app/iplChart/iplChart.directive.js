@@ -107,7 +107,11 @@
             scope.onIplChartDownloadClicked = onDownloadClicked;
 
             scope.broadcastChange();
+            scope.hoverIndex = undefined;
 
+            scope.onUpdateHover = function(i) {
+                scope.$apply(scope.hoverIndex = i);
+            };
             function cellsChanged(slot, cells) {
 
                 var chartData = iplChartData.getIplChartData(cells.indexes, scope.model.ui.selectedVerticalAxisMode.value, scope.model.ui.selectedSearchMode.value, scope.model.ui.selectedSearchRadiusMode.value);
