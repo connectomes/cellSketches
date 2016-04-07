@@ -648,16 +648,18 @@
                         var currChild = cellChildren[i];
 
                         if (currChild.Locations.length == 0) {
-                            console.log('Warning - cell child with no locations, ignoring it');
-                            console.log('StructureID: ' + currChild.ID);
+                            var message = "Cell " + currChild.ParentID + " child " + currChild.ID + " has no locations. I cannot continue. Fix it and reload the page.";
+                            var title = "Found a cell child with no locations.";
+                            toastr.error(title, message);
+                            throw title;
                         }
+
 
                         var cellChild = new utils.CellChild(currChild.ID, currChild.ParentID, currChild.Label,
                             currChild.Notes, currChild.Tags, currChild.TypeID, currChild.Confidence);
 
                         var currChildlocations = [];
                         for (var j = 0; j < currChild.Locations.length; ++j) {
-
                             var currLocation = currChild.Locations[j];
                             var location = new utils.Location(currLocation.ID, currLocation.ParentID, currLocation.VolumeX, currLocation.VolumeY, currLocation.Z, currLocation.Radius);
                             currChildlocations.push(location);
