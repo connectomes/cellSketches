@@ -41,7 +41,6 @@
             var height = 75;
             var margin = getMargins(width, height);
 
-            console.log(scope);
             // Create svg.
             var svg = d3.select(element[0])
                 .append('svg');

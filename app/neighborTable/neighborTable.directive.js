@@ -239,7 +239,6 @@
                 scope.mouseOverDetailsRow = onDetailsRowHovered;
 
                 scope.gridOptions.onRegisterApi = function (gridApi) {
-                    console.log('register api');
                     scope.detailGridApi = gridApi;
                     gridApi.edit.on.afterCellEdit(scope, function (rowEntity, colDef, newValue, oldValue) {
 

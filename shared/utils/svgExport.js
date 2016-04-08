@@ -30,6 +30,9 @@ SvgExport.export = function () {
         window.document.body.appendChild(emptySvg);
         var emptySvgDeclarationComputed = getComputedStyle(emptySvg);
 
+        d3.select("#empty-svg")
+            .remove();
+
         [].forEach.call(iframes, function (el) {
             try {
                 if (el.contentDocument) {
@@ -50,9 +53,6 @@ SvgExport.export = function () {
             }
         });
 
-        d3.select("#empty-svg")
-            .remove();
-
         documents.forEach(function (doc) {
             var newSources = getSources(doc, emptySvgDeclarationComputed);
             // because of prototype on NYT pages
@@ -60,15 +60,11 @@ SvgExport.export = function () {
                 SVGSources.push(newSources[i]);
             }
         });
-        if (SVGSources.length > 1) {
+        if (SVGSources.length) {
             createPopover(SVGSources);
-        } else if (SVGSources.length > 0) {
-            download(SVGSources[0]);
         } else {
             alert("The Crowbar couldn’t find any SVG nodes.");
         }
-
-
     }
 
     function createPopover(sources) {
@@ -260,5 +256,6 @@ SvgExport.export = function () {
 };
 
 SvgExport.cleanup = function () {
-    d3.selectAll(".svg-crowbar").remove();
+    d3.selectAll(".svg-crowbar")
+        .remove();
 };

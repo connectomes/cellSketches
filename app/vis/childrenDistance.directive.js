@@ -13,25 +13,21 @@
         };
 
         function link(scope, element, attrs) {
-            console.log('child distance link');
-            console.log(scope);
             var svgWidth = 1350;
             var svgHeight = 800;
 
-            var svg = d3.select(element[0]).
-                append('svg').attr({
-                    width: svgWidth,
-                    height: svgHeight
-                }).on('click', clearSelection);
+            var svg = d3.select(element[0]).append('svg').attr({
+                width: svgWidth,
+                height: svgHeight
+            }).on('click', clearSelection);
 
             var mainPadding = 20;
             var mainWidth = svgWidth - mainPadding;
             var mainHeight = 500;
             var detailHeight = 250;
-            var mainGroup = svg.append('g').
-                attr({
-                    'transform': 'translate(' + mainPadding / 2 + ',' + mainPadding / 2 + ')'
-                });
+            var mainGroup = svg.append('g').attr({
+                'transform': 'translate(' + mainPadding / 2 + ',' + mainPadding / 2 + ')'
+            });
 
             var detailGroup = svg.append('g')
                 .attr({
@@ -110,7 +106,7 @@
                     var data = d3.layout.histogram()
                         .range([0, maxChildDistance])
                         .bins(x.ticks(10))
-                    (distances);
+                        (distances);
 
                     yMax = Math.max(d3.max(data, function (d) {
                         return d.y;
@@ -313,7 +309,6 @@
             }
 
             function markClickCallback(d) {
-                console.log(d);
 
                 clearSelection();
                 currentSelection = this;
