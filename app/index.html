@@ -87,6 +87,7 @@
     <script src="../shared/utils/dataToText.js"></script>
     <script src="../shared/utils/sort.js"></script>
     <script src="../shared/utils/triangulate.js"></script>
+    <script src="../shared/utils/svgExport.js"></script>
 
     <link rel="stylesheet" type="text/css" href="../bower_components/angular-toastr/dist/angular-toastr.css"/>
     <script type="text/javascript" src="../bower_components/angular-toastr/dist/angular-toastr.tpls.js"></script>
@@ -105,7 +106,6 @@
 <div class="navbar navbar-fixed-top">
     <div class="navbar-inner">
         <a class="brand" ui-sref="route1">Cell Sketches</a>
-
         <div class="container">
             <ul class="nav">
                 <li ui-sref-active="active"><a ui-sref="route1">Cells</a></li>
@@ -113,6 +113,13 @@
                 <li ui-sref-active="active"><a ui-sref="iplChart">IPL Chart</a></li>
                 <li ng-show="true" ui-sref-active="active"><a ui-sref="geometry">Geometry</a></li>
             </ul>
+            <span style="position: absolute; right: 6px;" ng-show="!model.ui.exportingSvgs"
+                  ng-click="onExportSvgsClicked(model.ui.exportingSvgs)"> <i style="font-size: 20px;"
+                                                                             class="icon-download"></i></span>
+
+            <span style="position: absolute; right: 6px" ng-show="model.ui.exportingSvgs"
+                  ng-click="onExportSvgsClicked(model.ui.exportingSvgs)">
+                <i class="icon-remove"></i></span>
         </div>
     </div>
 </div>

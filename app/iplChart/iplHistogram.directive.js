@@ -48,8 +48,10 @@
             //scope.$watch('chartData', cellsChanged);
             scope.$watch('toggle', cellsChanged);
             scope.$watch('hoverIndex', hoverIndexChanged);
+
             self.svg = d3.select(element[0])
                 .append('svg')
+                .attr("id", scope.value)
                 .attr('width', scope.width)
                 .attr('height', scope.height)
                 .append('g');
@@ -71,6 +73,10 @@
                 var height = scope.height;
                 var margin = getMargins(width, height);
 
+                d3.select(element[0])
+                    .select("svg")
+                    .attr("id", 'conversion-' + scope.value + '-' + scope.$parent.$parent.model.ui.selectedVerticalAxisMode.name);
+
                 visUtils.addOutlineToGroup(self.svg, width, height, '#222222');
 
                 self.svg.append('text')
@@ -86,16 +92,15 @@
                     .domain(scope.domain)
                     .range(scope.range);
 
+                var yAxisDomain = [Math.min(scope.yAxisDomain[0], 0), scope.yAxisDomain[1]];
                 var y = d3.scale.linear()
-                    .domain(scope.yAxisDomain)
+                    .domain(yAxisDomain)
                     .range(scope.yAxisRange);
 
                 var xAxis = d3.svg.axis()
                     .scale(x)
                     .orient("bottom")
                     .tickValues(scope.domain);
-
-                var format = d3.format("1%");
 
                 var yAxis = d3.svg.axis()
                     .scale(y)
@@ -120,7 +125,6 @@
                     .tickFormat(function (d) {
                         return;
                     });
-
 
                 // Create x axis
                 group.append("g")
@@ -175,12 +179,10 @@
                 var bar = group.selectAll(".iplHistogramBar")
                     .data(data)
                     .enter()
-                    .append("g")
+                    .append("rect")
                     .attr("transform", function (d, i) {
                         return "translate(" + 0.5 + "," + ((yRange / (data.length)) * i) + ")";
-                    });
-
-                bar.append("rect")
+                    })
                     .attr("x", 0)
                     .attr("height", function (d) {
                         return (yRange / (data.length + 1));

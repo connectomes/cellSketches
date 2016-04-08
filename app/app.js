@@ -51,7 +51,8 @@
                         }
                     ],
 
-                    selectedMode: {}
+                    selectedMode: {},
+                    exportingSvgs: false
                 },
 
                 // all available cells to be displayed
@@ -233,6 +234,19 @@
             }
         };
 
+        /**
+         * @name $scope.onExportSvgsClicked
+         * @desc Runs the svg export or clean up script. (This is stolen from NY times svg-crowbar.
+         */
+        $scope.onExportSvgsClicked = function(exporting) {
+            $scope.model.ui.exportingSvgs = !exporting;
+            if($scope.model.ui.exportingSvgs) {
+                SvgExport.export();
+            } else {
+                SvgExport.cleanup();
+            }
+        };
+
         $scope.saveData = function (data) {
             var blob = new Blob([data], {type: "text"});
             saveAs(blob, 'data.csv');
@@ -380,6 +394,7 @@
             $log.debug(' setting all neighbor labels to: ', allLabels);
             $scope.model.ui.neighborLabels = allLabels;
         };
+
         volumeLayers.activate().then(function () {
             $scope.activate();
         });

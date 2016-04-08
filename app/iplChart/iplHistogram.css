@@ -25,3 +25,9 @@
 .y-axis-ticks path {
     display: none;
 }
+
+.axis line {
+    fill: none;
+    stroke: #000;
+    shape-rendering: crispEdges;
+}

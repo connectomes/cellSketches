@@ -12,7 +12,10 @@
             scope: {
                 values: '=',
                 maxValue: '=',
-                histogram: '='
+                histogram: '=',
+                id: '=',
+                target: '=',
+                childType: '='
             },
             link: link,
             restrict: 'E'
@@ -38,11 +41,21 @@
             var height = 75;
             var margin = getMargins(width, height);
 
+            console.log(scope);
             // Create svg.
             var svg = d3.select(element[0])
-                .append('svg')
-                .append('g')
+                .append('svg');
+            var id = '';
+            if(scope.childType) {
+                id = 'cell' + scope.id + '-' + scope.childType;
+            } else {
+                id = 'cell' + scope.id + '-' + scope.target;
+            }
+            svg.attr("id", id);
+
+            svg = svg.append('g')
                 .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+
 
             // Create scales
             var x = d3.scale.linear()

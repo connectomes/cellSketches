@@ -645,14 +645,18 @@
                                 row[currTarget] = {
                                     values: values,
                                     width: columnWidth,
-                                    highlight: false
+                                    highlight: false,
+                                    id: cell.id,
+                                    target: currTarget
                                 };
                             }
                         } else {
                             row[currTarget] = {
                                 values: values,
                                 width: columnWidth,
-                                highlight: false
+                                highlight: false,
+                                id: cell.id,
+                                target: currTarget
                             };
                         }
 
@@ -675,6 +679,8 @@
                             row[childTypeCode] = {};
                             row[childTypeCode].values = volumeHelpers.createCellChildValues(cellIndex, children, attribute, units);
                             row[childTypeCode].width = columnWidth;
+                            row[childTypeCode].id = cell.id;
+                            row[childTypeCode].childType = childTypeCode;
                         });
                     } else {
                         var allAvailableChildTypes = volumeCells.getAllAvailableChildTypes();
@@ -684,6 +690,8 @@
                             row[childTypeCode] = {};
                             row[childTypeCode].values = volumeHelpers.createCellChildValues(cellIndex, children, attribute, units);
                             row[childTypeCode].width = columnWidth;
+                            row[childTypeCode].id = cell.id;
+                            row[childTypeCode].childType = childTypeCode;
                         });
                     }
 

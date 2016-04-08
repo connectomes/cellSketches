@@ -1,4 +1,5 @@
-(function() {
+var SvgExport = {};
+SvgExport.export = function () {
     var doctype = '<?xml version="1.0" standalone="no"?><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">';
 
     window.URL = (window.URL || window.webkitURL);
@@ -22,31 +23,37 @@
 
         // add empty svg element
         var emptySvg = window.document.createElementNS(prefix.svg, 'svg');
+
+        d3.select(emptySvg)
+            .attr("id", "empty-svg");
+
         window.document.body.appendChild(emptySvg);
         var emptySvgDeclarationComputed = getComputedStyle(emptySvg);
-        console.log("emptySvgDeclarationComputed", emptySvgDeclarationComputed);
 
-        [].forEach.call(iframes, function(el) {
+        [].forEach.call(iframes, function (el) {
             try {
                 if (el.contentDocument) {
                     documents.push(el.contentDocument);
                 }
-            } catch(err) {
+            } catch (err) {
                 console.log(err);
             }
         });
 
-        [].forEach.call(objects, function(el) {
+        [].forEach.call(objects, function (el) {
             try {
                 if (el.contentDocument) {
                     documents.push(el.contentDocument);
                 }
-            } catch(err) {
+            } catch (err) {
                 console.log(err)
             }
         });
 
-        documents.forEach(function(doc) {
+        d3.select("#empty-svg")
+            .remove();
+
+        documents.forEach(function (doc) {
             var newSources = getSources(doc, emptySvgDeclarationComputed);
             // because of prototype on NYT pages
             for (var i = 0; i < newSources.length; i++) {
@@ -61,13 +68,14 @@
             alert("The Crowbar couldn’t find any SVG nodes.");
         }
 
+
     }
 
     function createPopover(sources) {
         cleanup();
 
-        sources.forEach(function(s1) {
-            sources.forEach(function(s2) {
+        sources.forEach(function (s1) {
+            sources.forEach(function (s2) {
                 if (s1 !== s2) {
                     if ((Math.abs(s1.top - s2.top) < 38) && (Math.abs(s1.left - s2.left) < 38)) {
                         s2.top += 38;
@@ -86,8 +94,6 @@
         buttonsContainer.style["top"] = 0;
         buttonsContainer.style["left"] = 0;
 
-
-
         var background = document.createElement("div");
         body.appendChild(background);
 
@@ -99,7 +105,7 @@
         background.style["width"] = "100%";
         background.style["height"] = "100%";
 
-        sources.forEach(function(d, i) {
+        sources.forEach(function (d, i) {
             var buttonWrapper = document.createElement("div");
             buttonsContainer.appendChild(buttonWrapper);
             buttonWrapper.setAttribute("class", "svg-crowbar");
@@ -114,7 +120,7 @@
             buttonWrapper.style["background"] = "rgba(0, 0, 0, 0.8)";
             buttonWrapper.style["box-shadow"] = "0px 4px 18px rgba(0, 0, 0, 0.4)";
             buttonWrapper.style["cursor"] = "move";
-            buttonWrapper.textContent =  "SVG #" + i + ": " + (d.id ? "#" + d.id : "") + (d.class ? "." + d.class : "");
+            buttonWrapper.textContent = "SVG #" + i + ": " + (d.id ? "#" + d.id : "") + (d.class ? "." + d.class : "");
 
             var button = document.createElement("button");
             buttonWrapper.appendChild(button);
@@ -125,7 +131,7 @@
             button.style["margin"] = "5px 0 0 0";
             button.textContent = "Download";
 
-            button.onclick = function(el) {
+            button.onclick = function (el) {
                 // console.log(el, d, i, sources)
                 download(d);
             };
@@ -137,11 +143,10 @@
     function cleanup() {
         var crowbarElements = document.querySelectorAll(".svg-crowbar");
 
-        [].forEach.call(crowbarElements, function(el) {
+        [].forEach.call(crowbarElements, function (el) {
             el.parentNode.removeChild(el);
         });
     }
-
 
     function getSources(doc, emptySvgDeclarationComputed) {
         var svgInfo = [],
@@ -193,7 +198,7 @@
             filename = window.document.title.replace(/[^a-z0-9]/gi, '-').toLowerCase();
         }
 
-        var url = window.URL.createObjectURL(new Blob(source.source, { "type" : "text\/xml" }));
+        var url = window.URL.createObjectURL(new Blob(source.source, {"type": "text\/xml"}));
 
         var a = document.createElement("a");
         body.appendChild(a);
@@ -203,29 +208,28 @@
         a.style["display"] = "none";
         a.click();
 
-        setTimeout(function() {
+        setTimeout(function () {
             window.URL.revokeObjectURL(url);
         }, 10);
     }
 
-
     function setInlineStyles(svg, emptySvgDeclarationComputed) {
 
-        function explicitlySetStyle (element) {
+        function explicitlySetStyle(element) {
             var cSSStyleDeclarationComputed = getComputedStyle(element);
-            console.log("cSSStyleDeclarationComputed", cSSStyleDeclarationComputed);
             var i, len, key, value;
             var computedStyleStr = "";
-            for (i=0, len=cSSStyleDeclarationComputed.length; i<len; i++) {
-                key=cSSStyleDeclarationComputed[i];
-                value=cSSStyleDeclarationComputed.getPropertyValue(key);
-                if (value!==emptySvgDeclarationComputed.getPropertyValue(key) && key != "width" && key != "height") {
-                    computedStyleStr+=key+":"+value+";";
+            for (i = 0, len = cSSStyleDeclarationComputed.length; i < len; i++) {
+                key = cSSStyleDeclarationComputed[i];
+                value = cSSStyleDeclarationComputed.getPropertyValue(key);
+                if (value !== emptySvgDeclarationComputed.getPropertyValue(key) && key != "width" && key != "height") {
+                    computedStyleStr += key + ":" + value + ";";
                 }
             }
             element.setAttribute('style', computedStyleStr);
         }
-        function traverse(obj){
+
+        function traverse(obj) {
             var tree = [];
             tree.push(obj);
             visit(obj);
@@ -233,7 +237,7 @@
                 if (node && node.hasChildNodes()) {
                     var child = node.firstChild;
                     while (child) {
-                        if (child.nodeType === 1 && child.nodeName != 'SCRIPT'){
+                        if (child.nodeType === 1 && child.nodeName != 'SCRIPT') {
                             tree.push(child);
                             visit(child);
                         }
@@ -241,15 +245,20 @@
                     }
                 }
             }
+
             return tree;
         }
+
         // hardcode computed css styles inside svg
         var allElements = traverse(svg);
         var i = allElements.length;
-        while (i--){
+        while (i--) {
             explicitlySetStyle(allElements[i]);
         }
     }
 
+};
 
-})();
+SvgExport.cleanup = function () {
+    d3.selectAll(".svg-crowbar").remove();
+};

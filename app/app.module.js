@@ -80,6 +80,7 @@
                 warning: 'toast-warning'
             },
             maxOpened: 0,
+
             messageClass: 'toast-message',
             newestOnTop: true,
             onHidden: null,
