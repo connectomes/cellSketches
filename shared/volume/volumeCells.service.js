@@ -650,7 +650,7 @@
                         if (currChild.Locations.length == 0) {
                             var message = "Cell " + currChild.ParentID + " child " + currChild.ID + " has no locations. I cannot continue. Fix it and reload the page.";
                             var title = "Found a cell child with no locations.";
-                            toastr.error(title, message);
+                            toastr.error(message, title);
                             throw title;
                         }
 
