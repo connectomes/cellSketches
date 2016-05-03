@@ -26,6 +26,7 @@
             getDetailsColumnDefs: getDetailsColumnDefs,
             getDetailsGridOptions: getDetailsGridOptions,
             getDetailsData: getDetailsData,
+            getDetailsDataAsCsv: getDetailsDataAsCsv,
             getHeaderData: getHeaderData,
             getHistogramMaxYValueFromTable: getHistogramMaxYValueFromTable,
             getHistogramMaxYValueFromValues: getHistogramMaxYValueFromValues,
@@ -247,7 +248,7 @@
                         childrenPerTarget[currIndex] += child.id;
                         numChildrenPerTarget[currIndex] = 1;
                     } else {
-                        childrenPerTarget[currIndex] += ', ' + child.id;
+                        childrenPerTarget[currIndex] += '; ' + child.id;
                         numChildrenPerTarget[currIndex] += 1;
                     }
                 });
@@ -334,8 +335,8 @@
                                 targetId += neighborId;
                                 targetLabels += volumeCells.getCell(neighborId).label;
                             } else {
-                                targetId += ', ' + neighborId;
-                                targetLabels += ', ' + volumeCells.getCell(neighborId).label;
+                                targetId += '; ' + neighborId;
+                                targetLabels += '; ' + volumeCells.getCell(neighborId).label;
                             }
 
 
@@ -364,6 +365,43 @@
             }
 
             return details;
+        }
+
+        /**
+         * @name getDetailsDataAsCsv
+         * @returns List of strings to appear in the table of cell children.
+         */
+        function getDetailsDataAsCsv(data, valueName) {
+            var rows = data;
+            var row = rows[0];
+            var keys = [];
+
+            for (var key in row) {
+                if (key != "$$hashKey") {
+                    keys.push(key);
+                }
+            }
+
+            var csv = '';
+            keys.forEach(function (key) {
+                if (key != "childValue") {
+                    csv += key + ', ';
+                } else {
+                    csv += valueName;
+                }
+            });
+
+            csv += '\n';
+
+            rows.forEach(function (row) {
+                keys.forEach(function (key) {
+                    csv += row[key] + ",";
+                });
+                csv += '\n';
+            });
+
+            return csv;
+
         }
 
         /**

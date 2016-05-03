@@ -112,6 +112,7 @@
             scope.overviewGridOptions = {};
 
             scope.onDownloadClicked = onDownloadClicked;
+            scope.onDownloadDetailsClicked = onDownloadDetailsClicked;
             scope.broadcastChange();
 
             function cellsChanged(slot, cells, childType, useTargetLabelGroups, useOnlySelectedTargets, selectedTargets, convertToNm, useRadius) {
@@ -241,7 +242,6 @@
                 scope.gridOptions.onRegisterApi = function (gridApi) {
                     scope.detailGridApi = gridApi;
                     gridApi.edit.on.afterCellEdit(scope, function (rowEntity, colDef, newValue, oldValue) {
-
                         rowEntity[colDef.field] = oldValue;
                         scope.$apply();
                     });
@@ -259,6 +259,12 @@
 
                 var blob = new Blob([csv], {type: "text"});
                 saveAs(blob, 'data.csv');
+            }
+
+            function onDownloadDetailsClicked() {
+                var csv = neighborTableData.getDetailsDataAsCsv(scope.gridOptions.data, scope.model.ui.modes.selectedAttributeMode.name.toLowerCase());
+                var blob = new Blob([csv], {type: "text"});
+                saveAs(blob, 'details_data.csv');
             }
 
             function onDetailsRowHovered(column, rowScope, mouseOver) {
