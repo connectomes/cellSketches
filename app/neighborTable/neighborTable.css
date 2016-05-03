@@ -19,6 +19,7 @@
 }
 
 .grid {
+    position: relative;
     width: 100%;
     height: 500px;
 }
@@ -62,4 +63,20 @@
 .details-grid-row div[role=row] {
     display: flex ;
     align-content: stretch;
+}
+
+.grid-title {
+    display: block;
+    margin-left: 0;
+    margin-right: 0;
+    font-weight: bold;
+    height: 40px;
+}
+
+.grid-title-text {
+    float: left;
+}
+
+.grid-title-buttons {
+    float: right;
 }

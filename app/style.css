@@ -32,3 +32,13 @@
     justify-content: center;
     align-items: center;
 }
+
+.fa {
+    display: inline;
+    background: transparent;
+}
+
+.fa:hover {
+    color: gray;
+    cursor: pointer;
+}

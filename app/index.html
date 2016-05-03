@@ -102,6 +102,9 @@
     <link rel="stylesheet" type="text/css"
           href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/2.3.1/css/bootstrap.min.css">
     <link rel="stylesheet" type="text/css" href="http://cdnjs.cloudflare.com/ajax/libs/select2/3.4.5/select2.css">
+    <link data-require="fontawesome@*" data-semver="4.5.0" rel="stylesheet"
+          href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.css"/>
+
 </head>
 <div class="navbar navbar-fixed-top">
     <div class="navbar-inner">
@@ -111,7 +114,7 @@
                 <li ui-sref-active="active"><a ui-sref="route1">Cells</a></li>
                 <li ui-sref-active="active"><a ui-sref="neighborTable">Tables</a></li>
                 <li ui-sref-active="active"><a ui-sref="iplChart">IPL Chart</a></li>
-                <li ng-show="false" ui-sref-active="active"><a ui-sref="geometry">Geometry</a></li>
+                <li ng-show="true" ui-sref-active="active"><a ui-sref="geometry">Geometry</a></li>
             </ul>
             <span style="position: absolute; right: 6px;" ng-show="!model.ui.exportingSvgs"
                   ng-click="onExportSvgsClicked(model.ui.exportingSvgs)"> <i style="font-size: 20px;"
