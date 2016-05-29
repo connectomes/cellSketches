@@ -130,12 +130,12 @@
                     field: 'targetId',
                     displayName: 'target id',
                     enableSorting: false,
-                    width: 100
+                    width: '25%'
                 }, {
                     field: 'count',
                     displayName: 'count',
                     sortingAlgorithm: utils.SortingAlgorithms.sortColumnAsNumbers,
-                    width: 100
+                    width: '25%'
                 }, {
                     field: 'childIds',
                     displayName: 'child ids',
@@ -149,17 +149,21 @@
                     field: 'childId',
                     displayName: 'child id',
                     sortingAlgorithm: utils.SortingAlgorithms.sortColumnAsNumbers,
-                    width: 100
+                    width: '15%'
                 }, {
                     field: 'targetId',
                     displayName: 'target id',
                     enableSorting: false,
-                    width: 100
+                    width: '15%'
                 }, {
                     field: 'childValue',
                     displayName: childValueDisplayName,
                     cellTemplate: 'neighborTable/neighborTableTruncatedValueCell.html',
-                    sortingAlgorithm: utils.SortingAlgorithms.sortColumnAsNumbers
+                    sortingAlgorithm: utils.SortingAlgorithms.sortColumnAsNumbers,
+                    width: '15%'
+                }, {
+                    field: 'confidence',
+                    displayName: 'confidence'
                 }];
 
             }
@@ -183,8 +187,7 @@
                 }, {
                     field: 'confidence',
                     displayName: 'confidence',
-                    enableSorting: true,
-                    width: '15%'
+                    enableSorting: true
                 }];
             }
             else if (grouping == self.Grouping.CHILDTYPE && attribute != undefined) {
@@ -193,22 +196,26 @@
                     field: 'childId',
                     displayName: 'child id',
                     sortingAlgorithm: utils.SortingAlgorithms.sortColumnAsNumbers,
-                    width: 100
+                    width: '16%'
                 }, {
                     field: 'targetLabel',
                     displayName: 'target label',
                     enableSorting: false,
-                    width: 300
+                    width: '25%'
                 }, {
                     field: 'targetId',
                     displayName: 'target id',
                     enableSorting: false,
-                    width: 400
+                    width: '25%'
                 }, {
                     field: 'childValue',
                     displayName: childValueDisplayName,
                     cellTemplate: 'neighborTable/neighborTableTruncatedValueCell.html',
-                    sortingAlgorithm: utils.SortingAlgorithms.sortColumnAsNumbers
+                    sortingAlgorithm: utils.SortingAlgorithms.sortColumnAsNumbers,
+                    width: '16%'
+                }, {
+                    field: 'confidence',
+                    displayName: 'confidence'
                 }];
 
             }
@@ -272,13 +279,13 @@
 
                 values.forEach(function (value) {
                     var targetId = volumeCells.getCellNeighborIdFromChildAndPartner(value.cellIndex, value.childIndex, value.partnerIndex);
-                    var childId = volumeCells.getCellChildAt(value.cellIndex, value.childIndex).id;
+                    var child = volumeCells.getCellChildAt(value.cellIndex, value.childIndex);
                     var childValue = value.value;
-
                     details.push({
-                        childId: childId,
+                        childId: child.id,
                         targetId: targetId,
-                        childValue: childValue
+                        childValue: childValue,
+                        confidence: child.confidence
                     });
                 });
 
@@ -312,11 +319,13 @@
                             targetLabels = 'none';
                         }
 
+                        var child = volumeCells.getCellChildAt(value.cellIndex, value.childIndex);
+
                         details.push({
-                            childId: volumeCells.getCellChildAt(value.cellIndex, value.childIndex).id,
+                            childId: child.id,
                             targetId: targetId,
                             targetLabel: targetLabels,
-                            confidence: volumeCells.getCellChildAt(value.cellIndex, value.childIndex).confidence
+                            confidence: child.confidence
                         });
                     }
 
@@ -354,11 +363,14 @@
                             targetLabels = 'none';
                         }
 
+                        var child = volumeCells.getCellChildAt(value.cellIndex, value.childIndex);
+
                         details.push({
-                            childId: volumeCells.getCellChildAt(value.cellIndex, value.childIndex).id,
+                            childId: child.id,
                             targetId: targetId,
                             targetLabel: targetLabels,
-                            childValue: value.value
+                            childValue: value.value,
+                            confidence: child.confidence
                         });
                     }
 
