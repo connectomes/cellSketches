@@ -233,10 +233,10 @@
     </div>
 
 
-    <div ng-show="model.ui.details.cellId == -1">
+    <div ng-if="model.ui.details.cellId == -1">
         <h4>Click on a Grid Cell for Details</h4>
     </div>
-    <div ng-show="model.ui.details.cellId != -1">
+    <div ng-if="model.ui.details.cellId != -1">
         <div class="grid-title">
             <div class="grid-title-text">
                 <div ng-show="model.ui.selectedMode.name == 'Children By Type'">

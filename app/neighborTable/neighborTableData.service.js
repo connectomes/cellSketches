@@ -169,16 +169,22 @@
                     field: 'childId',
                     displayName: 'child id',
                     sortingAlgorithm: utils.SortingAlgorithms.sortColumnAsNumbers,
-                    width: 100
+                    width: '15%'
                 }, {
                     field: 'targetLabel',
                     displayName: 'target label',
                     enableSorting: false,
-                    width: 400
+                    width: '35%'
                 }, {
                     field: 'targetId',
                     displayName: 'target id',
-                    enableSorting: false
+                    enableSorting: false,
+                    width: '35%'
+                }, {
+                    field: 'confidence',
+                    displayName: 'confidence',
+                    enableSorting: true,
+                    width: '15%'
                 }];
             }
             else if (grouping == self.Grouping.CHILDTYPE && attribute != undefined) {
@@ -309,7 +315,9 @@
                         details.push({
                             childId: volumeCells.getCellChildAt(value.cellIndex, value.childIndex).id,
                             targetId: targetId,
-                            targetLabel: targetLabels
+                            targetLabel: targetLabels,
+                            confidence: volumeCells.getCellChildAt(value.cellIndex, value.childIndex).confidence
+
                         });
                     }
 
