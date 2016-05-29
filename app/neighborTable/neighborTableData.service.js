@@ -300,8 +300,8 @@
                                 targetId += neighborId;
                                 targetLabels += volumeCells.getCell(neighborId).label;
                             } else {
-                                targetId += ', ' + neighborId;
-                                targetLabels += ', ' + volumeCells.getCell(neighborId).label;
+                                targetId += '; ' + neighborId;
+                                targetLabels += '; ' + volumeCells.getCell(neighborId).label;
                             }
 
 
@@ -317,7 +317,6 @@
                             targetId: targetId,
                             targetLabel: targetLabels,
                             confidence: volumeCells.getCellChildAt(value.cellIndex, value.childIndex).confidence
-
                         });
                     }
 
