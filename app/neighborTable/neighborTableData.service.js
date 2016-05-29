@@ -403,10 +403,20 @@
 
             var csv = '';
             keys.forEach(function (key) {
-                if (key != "childValue") {
-                    csv += key + ', ';
+                if (key == "childValue") {
+                    csv += valueName + ', ';
+                } else if (key == "targetLabel") {
+                    csv += "target label, ";
+                } else if (key == "targetId") {
+                    csv += "target id, ";
+                } else if (key == "targetLabel") {
+                    csv += "target label, ";
+                } else if (key == "childIds") {
+                    csv += "child ids, ";
+                } else if (key == "childId") {
+                    csv += "child id, ";
                 } else {
-                    csv += valueName;
+                    csv += key + ", ";
                 }
             });
 

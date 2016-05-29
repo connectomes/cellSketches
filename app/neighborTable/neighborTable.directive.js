@@ -264,7 +264,22 @@
             function onDownloadDetailsClicked() {
                 var csv = neighborTableData.getDetailsDataAsCsv(scope.gridOptions.data, scope.model.ui.modes.selectedAttributeMode.name.toLowerCase());
                 var blob = new Blob([csv], {type: "text"});
-                saveAs(blob, 'details_data.csv');
+
+                var filename = "";
+                if (scope.model.ui.selectedMode.name == 'Children By Type') {
+                    if (scope.model.ui.modes.selectedDataMode.name == "Attribute (histogram)") {
+                        filename = "cell_" + scope.model.ui.details.cellId + "_children_" + scope.model.ui.details.target + "_" + scope.model.ui.modes.selectedAttributeMode.name.toLowerCase();
+                    } else {
+                        filename = "cell_" + scope.model.ui.details.cellId + "_children_" + scope.model.ui.details.target;
+                    }
+                } else {
+                    if (scope.model.ui.modes.selectedDataMode.name == "Attribute (histogram)") {
+                        filename = "cell_" + scope.model.ui.details.cellId + "_children_" + scope.model.ui.details.selectedChildTypes.replace(", ", "_") + "_targeting_" + scope.model.ui.details.target + "_" + scope.model.ui.modes.selectedAttributeMode.name.toLowerCase();
+                    } else {
+                        filename = "cell_" + scope.model.ui.details.cellId + "_children_" + scope.model.ui.details.selectedChildTypes.replace(", ", "_") + "_targeting_" + scope.model.ui.details.target;
+                    }
+                }
+                saveAs(blob, filename + ".csv");
             }
 
             function onDetailsRowHovered(column, rowScope, mouseOver) {
