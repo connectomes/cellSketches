@@ -105,8 +105,8 @@
             ];
 
             scope.model.ui.modes = {};
-            scope.model.ui.modes.selectedDataMode = scope.DataModes[1];
-            scope.model.ui.modes.selectedCountMode = scope.CountEncodingModes[0];
+            scope.model.ui.modes.selectedDataMode = scope.DataModes[0];
+            scope.model.ui.modes.selectedCountMode = scope.CountEncodingModes[1];
             scope.model.ui.modes.selectedAttributeMode = scope.AttributeModes[0];
             scope.model.ui.modes.selectedUnitMode = scope.UnitModes[1];
             scope.overviewGridOptions = {};
@@ -143,6 +143,8 @@
                     selectedAttribute = scope.model.ui.modes.selectedAttributeMode.id;
                 }
 
+                scope.onOverviewCellClicked = onOverviewCellClicked1;
+
                 var cellIndexes = cells.indexes;
 
                 // Create column defs from targets.
@@ -162,7 +164,7 @@
                 // Create overview grid options. Here we want to keep the old grid options - this is because the old
                 // grid options have some internal state that needs to be preserved.
                 angular.extend(scope.overviewGridOptions, neighborTableData.getDefaultGridOptions(selectedAttribute));
-
+                scope.overviewGridOptions.data = {};
                 // Update the columns and data.
                 scope.overviewGridOptions.columnDefs = columnDefs;
                 scope.overviewGridOptions.data = [];
@@ -174,13 +176,15 @@
                     gridApi.cellNav.on.navigate(scope, onOverviewCellClicked);
                 };
 
+
+
                 scope.overviewGridSettings = {};
                 scope.overviewGridSettings.selectedAttribute = selectedAttribute;
                 scope.overviewGridSettings.selectedGrouping = childrenGrouping;
                 scope.overviewGridSettings.selectedUnits = scope.model.ui.modes.selectedUnitMode.id;
                 // Max count is used by the bars to fill appropriately.
-                scope.overviewGridOptions.data = neighborTableData.getTableData(cellIndexes, self.childType, useTargetLabelGroups, self.useOnlySelectedTargets, self.selectedTargets, childrenGrouping, 0, columnWidth, 0, selectedAttribute,
-                    scope.overviewGridSettings.selectedUnits);
+                scope.overviewGridOptions.data = angular.copy(neighborTableData.getTableData(cellIndexes, self.childType, useTargetLabelGroups, self.useOnlySelectedTargets, self.selectedTargets, childrenGrouping, 0, columnWidth, 0, selectedAttribute,
+                    scope.overviewGridSettings.selectedUnits));
                 scope.maxCount = neighborTableData.getTableDataMaxValue(headerData, scope.overviewGridOptions.data, selectedAttribute);
 
                 var numBins = 10;
@@ -194,7 +198,6 @@
 
                 // Done with the overview table. Now create the details table.
                 createDetailsTable(scope, childrenGrouping, selectedAttribute);
-
             }
 
             function createDebuggingElements(cells, useTargetLabelGroups, useOnlySelectedTargets, selectedTargets, childType) {
@@ -320,7 +323,13 @@
                 scope.highlightList = [];
             }
 
+            function onOverviewCellClicked1(newRowCol) {
+                gridApi.cellNav.setFocus(newRowCol.row.index, col);
+
+            }
+
             function onOverviewCellClicked(newRowCol, oldRowCol) {
+                console.log("Overview cell clicked", newRowCol);
                 var nameOfColumn = newRowCol.col.colDef.name;
                 var values = newRowCol.row.entity[nameOfColumn].values;
                 onHighlightingCleared(scope);

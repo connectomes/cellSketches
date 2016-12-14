@@ -19,7 +19,7 @@
         self.cellCentroids = [];
 
         // Constant configurable values
-        self.maxCellsInFilter = 15;
+        self.maxCellsInFilter = 5;
 
         var service = {
             getAllAvailableChildTypes: getAllAvailableChildTypes,

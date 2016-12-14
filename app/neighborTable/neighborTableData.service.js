@@ -96,7 +96,8 @@
             var gridOptions = {
                 rowHeight: rowHeight,
                 multiSelect: false,
-                enableGridMenu: true
+                enableGridMenu: true,
+                enableRowHashing: false
             };
 
             return gridOptions;

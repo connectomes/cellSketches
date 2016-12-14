@@ -31,8 +31,24 @@
         }
 
         function link(scope, element, attribute) {
+            console.debug("link function");
+            drawHistogram(scope, element);
 
-            if(scope.values.length == 0) {
+            scope.$watch("values", function (newValue) {
+                scope.values = newValue;
+                drawHistogram(scope, element);
+            });
+
+            scope.$watch("id", function (newValue) {
+                scope.id = newValue;
+                drawHistogram(scope, element);
+            });
+
+        }
+
+        function drawHistogram(scope, element) {
+            console.debug("draw histogram");
+            if (scope.values.length == 0) {
                 return;
             }
 
@@ -41,17 +57,17 @@
             var height = 75;
             var margin = getMargins(width, height);
 
+            d3.select(element[0]).selectAll("*").remove();
             // Create svg.
             var svg = d3.select(element[0])
                 .append('svg');
             var id = '';
-            if(scope.childType) {
+            if (scope.childType) {
                 id = 'cell' + scope.id + '-' + scope.childType;
             } else {
                 id = 'cell' + scope.id + '-' + scope.target;
             }
             svg.attr("id", id);
-
             svg = svg.append('g')
                 .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
 
@@ -220,6 +236,5 @@
              }
              */
         }
-
     }
 })();

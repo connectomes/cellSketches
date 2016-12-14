@@ -16,7 +16,6 @@
         'ui.bootstrap',
         'ui.grid',
         'ui.grid.resizeColumns',
-        'ui.grid.selection',
         'ui.grid.cellNav',
         'ui.grid.pinning',
         'ui.grid.moveColumns',

@@ -5,9 +5,9 @@
         .module('app.volumeModule')
         .factory('volumeOData', volumeOData);
 
-    volumeOData.$inject = ['$q', '$http'];
+    volumeOData.$inject = ['$q', '$http', 'toastr'];
 
-    function volumeOData($q, $http) {
+    function volumeOData($q, $http, toastr) {
 
         var self = this;
         //self.serviceUri = "http://webdev.connectomes.utah.edu/RC1Test/OData/";
@@ -30,6 +30,8 @@
             };
 
             var error = function (err) {
+                // TODO - this should tell the user that something broke on the server
+                toastr.error("I got a bad response from the server. Try refreshing.", "Bad response from the server");
                 throw err;
             };
 
