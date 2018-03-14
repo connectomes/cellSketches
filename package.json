@@ -37,7 +37,7 @@
     "url": "https://github.com/angular/angular-seed/issues"
   },
   "homepage": "https://github.com/angular/angular-seed#readme",
-  "main": "karma.conf.js",
+  "main": "app/index.html",
   "dependencies": {
     "bower": "^1.4.1"
   },

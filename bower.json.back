@@ -1,0 +1,38 @@
+{
+  "name": "Cell-Sketches",
+  "description": "Cell sketches for MarcLab",
+  "version": "0.0.1",
+  "license": "MIT",
+  "dependencies": {
+    "d3": "~3.5.6",
+    "angular": "1.4.7",
+    "select2": "~4.0.0",
+    "angular-ui-router": "~0.2.15",
+    "angular-sanitize": "~1.4.7",
+    "karma-junit-reporter": "~0.3.7",
+    "should": "~7.1.0",
+    "karma-read-json": "~1.1.0",
+    "ui-select": "angular-ui-select#~0.13.1",
+    "three.js": "~0.74.0"
+  },
+  "authors": [
+    "Ethan <ethan.kerzner@gmail.com>"
+  ],
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "resolutions": {
+    "angular": "1.4.7"
+  },
+  "devDependencies": {
+    "angular-toastr": "~1.6.0",
+    "angular-ui-grid": "ui-grid#~3.0.7",
+    "filesaver": "*",
+    "angular-mocks": "~1.4.8",
+    "ui-bootstrap": "~0.14.3"
+  }
+}

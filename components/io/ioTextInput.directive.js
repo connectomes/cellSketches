@@ -12,7 +12,7 @@
         return {
             link: link,
             restrict: 'E',
-            templateUrl: 'io/ioTextInput.html'
+            templateUrl: 'components/io/ioTextInput.html'
         };
 
         function link(scope, element, attrs) {

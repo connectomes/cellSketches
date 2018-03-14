@@ -11,7 +11,7 @@
         return {
             link: link,
             restrict: 'E',
-            templateUrl: '../shared/io/ioCsvInput.html',
+            templateUrl: 'components/io/ioCsvInput.html',
             controller: ioCsvInputController
         };
 

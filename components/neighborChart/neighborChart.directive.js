@@ -148,7 +148,7 @@
                     displayName: 'children'
                 }];
 
-                scope.gridOptions.rowTemplate = 'common/rowTemplate.html';
+                scope.gridOptions.rowTemplate = 'components/common/rowTemplate.html';
 
                 scope.mouseOverDetailsRow = onDetailsRowHovered;
             }

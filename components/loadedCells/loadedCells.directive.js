@@ -15,7 +15,7 @@
             },
             link: link,
             restrict: 'E',
-            templateUrl: 'loadedCells/loadedCells.html'
+            templateUrl: 'components/loadedCells/loadedCells.html'
         };
 
         function link(scope, element, attribute) {

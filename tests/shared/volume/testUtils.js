@@ -49,8 +49,8 @@ var TestUtils = (function () {
             readJSON('tests/mock/childStructureTypes.json')
         );
 
-        httpBackend.when('GET', 'volume/labelGroups.json').respond(
-            readJSON('app/volume/labelGroups.json')
+        httpBackend.when('GET', 'components/volume/labelGroups.json').respond(
+            readJSON('components/volume/labelGroups.json')
         );
 
         httpBackend.when('GET', 'tests/mock/volumeCells.6115.json').respond(
@@ -92,14 +92,14 @@ var TestUtils = (function () {
     function setupStructures(volumeStructures, httpBackend) {
         // Setup fake server responses.
         var loadStructureTypes = 'http://websvc1.connectomes.utah.edu/RC1/OData/StructureTypes';
-        var loadLabelGroups = 'volume/labelGroups.json';
+        var loadLabelGroups = 'components/volume/labelGroups.json';
 
         httpBackend.when('GET', loadStructureTypes).respond(
             readJSON('tests/mock/childStructureTypes.json')
         );
 
         httpBackend.when('GET', loadLabelGroups).respond(
-            readJSON('app/volume/labelGroups.json')
+            readJSON('components/volume/labelGroups.json')
         );
 
         volumeStructures.activate();

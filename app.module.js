@@ -33,32 +33,32 @@
         $stateProvider
             .state('route1', {
                 url: "/input",
-                templateUrl: "upload/route1.html",
+                templateUrl: "components/upload/route1.html",
                 controller: 'ExampleController'
             })
             .state('childrenTable', {
                 url: "/childrenTable",
-                templateUrl: "childrenTable/childrenTable.html",
+                templateUrl: "components/childrenTable/childrenTable.html",
                 controller: 'ExampleController'
             })
             .state('neighborTable', {
                 url: "/table",
-                templateUrl: "neighborTable/neighborTable.html",
+                templateUrl: "components/neighborTable/neighborTable.html",
                 controller: 'ExampleController'
             })
             .state('neighborChart', {
                 url: "/neighborChart",
-                templateUrl: "neighborChart/neighborChart.html",
+                templateUrl: "components/neighborChart/neighborChart.html",
                 controller: 'ExampleController'
             })
             .state('iplChart', {
                 url: "/iplChart",
-                templateUrl: "iplChart/iplChart.html",
+                templateUrl: "components/iplChart/iplChart.html",
                 controller: "ExampleController"
             })
             .state('geometry', {
                 url: "/geometry",
-                templateUrl: "geometry/geometry.html",
+                templateUrl: "components/geometry/geometry.html",
                 controller: "ExampleController"
             })
         }
