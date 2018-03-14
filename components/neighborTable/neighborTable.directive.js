@@ -11,7 +11,7 @@
         return {
             link: link,
             restrict: 'E',
-            templateUrl: 'neighborTable/neighborTable.directive.html',
+            templateUrl: 'components/neighborTable/neighborTable.directive.html',
             scope: {
                 broadcastChange: '&',
                 model: '=',

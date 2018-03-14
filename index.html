@@ -20,6 +20,17 @@
     <script src="bower_components/file-saver/FileSaver.js"></script>
     <script src="bower_components/three.js/three.js"></script>
 
+    <!-- Bootstrap + jquery -->
+    <script type="text/javascript" src="bower_components/jquery/dist/jquery.js"></script>
+    <script src="bower_components/bootstrap/dist/js/bootstrap.js"></script>
+    <link rel="stylesheet" type="text/css"  href="bower_components/bootstrap/dist/css/bootstrap.css">
+
+    <!-- Select2 style is used for controls of the tables -->
+    <link rel="stylesheet" type="text/css" href="bower_components/select2/select2.css">
+
+    <!-- fontawesome is used for loading and download icons -->
+    <link rel="stylesheet" type="text/css" href="bower_components/font-awesome/css/font-awesome.css">
+
     <!-- The app -->
     <script src="app.module.js"></script>
     <script src="app.js"></script>
@@ -91,7 +102,6 @@
 
     <link rel="stylesheet" type="text/css" href="bower_components/angular-toastr/dist/angular-toastr.css"/>
     <script type="text/javascript" src="bower_components/angular-toastr/dist/angular-toastr.tpls.js"></script>
-
     <!-- Stylesheets. -->
 
     <link rel="stylesheet" type="text/css" href="style.css">
@@ -99,18 +109,15 @@
     <link rel="stylesheet" type="text/css" href="bower_components/angular-ui-select/dist/select.css">
 
     <!-- TODO: switch to only local stylesheets-->
-    <link rel="stylesheet" type="text/css"
-          href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/2.3.1/css/bootstrap.min.css">
-    <link rel="stylesheet" type="text/css" href="http://cdnjs.cloudflare.com/ajax/libs/select2/3.4.5/select2.css">
-    <link data-require="fontawesome@*" data-semver="4.5.0" rel="stylesheet"
-          href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.css"/>
+
 
 </head>
-<div class="navbar navbar-fixed-top">
-    <div class="navbar-inner">
-        <a class="brand" ui-sref="route1">Cell Sketches</a>
-        <div class="container">
-            <ul class="nav">
+<div class="navbar navbar-default">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <a class="navbar-brand" ui-sref="route1">Cell Sketches</a>
+        </div>
+            <ul class="nav navbar-nav">
                 <li ui-sref-active="active"><a ui-sref="route1">Cells</a></li>
                 <li ui-sref-active="active"><a ui-sref="neighborTable">Tables</a></li>
                 <li ui-sref-active="active"><a ui-sref="iplChart">IPL Chart</a></li>
@@ -123,7 +130,6 @@
             <span style="position: absolute; right: 6px" ng-show="model.ui.exportingSvgs"
                   ng-click="onExportSvgsClicked(model.ui.exportingSvgs)">
                 <i class="icon-remove"></i></span>
-        </div>
     </div>
 </div>
 <body ng-app="app.csvUpload" ng-controller="ExampleController as ctrl">

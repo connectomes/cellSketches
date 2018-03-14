@@ -14,7 +14,7 @@
             scope: {
                 broadcastChange: '&'
             },
-            templateUrl: 'childrenTable/childrenTable.directive.html'
+            templateUrl: 'components/childrenTable/childrenTable.directive.html'
         };
 
         function link(scope, element, attribute) {

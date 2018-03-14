@@ -60,11 +60,11 @@
 
                 if (i > 1) {
                     if (attribute == undefined) {
-                        column.cellTemplate = 'neighborTable/neighborTableCell.html';
+                        column.cellTemplate = 'components/neighborTable/neighborTableCell.html';
                         column.sortingAlgorithm = sortFunction;
                     } else {
                         column.width = self.histogramRowWidth;
-                        column.cellTemplate = 'neighborTable/neighborTableHistogramCell.directive.html';
+                        column.cellTemplate = 'components/neighborTable/neighborTableHistogramCell.directive.html';
                         column.enableSorting = false;
                     }
                 } else {
@@ -159,7 +159,7 @@
                 }, {
                     field: 'childValue',
                     displayName: childValueDisplayName,
-                    cellTemplate: 'neighborTable/neighborTableTruncatedValueCell.html',
+                    cellTemplate: 'components/neighborTable/neighborTableTruncatedValueCell.html',
                     sortingAlgorithm: utils.SortingAlgorithms.sortColumnAsNumbers,
                     width: '15%'
                 }, {
@@ -211,7 +211,7 @@
                 }, {
                     field: 'childValue',
                     displayName: childValueDisplayName,
-                    cellTemplate: 'neighborTable/neighborTableTruncatedValueCell.html',
+                    cellTemplate: 'components/neighborTable/neighborTableTruncatedValueCell.html',
                     sortingAlgorithm: utils.SortingAlgorithms.sortColumnAsNumbers,
                     width: '16%'
                 }, {

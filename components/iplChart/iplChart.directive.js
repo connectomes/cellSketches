@@ -11,7 +11,7 @@
         return {
             link: link,
             restrict: 'E',
-            templateUrl: 'iplChart/iplChart.directive.html',
+            templateUrl: 'components/iplChart/iplChart.directive.html',
             scope: {
                 broadcastChange: '&',
                 model: '=',
