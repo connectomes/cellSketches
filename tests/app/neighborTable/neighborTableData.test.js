@@ -440,29 +440,31 @@ describe('neighborTableData service test', function () {
         checkExpectedValues(columnDefs, expectedDisplayNames);
 
         attribute = volumeHelpers.PerChildAttributes.DIAMETER;
-        expectedDisplayNames = ['child id', 'target id', 'diameter'];
+        expectedDisplayNames = ['child id', 'target id', 'diameter', 'confidence'];
+
         columnDefs = neighborTableData.getDetailsColumnDefs(grouping, attribute);
         checkExpectedValues(columnDefs, expectedDisplayNames);
-
+        //
         attribute = undefined;
         grouping = neighborTableData.Grouping.CHILDTYPE;
-        expectedDisplayNames = ['child id', 'target label', 'target id'];
+
+        expectedDisplayNames = ['child id', 'target label', 'target id', 'confidence'];
         columnDefs = neighborTableData.getDetailsColumnDefs(grouping, attribute);
         checkExpectedValues(columnDefs, expectedDisplayNames);
 
         attribute = volumeHelpers.PerChildAttributes.DIAMETER;
-        expectedDisplayNames = ['child id', 'target label', 'target id', 'diameter (px)'];
+        expectedDisplayNames = ['child id', 'target label', 'target id', 'diameter (px)', 'confidence'];
         columnDefs = neighborTableData.getDetailsColumnDefs(grouping, attribute, units);
         checkExpectedValues(columnDefs, expectedDisplayNames);
-
+        //
         attribute = volumeHelpers.PerChildAttributes.DISTANCE;
-        expectedDisplayNames = ['child id', 'target label', 'target id', 'distance (px)'];
+        expectedDisplayNames = ['child id', 'target label', 'target id', 'distance (px)', 'confidence'];
         columnDefs = neighborTableData.getDetailsColumnDefs(grouping, attribute, units);
         checkExpectedValues(columnDefs, expectedDisplayNames);
 
         attribute = volumeHelpers.PerChildAttributes.DISTANCE;
         units = volumeHelpers.Units.NM;
-        expectedDisplayNames = ['child id', 'target label', 'target id', 'distance (nm)'];
+        expectedDisplayNames = ['child id', 'target label', 'target id', 'distance (nm)', 'confidence'];
         columnDefs = neighborTableData.getDetailsColumnDefs(grouping, attribute, units);
         checkExpectedValues(columnDefs, expectedDisplayNames);
     });
@@ -489,9 +491,10 @@ describe('neighborTableData service test', function () {
         var attribute = undefined;
         var data = neighborTableData.getTableData(cellIndexes, childType, useTargetLabelGroups, useOnlySelectedTargets, selectedTargets, grouping, 0, 100, true);
         var details = neighborTableData.getDetailsData(attribute, grouping, data[0]['GAC Aii'].values);
+
         details.forEach(function (row) {
             expect(volumeCells.getCell(row.targetId).label == 'GAC Aii').toBeTruthy();
-            expect(row.count == row.childIds.split(', ').length).toBeTruthy();
+            expect(row.count == row.childIds.split('; ').length).toBeTruthy();
         });
 
         // Diameter, grouping by target label

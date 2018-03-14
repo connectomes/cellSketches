@@ -45,11 +45,11 @@ describe('VolumeLayers service test', function () {
 
         var point = new utils.Point3D(0, 0, 0);
 
-        expect(volumeLayers.convertPoint(point, volumeLayers.ConversionModes.NORMALIZED_DEPTH, false, 15000)).toBeCloseTo(-100);
-        expect(volumeLayers.convertPoint(point, volumeLayers.ConversionModes.NORMALIZED_DEPTH, true)).toBeCloseTo(-105);
+        expect(volumeLayers.convertPoint(point, volumeLayers.ConversionModes.NORMALIZED_DEPTH, false, 15000).z).toBeCloseTo(-100);
+        expect(volumeLayers.convertPoint(point, volumeLayers.ConversionModes.NORMALIZED_DEPTH, true).z).toBeCloseTo(-105);
 
-        expect(volumeLayers.convertPoint(point, volumeLayers.ConversionModes.PERCENT_DIFFERENCE, false, 15000)).toBeCloseTo(-0.36900);
-        expect(volumeLayers.convertPoint(point, volumeLayers.ConversionModes.PERCENT_DIFFERENCE, true)).toBeCloseTo(-0.39473);
+        expect(volumeLayers.convertPoint(point, volumeLayers.ConversionModes.PERCENT_DIFFERENCE, false, 15000).z).toBeCloseTo(-0.36900);
+        expect(volumeLayers.convertPoint(point, volumeLayers.ConversionModes.PERCENT_DIFFERENCE, true).z).toBeCloseTo(-0.39473);
 
     });
 });

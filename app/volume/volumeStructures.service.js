@@ -113,7 +113,7 @@
                 console.log('shit!');
             }
 
-            return $http.get('../shared/volume/labelGroups.json').then(parseCellLabels, failedCellLabels)
+            return $http.get('volume/labelGroups.json').then(parseCellLabels, failedCellLabels)
         }
 
         function getChildStructureIdsFromNames(names) {

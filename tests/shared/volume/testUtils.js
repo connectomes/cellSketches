@@ -49,8 +49,8 @@ var TestUtils = (function () {
             readJSON('tests/mock/childStructureTypes.json')
         );
 
-        httpBackend.when('GET', '../shared/volume/labelGroups.json').respond(
-            readJSON('shared/volume/labelGroups.json')
+        httpBackend.when('GET', 'volume/labelGroups.json').respond(
+            readJSON('app/volume/labelGroups.json')
         );
 
         httpBackend.when('GET', 'tests/mock/volumeCells.6115.json').respond(
@@ -92,14 +92,14 @@ var TestUtils = (function () {
     function setupStructures(volumeStructures, httpBackend) {
         // Setup fake server responses.
         var loadStructureTypes = 'http://websvc1.connectomes.utah.edu/RC1/OData/StructureTypes';
-        var loadLabelGroups = '../shared/volume/labelGroups.json';
+        var loadLabelGroups = 'volume/labelGroups.json';
 
         httpBackend.when('GET', loadStructureTypes).respond(
             readJSON('tests/mock/childStructureTypes.json')
         );
 
         httpBackend.when('GET', loadLabelGroups).respond(
-            readJSON('shared/volume/labelGroups.json')
+            readJSON('app/volume/labelGroups.json')
         );
 
         volumeStructures.activate();
@@ -119,10 +119,10 @@ var TestUtils = (function () {
 
         volumeCells.loadCellChildrenAt(0);
         httpBackend.flush();
-
+        //
         volumeCells.loadCellChildPartnersAt(0);
         httpBackend.flush();
-
+        //
         volumeCells.loadCellNeighborsAt(0);
         httpBackend.flush();
     }

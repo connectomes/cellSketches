@@ -79,7 +79,7 @@ describe('VolumeCells service test', function () {
 
     });
 
-    it('getCellChildrenByTypeIndexes', function () {
+   it('getCellChildrenByTypeIndexes', function () {
 
         var id = 6115;
 

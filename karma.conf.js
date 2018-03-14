@@ -11,6 +11,7 @@ module.exports = function (config) {
             'bower_components/angular-toastr/dist/angular-toastr.tpls.js',
             'bower_components/angular-bootstrap/ui-bootstrap-tpls.js',
             'bower_components/three.js/three.js',
+            'app/volume/volume.module.js',
             'app/childrenTable/childrenTable.module.js',
             'app/childrenTable/*.js',
             'app/iplChart/iplChart.module.js',
@@ -19,15 +20,14 @@ module.exports = function (config) {
             'app/loadedCells/*.service.js',
             'app/neighborTable/neighborTable.module.js',
             'app/neighborTable/*.js',
-            'shared/utils/utils.js',
-            'shared/utils/*.js',
-            'shared/volume/volume.module.js',
-            'shared/volume/*.js',
-            'shared/io/io.module.js',
-            'shared/io/*.js',
+            'app/utils/utils.js',
+            'app/utils/*.js',
+            'app/volume/*.js',
+            'app/io/io.module.js',
+            'app/io/*.js',
             'tests/**/**/*.js',
             {pattern: 'tests/mock/*.json', served: true, included: false},
-            {pattern: 'shared/volume/labelGroups.json', served: true, included: false},
+            {pattern: 'app/volume/labelGroups.json', served: true, included: false},
             {pattern: 'tests/mock/childrenStitching/*.json', served: true, included: false}
         ],
 
@@ -39,7 +39,8 @@ module.exports = function (config) {
 
         plugins: [
             'karma-chrome-launcher',
-            'karma-jasmine'
+            'karma-jasmine',
+            'karma-json'
         ],
 
         reporters: ['progress']

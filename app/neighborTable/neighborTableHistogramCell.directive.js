@@ -31,7 +31,6 @@
         }
 
         function link(scope, element, attribute) {
-            console.debug("link function");
             drawHistogram(scope, element);
 
             scope.$watch("values", function (newValue) {
@@ -47,7 +46,6 @@
         }
 
         function drawHistogram(scope, element) {
-            console.debug("draw histogram");
             if (scope.values.length == 0) {
                 return;
             }

@@ -19,7 +19,7 @@
         self.cellCentroids = [];
 
         // Constant configurable values
-        self.maxCellsInFilter = 5;
+        self.maxCellsInFilter = 9;
 
         var service = {
             getAllAvailableChildTypes: getAllAvailableChildTypes,
@@ -626,7 +626,6 @@
                     self.cellChildrenPartners[cellIndex] = orderedPartners;
 
                 }
-
                 volumeOData.request(request).then(parseChildPartners, failure);
             });
         }
