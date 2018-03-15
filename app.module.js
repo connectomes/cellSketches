@@ -33,7 +33,7 @@
         $stateProvider
             .state('route1', {
                 url: "/input",
-                templateUrl: "components/upload/route1.html"
+                templateUrl: "components/main/main.html"
             })
             .state('childrenTable', {
                 url: "/childrenTable",

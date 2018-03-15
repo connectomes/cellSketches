@@ -9,6 +9,8 @@
     /*margin-left: 2px;*/
 /*}*/
 
+
+
 #sidebar {
     margin-left: 10px;
     float: left;
@@ -40,6 +42,10 @@
 .fa:hover {
     color: gray;
     cursor: pointer;
+}
+
+.full-width {
+    width: 100%;
 }
 
 .half-width {
