@@ -25,7 +25,7 @@ module.exports = function (config) {
             'components/volume/*.js',
             'components/io/io.module.js',
             'components/io/*.js',
-            'tests/**/**/*.js',
+            'tests/**/*.js',
             {pattern: 'tests/mock/*.json', served: true, included: false},
             {pattern: 'components/volume/labelGroups.json', served: true, included: false},
             {pattern: 'tests/mock/childrenStitching/*.json', served: true, included: false}
