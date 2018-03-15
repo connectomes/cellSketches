@@ -1,12 +1,12 @@
 {
-  "name": "cellv",
-  "description": "Prototype app for marclab.",
+  "name": "cellSketches",
+  "description": "Marclab connectome visualization",
   "main": "karma.conf.js",
   "authors": [
     "Ethan Kerzner"
   ],
   "license": "MIT",
-  "homepage": "https://github.com/kerzner/cell-sketches",
+  "homepage": "https://github.com/kerzner/cellSketches",
   "private": true,
   "ignore": [
     "**/.*",

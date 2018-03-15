@@ -1,8 +1,8 @@
 {
-  "name": "cellv",
+  "name": "cellSketches",
   "private": true,
   "version": "0.0.0",
-  "description": "A starter project for AngularJS",
+  "description": "Visual summaries of connectomics data.",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/angular/angular-seed.git"
