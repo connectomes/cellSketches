@@ -19,7 +19,8 @@
         self.cellCentroids = [];
 
         // Constant configurable values
-        self.maxCellsInFilter = 9;
+        self.maxCellsInFilter =
+            9;
 
         var service = {
             getAllAvailableChildTypes: getAllAvailableChildTypes,
@@ -515,8 +516,6 @@
                         var childIsTarget = targets.length > 0;
 
                         // This is allowed if the cell is an adherense junction
-
-
                         if (childIsTarget && childIsSource) {
                             if (values[i].TypeID != 85) {
                                 var title = 'Child is both source and target';
@@ -616,16 +615,18 @@
 
                         orderedPartners.push(new utils.CellPartner(neighborIds, childIds, linksBidirectional));
 
-                        resolve({
-                            validIndexes: [cellIndex],
-                            invalidIndexes: []
-                        });
 
                     }
+
+                    resolve({
+                        validIndexes: [cellIndex],
+                        invalidIndexes: []
+                    });
 
                     self.cellChildrenPartners[cellIndex] = orderedPartners;
 
                 }
+
                 volumeOData.request(request).then(parseChildPartners, failure);
             });
         }

@@ -12,6 +12,7 @@
         var self = this;
         self.upper = [];
         self.lower = [];
+        self.hasBoundaries = false;
 
         self.ConversionModes = {
             PERCENT_DIFFERENCE: 0,
@@ -28,7 +29,9 @@
             getLowerBoundsMesh: getLowerBoundsMesh,
             getUpperBounds: getUpperBounds,
             getUpperBoundsMesh: getUpperBoundsMesh,
-            setSearchRadius: setSearchRadius
+            hasBoundaries: hasBoundaries,
+            setSearchRadius: setSearchRadius,
+            reset: reset
         };
 
         service.ConversionModes = self.ConversionModes;
@@ -48,36 +51,43 @@
 
                 for (var i = 0; i < promises.length; ++i) {
 
-                    var locations = promises[i].data.value[0].Locations;
+                    if (promises[i].data && promises[i].data.value.length) {
 
-                    for (var j = 0; j < locations.length; ++j) {
+                        var locations = promises[i].data.value[0].Locations;
 
-                        var currLocation = locations[j];
-                        var location = {
-                            position: new utils.Point3D(currLocation.VolumeY, currLocation.VolumeX, currLocation.Z),
-                            id: locations[j].ID
-                        };
+                        for (var j = 0; j < locations.length; ++j) {
 
-                        if (i == 0) {
-                            self.upper.push(location);
-                        } else if (i == 1) {
-                            self.lower.push(location);
+                            var currLocation = locations[j];
+                            var location = {
+                                position: new utils.Point3D(currLocation.VolumeY, currLocation.VolumeX, currLocation.Z),
+                                id: locations[j].ID
+                            };
+
+                            if (i == 0) {
+                                self.upper.push(location);
+                            } else if (i == 1) {
+                                self.lower.push(location);
+                            }
                         }
                     }
                 }
 
-                var material = new THREE.MeshBasicMaterial({
-                    side: THREE.DoubleSide,
-                    wireframe: true, color: 0xcccccc
-                });
+                if(self.upper.length && self.lower.length) {
+                    self.hasBoundaries = true;
+                    var material = new THREE.MeshBasicMaterial({
+                        side: THREE.DoubleSide,
+                        wireframe: true, color: 0xcccccc
+                    });
 
-                var geometry = createBoundaryGeometry(self.upper);
-                self.upperMesh = new THREE.Mesh(geometry, material);
+                    var geometry = createBoundaryGeometry(self.upper);
+                    self.upperMesh = new THREE.Mesh(geometry, material);
 
-                geometry = createBoundaryGeometry(self.lower);
-                self.lowerMesh = new THREE.Mesh(geometry, material);
+                    geometry = createBoundaryGeometry(self.lower);
+                    self.lowerMesh = new THREE.Mesh(geometry, material);
 
-                deferred.resolve();
+
+                }
+                   deferred.resolve();
             };
 
             volumeOData.requestMulti(requests)
@@ -152,6 +162,10 @@
             }
 
             return geometry;
+        }
+
+        function hasBoundaries() {
+            return self.hasBoundaries;
         }
 
         /**
@@ -258,6 +272,12 @@
 
         function getLowerBoundsMesh() {
             return self.lowerMesh;
+        }
+
+        function reset() {
+            self.upper = [];
+            self.lower = [];
+            self.hasBoundaries = false;
         }
 
         function setSearchRadius(radius) {

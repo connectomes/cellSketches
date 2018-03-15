@@ -8,6 +8,25 @@
     </ol>
 </div>
 <div id="content">
+    <h4>Select volume</h4>
+    <div class="half-width">
+        <ui-select ng-model="model.ui.selectedVolume"
+                   theme="select2"
+                   class="sidebarMultiSelect"
+                   search-enabled="false"
+                   ng-change="updateVolume(model.ui.selectedVolume)">
+
+            <ui-select-match placeholder="Click to select">
+                {{model.ui.selectedVolume}}
+            </ui-select-match>
+
+            <ui-select-choices repeat="id in model.ui.availableVolumes">
+                <div>{{id}}</div>
+            </ui-select-choices>
+        </ui-select>
+    </div>
+    <br>
+
     <h4>Enter Cell Ids</h4>
     <io-text-input></io-text-input>
 

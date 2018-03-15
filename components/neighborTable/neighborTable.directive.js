@@ -42,13 +42,7 @@
          *
          */
         function link(scope, element, attribute) {
-
             var self = {};
-
-            $log.debug('neighborBarChart - link');
-
-            //self.svg = visUtils.createSvg(element[0]);
-            //self.mainGroup = visUtils.createMainGroup(self.svg);
             scope.$on('cellsChanged', cellsChanged);
 
             self.numSmallMultiplesPerRow = 6;
@@ -116,21 +110,8 @@
             scope.broadcastChange();
 
             function cellsChanged(slot, cells, childType, useTargetLabelGroups, useOnlySelectedTargets, selectedTargets, convertToNm, useRadius) {
-
                 scope.model.ui.details.cellId = -1;
                 scope.model.ui.useBarsInTable = scope.model.ui.modes.selectedCountMode.name == "Bars";
-
-                var useBarsInTable = scope.model.ui.useBarsInTable;
-                $log.debug('neighborBarChart - cells changed');
-                $log.debug(' cellIndexes', cells);
-                $log.debug(' childType', childType);
-                $log.debug(' useTargetLabelGroups', useTargetLabelGroups);
-                $log.debug(' useOnlySelectedTargets', useOnlySelectedTargets);
-                $log.debug(' selectedTargets', selectedTargets);
-                $log.debug(' convertToNm', convertToNm);
-                $log.debug(' useRadius', convertToNm);
-                $log.debug(' convertToNm', useRadius);
-                $log.debug(' useBarsInTable', useBarsInTable);
 
                 // Copy to member variables
                 self.cells = cells;
@@ -175,7 +156,6 @@
                     scope.gridApi = gridApi;
                     gridApi.cellNav.on.navigate(scope, onOverviewCellClicked);
                 };
-
 
 
                 scope.overviewGridSettings = {};
@@ -329,7 +309,6 @@
             }
 
             function onOverviewCellClicked(newRowCol, oldRowCol) {
-                console.log("Overview cell clicked", newRowCol);
                 var nameOfColumn = newRowCol.col.colDef.name;
                 var values = newRowCol.row.entity[nameOfColumn].values;
                 onHighlightingCleared(scope);

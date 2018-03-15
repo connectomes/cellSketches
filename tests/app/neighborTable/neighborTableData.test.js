@@ -141,7 +141,7 @@ describe('neighborTableData service test', function () {
 
             //TODO: change this to use correct cell template.
             if (i > 1) {
-                expect(columnDef.cellTemplate == 'neighborTable/neighborTableHistogramCell.directive.html').toBeTruthy();
+                expect(columnDef.cellTemplate == 'components/neighborTable/neighborTableHistogramCell.directive.html').toBeTruthy();
             }
         });
     });
@@ -223,7 +223,6 @@ describe('neighborTableData service test', function () {
                 });
             }
         });
-
     });
 
     it('getTableData - grouping by target label with attribute distance', function () {

@@ -9,7 +9,7 @@
 
     function ExampleController($scope, $q, $log, volumeOData, volumeBounds, volumeLayers, volumeCells, volumeStructures, toastr) {
         var self = this;
-        self.verbose = true;
+        self.verbose = false;
         self.dumpVolumeCells = false;
 
         // $scope.model is shared between different instances of this controller. It gets initialized when the
@@ -52,7 +52,15 @@
                     ],
 
                     selectedMode: {},
-                    exportingSvgs: false
+                    exportingSvgs: false,
+
+                    availableVolumes: [
+                        "http://websvc1.connectomes.utah.edu/RC1/OData/",
+                        "http://websvc1.connectomes.utah.edu/RC2/OData/",
+                        "http://websvc1.connectomes.utah.edu/RPC1/OData/",
+                        "https://webdev.connectomes.utah.edu/RC1Test/OData"
+                    ],
+                    selectedVolume: "http://websvc1.connectomes.utah.edu/RC1/OData/"
                 },
 
                 // all available cells to be displayed
@@ -89,46 +97,16 @@
                 usingRemote: true
             };
 
+
         // Set this to false for loading local json of cell data.
         // $scope.model.usingRemote = false;
-
-        $scope.activate = function () {
-
-            // Allow only one activation
-            if (!$scope.model.isActivated) {
-
-                $scope.model.ui.selectedMode = $scope.model.ui.availableModes[0];
-
-                $scope.model.isActivated = true;
-
-                // TODO: Error handling here.
-                volumeStructures.activate(!$scope.model.usingRemote).then(parseMasterChildTypes);
-            }
-
-            function parseMasterChildTypes() {
-
-                var numChildStructureTypes = volumeStructures.getNumChildStructureTypes();
-
-                for (var i = 0; i < numChildStructureTypes; ++i) {
-                    $scope.model.masterChildTypes.ids.push(volumeStructures.getChildStructureTypeAt(i));
-                    $scope.model.masterChildTypes.names.push(volumeStructures.getChildStructureTypeNameAt(i));
-                }
-
-                if (!$scope.model.usingRemote) {
-                    $scope.loadCells([6115]);
-                }
-            }
-
-        };
+        $scope.model.ui.selectedMode = $scope.model.ui.availableModes[0];
 
         /**
          * @name $scope.broadcastChange
          * @desc tell all of the views listening for 'cellsChanged' that the ui has changed in some way.
          */
         $scope.broadcastChange = function () {
-
-            $log.debug('scope - broadcast change');
-
             var selectedTargets;
             var useOnlySelectedTargets;
 
@@ -238,9 +216,9 @@
          * @name $scope.onExportSvgsClicked
          * @desc Runs the svg export or clean up script. (This is stolen from NY times svg-crowbar.
          */
-        $scope.onExportSvgsClicked = function(exporting) {
+        $scope.onExportSvgsClicked = function (exporting) {
             $scope.model.ui.exportingSvgs = !exporting;
-            if($scope.model.ui.exportingSvgs) {
+            if ($scope.model.ui.exportingSvgs) {
                 SvgExport.export();
             } else {
                 SvgExport.cleanup();
@@ -335,8 +313,6 @@
          */
         $scope.updateAvailableNeighborLabelsFromNames = function (cellIndexes, childTypeNames) {
 
-            $log.debug('scope - updateAvailableNeighborLabelsFromNames', cellIndexes, childTypeNames);
-
             var childTypes = volumeStructures.getChildStructureIdsFromNames(childTypeNames);
 
             return $scope.updateAvailableNeighborLabels(cellIndexes, childTypes);
@@ -353,7 +329,9 @@
          */
         $scope.updateAvailableNeighborLabels = function (cellIndexes, childTypes) {
 
-            $log.debug('scope - updateAvailableNeighborLabels', cellIndexes, childTypes);
+            if (self.verbose) {
+                $log.debug('scope - updateAvailableNeighborLabels', cellIndexes, childTypes);
+            }
 
             var allLabels = [];
 
@@ -391,13 +369,67 @@
 
             }
 
-            $log.debug(' setting all neighbor labels to: ', allLabels);
             $scope.model.ui.neighborLabels = allLabels;
         };
 
-        volumeLayers.activate().then(function () {
-            $scope.activate();
-        });
+        $scope.updateVolume = function (volumeUri) {
+            $scope.model.masterCells = {
+                ids: [],
+                indexes: []
+            };
+
+            $scope.model.masterChildTypes = {
+                ids: [],
+                names: []
+            };
+
+            // cells that were requested but not loaded
+            $scope.model.invalidIds = [];
+
+            // cells and childType are what the user has currently selected
+            $scope.model.cells = {ids: [], indexes: []};
+            $scope.model.childType = [28, 244];
+
+            $scope.model.cellsLoading = false;
+            $scope.model.cellsLoaded = false;
+            $scope.model.cellsLoadError = false;
+            $scope.model.cellsLoadErrorMessage = '';
+            $scope.model.isActivated = false;
+            $scope.$broadcast('reset');
+            volumeCells.reset();
+            volumeStructures.reset();
+            volumeLayers.reset();
+
+            volumeOData.setVolumeUri(volumeUri);
+            volumeLayers.activate().then(function () {
+                activate();
+            });
+        };
+
+        function activate() {
+
+            if (!$scope.model.isActivated) {
+
+                $scope.model.isActivated = true;
+
+                // TODO: Error handling here.
+                volumeStructures.activate(!$scope.model.usingRemote).then(parseMasterChildTypes);
+            }
+
+            function parseMasterChildTypes() {
+
+                var numChildStructureTypes = volumeStructures.getNumChildStructureTypes();
+
+                for (var i = 0; i < numChildStructureTypes; ++i) {
+                    $scope.model.masterChildTypes.ids.push(volumeStructures.getChildStructureTypeAt(i));
+                    $scope.model.masterChildTypes.names.push(volumeStructures.getChildStructureTypeNameAt(i));
+                }
+
+                if (!$scope.model.usingRemote) {
+                    $scope.loadCells([6115]);
+                }
+            }
+        }
 
         // These functions are chained together for async callbacks. The order they get called in:
         // 1. cellsLoadedSuccess -- this updates the scope's masterCells
@@ -556,6 +588,7 @@
             return indexes;
         }
 
+        $scope.updateVolume($scope.model.ui.selectedVolume);
     }
 
 })();

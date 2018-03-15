@@ -10,13 +10,13 @@
     function volumeOData($q, $http, toastr) {
 
         var self = this;
-        //self.serviceUri = "http://webdev.connectomes.utah.edu/RC1Test/OData/";
         self.serviceUri = "http://websvc1.connectomes.utah.edu/RC1/OData/";
 
         var service = {
             request: request,
             requestComplete: requestComplete,
-            requestMulti: requestMulti
+            requestMulti: requestMulti,
+            setVolumeUri: setVolumeUri
         };
 
         return service;
@@ -65,6 +65,10 @@
             }
 
             return $q.all(deferred);
+        }
+
+        function setVolumeUri(uri) {
+            self.serviceUri = uri;
         }
 
     }

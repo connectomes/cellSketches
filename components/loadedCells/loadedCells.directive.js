@@ -21,9 +21,6 @@
         function link(scope, element, attribute) {
             var self = {};
             self.name = 'loadedCells';
-
-            $log.debug(self.name, 'link', scope);
-
             scope.$on('onLoadingCellsStarted', onLoadingCellsStarted);
             scope.$on('onInitialCellsLoaded', onInitialCellsLoaded);
             scope.$on('cellsChanged', cellsChanged);
@@ -37,7 +34,6 @@
             scope.broadcastChange();
 
             function onLoadingCellsStarted(slot, cellIds) {
-                $log.debug(self.name, slot, cellIds, scope.gridLoadedCellsOptions.data);
                 if (scope.gridLoadedCellsOptions.data.length == 0) {
                     scope.gridLoadedCellsOptions.data = loadedCellsData.getInitialData(cellIds);
                 } else {
@@ -47,14 +43,11 @@
             }
 
             function onInitialCellsLoaded(slot, cellIds, labels, invalidCellIds) {
-                $log.debug(self.name, slot, cellIds, labels, invalidCellIds);
                 loadedCellsData.updateDataStatusAndLabels(scope.gridLoadedCellsOptions.data, cellIds, labels, invalidCellIds);
                 loadedCellsData.updateDataRemoveErrors(scope.gridLoadedCellsOptions.data);
             }
 
             function cellsChanged(slot, cells, childType, useTargetLabelGroups, useOnlySelectedTargets, selectedTargets) {
-                $log.debug(self.name, slot, scope);
-
                 var cellIds = scope.model.masterCells.ids;
                 if (scope.gridLoadedCellsOptions.data.length == 0 && cellIds.length > 0) {
                     var data = loadedCellsData.getInitialData(cellIds);

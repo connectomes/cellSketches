@@ -64,13 +64,18 @@
             scope.VerticalAxisModes = [{
                 name: "Depth",
                 value: iplChartData.VerticalAxisModes.DEPTH
-            }, {
-                name: "Normalized depth",
-                value: iplChartData.VerticalAxisModes.NORMALIZED_DEPTH
-            }, {
-                name: "Percent difference",
-                value: iplChartData.VerticalAxisModes.PERCENT_DIFFERENCE
             }];
+
+            if(volumeLayers.hasBoundaries()) {
+                scope.VerticalAxisModes.push({
+                    name: "Normalized depth",
+                    value: iplChartData.VerticalAxisModes.NORMALIZED_DEPTH
+                });
+                scope.VerticalAxisModes.push({
+                    name: "Percent difference",
+                    value: iplChartData.VerticalAxisModes.PERCENT_DIFFERENCE
+                });
+            }
 
             // How will we search for the intersection point with the different boundary layers?
             // Average will do wt. avg

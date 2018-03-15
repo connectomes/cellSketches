@@ -22,11 +22,7 @@
 
             scope.submit = function(input) {
 
-                $log.debug('ioTextInput - submitted: ' + input);
-
                 var results = ioTextParser.parseString(input);
-
-                $log.debug('ioTextInput - parsed results: ', results);
 
                 if (results.success) {
 

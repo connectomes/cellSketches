@@ -13,7 +13,7 @@
         self.structureTypes = [];
         self.childStructureTypeIndexes = [];
         self.labelGroups = {};
-
+        self.isActive = false;
         self.groupNameInClass = 'In Class';
         self.groupNameSelf = 'Self';
 
@@ -37,16 +37,19 @@
             getNumGroups: getNumGroups,
             isLabelInGroup: isLabelInGroup,
             loadStructureTypes: loadStructureTypes,
-            loadCellLabelGroups: loadCellLabelGroups
+            loadCellLabelGroups: loadCellLabelGroups,
+            reset: reset
         };
 
         return service;
 
         function activate(usingLocal) {
-            var promises = [];
-            promises.push(loadCellLabelGroups());
-            promises.push(loadStructureTypes(usingLocal));
-            return $q.all(promises);
+            if (!self.isActive) {
+                var promises = [];
+                promises.push(loadCellLabelGroups());
+                promises.push(loadStructureTypes(usingLocal));
+                return $q.all(promises);
+            }
         }
 
         function loadStructureTypes(usingLocal) {
@@ -80,11 +83,11 @@
                         self.childStructureTypeIndexes.push(i);
                     }
                 }
-
+                self.isActive = true;
                 deferred.resolve();
             }
 
-            if(!usingLocal) {
+            if (!usingLocal) {
                 volumeOData.request(request).then(parseResults);
             } else {
                 $http.get('../tests/mock/childStructureTypes.json').then(parseResults);
@@ -118,9 +121,9 @@
 
         function getChildStructureIdsFromNames(names) {
             var ids = [];
-            names.forEach(function(name) {
-                for(var i=0; i<getNumChildStructureTypes(); ++i) {
-                    if(getChildStructureTypeNameAt(i) == name) {
+            names.forEach(function (name) {
+                for (var i = 0; i < getNumChildStructureTypes(); ++i) {
+                    if (getChildStructureTypeNameAt(i) == name) {
                         ids.push(getChildStructureTypeAt(i));
                     }
                 }
@@ -217,6 +220,15 @@
         function isLabelInGroup(label, groupIndex) {
             var labels = self.labelGroups[groupIndex].labels;
             return labels.indexOf(label) != -1;
+        }
+
+        function reset() {
+            self.isActive = false;
+            self.structureTypes = [];
+            self.childStructureTypeIndexes = [];
+            self.labelGroups = {};
+            self.groupNameInClass = 'In Class';
+            self.groupNameSelf = 'Self';
         }
     }
 }());
