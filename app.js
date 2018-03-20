@@ -55,12 +55,12 @@
                     exportingSvgs: false,
 
                     availableVolumes: [
-                        "http://websvc1.connectomes.utah.edu/RC1/OData/",
-                        "http://websvc1.connectomes.utah.edu/RC2/OData/",
-                        "http://websvc1.connectomes.utah.edu/RPC1/OData/",
+                        "https://websvc1.connectomes.utah.edu/RC1/OData/",
+                        "https://websvc1.connectomes.utah.edu/RC2/OData/",
+                        "https://websvc1.connectomes.utah.edu/RPC1/OData/",
                         "https://webdev.connectomes.utah.edu/RC1Test/OData"
                     ],
-                    selectedVolume: "http://websvc1.connectomes.utah.edu/RC1/OData/"
+                    selectedVolume: "https://websvc1.connectomes.utah.edu/RC1/OData/"
                 },
 
                 // all available cells to be displayed
