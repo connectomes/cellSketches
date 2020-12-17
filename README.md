@@ -1,6 +1,9 @@
+[![DOI](https://zenodo.org/badge/39520701.svg)](https://zenodo.org/badge/latestdoi/39520701)
+
+
 # Cell Sketches
 
-A prototype for visual summaries of connectomics data. I created this app for three reasons: 1) to become familiar with 
+A prototype for visual summaries of connectomics data by Ethan Kerzner. I created this app for three reasons: 1) to become familiar with 
 marclab data; 2) to learn AngularJS development; and 3) to create something that is potentially useful for 
 neuroscientists.
 

@@ -61,7 +61,7 @@
                         "http://websvc1.connectomes.utah.edu/RPC2/OData/",
                         "http://webdev.connectomes.utah.edu/RC1Test/OData"
                     ],
-                    selectedVolume: "http://websvc1.connectomes.utah.edu/RC1/OData/"
+                    selectedVolume: "https://websvc1.connectomes.utah.edu/RC1/OData/"
                 },
 
                 // all available cells to be displayed
