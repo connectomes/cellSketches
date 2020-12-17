@@ -19,7 +19,7 @@ Additional volumes can be supported by editing [this list](https://github.com/ke
 
 This application uses bower and npm to manage dependencies. General instructions for development:
 
-1. Install npm and bower globally 
+1. Install npm and bower globally. I've tested this with npm v. 5.6.0 and bower v. 1.8.4.
 1. Clone this repository
 1. Install development dependencies `npm install` followed by `bower install`
 1. Start the development server with `npm start` 
