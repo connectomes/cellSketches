@@ -58,7 +58,8 @@
                         "http://websvc1.connectomes.utah.edu/RC1/OData/",
                         "http://websvc1.connectomes.utah.edu/RC2/OData/",
                         "http://websvc1.connectomes.utah.edu/RPC1/OData/",
-                        "https://webdev.connectomes.utah.edu/RC1Test/OData"
+                        "http://websvc1.connectomes.utah.edu/RPC2/OData/",
+                        "http://webdev.connectomes.utah.edu/RC1Test/OData"
                     ],
                     selectedVolume: "http://websvc1.connectomes.utah.edu/RC1/OData/"
                 },
