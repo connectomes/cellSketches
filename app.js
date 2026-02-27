@@ -51,17 +51,18 @@
                         }
                     ],
 
+
                     selectedMode: {},
                     exportingSvgs: false,
 
-                    availableVolumes: [
+                    availableVolumes: [ 
                         "http://websvc.codepharm.net/RC1/OData/",
                         "http://websvc.codepharm.net/RC2/OData/",
                         "http://websvc.codepharm.net/RPC1/OData/",
                         "http://websvc.codepharm.net/RPC2/OData/",
                         "https://webdev.codepharm.net/RC1Test/OData"
                     ],
-                    selectedVolume: "http://websvc.codepharm.net/RC1/OData/"
+                    selectedVolume: "http://websvc.codepharm.net/RC1/OData/" 
                 },
 
                 // all available cells to be displayed
