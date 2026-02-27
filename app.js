@@ -62,7 +62,7 @@
                         "https://websvc.codepharm.net/RPC2/OData/",
                         "https://websvc.codepharm.net/RC1Test/OData"
                     ],
-                    selectedVolume: "https://websvc1.connectomes.utah.edu/RC1/OData/"
+                    selectedVolume: "https://websvc.codepharm.net/RC1/OData/"
                 },
 
                 // all available cells to be displayed
