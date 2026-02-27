@@ -56,11 +56,11 @@
                     exportingSvgs: false,
 
                     availableVolumes: [
-                        "https://websvc1.connectomes.utah.edu/RC1/OData/",
-                        "https://websvc1.connectomes.utah.edu/RC2/OData/",
-                        "https://websvc1.connectomes.utah.edu/RPC1/OData/",
-                        "https://websvc1.connectomes.utah.edu/RPC2/OData/",
-                        "https://webdev.connectomes.utah.edu/RC1Test/OData"
+                        "https://websvc.codepharm.net/RC1/OData/",
+                        "https://websvc.codepharm.net/RC2/OData/",
+                        "https://websvc.codepharm.net/RPC1/OData/",
+                        "https://websvc.codepharm.net/RPC2/OData/",
+                        "https://websvc.codepharm.net/RC1Test/OData"
                     ],
                     selectedVolume: "https://websvc1.connectomes.utah.edu/RC1/OData/"
                 },
