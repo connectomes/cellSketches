@@ -11,7 +11,7 @@ Although I created it as a technology probe, this app has proved useful for anal
 
 ## Data
 
-This app pulls connectome data from the [Viking OData Web Service](http://connectomes.utah.edu/export/odata.html). 
+This app pulls connectome data from the [Viking OData Web Service](http://connectomes.pitt.edu/export/odata.html). 
 
 Additional volumes can be supported by editing [this list](https://github.com/kerzner/cellSketches/blob/4318ec4fd0eae5bd366879d0904158da4b693468/app.js#L57-L64).
 
